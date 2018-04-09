@@ -1,0 +1,6 @@
+.idea/
+node_modules/
+web-app-deploy/static/
+web-app-deploy/private/
+web-app-deploy/google/
+web-app-deploy/order-qr-codes/*.png

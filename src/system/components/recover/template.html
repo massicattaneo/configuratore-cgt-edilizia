@@ -1,0 +1,18 @@
+<form #wrapper class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-grid">
+    <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+        {{recover.title}}
+    </div>
+    <div class="mdl-list">
+        <div class="mdl-list__item">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="email" id="email">
+                <label class="mdl-textfield__label" for="email">{{recover.email}}</label>
+            </div>
+        </div>
+    </div>
+    <input #recover type="button"
+           value="{{recover.button}}"
+           onclick="this.form.recover()"
+           class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" />
+
+</form>

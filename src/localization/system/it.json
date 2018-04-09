@@ -1,0 +1,118 @@
+{
+  "documentTitle": "CONFIGURATORE CGT EDILIZIA",
+  "documentWindowTitle": "{0} - CGT EDILIZIA",
+  "errors": {
+    "wrongEmail": "L'indirizzo email non corrisponde a nessuna utenza.",
+    "generic": "C'e' stato un error imprevisto. Riprova fra qualche secondo.",
+    "wrongPassword": "La password non e' corretta.",
+    "inactiveUser": "Per favore attendi la email di conferma che ti arrivera' quando la tua utenza sara' stata attivata",
+    "missingEmail": "Aggiungi l'indirizzo email",
+    "missingName": "Aggiungi il nome",
+    "missingTel": "Aggiungi il numero di telefono",
+    "missingPassword": "Aggiungi la password",
+    "missingOrganizationType": "Seleziona il tipo di organizzazione a cui appartieni",
+    "missingOrganizationName": "Inserisci il nome dle tuo concessionario",
+    "malformedEmail": "L'indirizzo email non é in un formato valido",
+    "missingUser": "L'indirizzo email non corrisponde a nessuna utenza.",
+    "existingUser": "L'indirizzo email appertiene gia' a una utenza registrata.",
+    "camera-forbidden": "Il tuo dispositivo non permette l'accesso alla fotocamera."
+  },
+  "urls": {
+    "homePage": {
+      "href": "/it",
+      "title": "HOME",
+      "menu": "HOME"
+    },
+    "vehicles": {
+      "href": "/it/configuratore-macchine",
+      "title": "MACCHINE",
+      "menu": "MACCHINE"
+    },
+    "equipments": {
+      "href": "/it/configuratore-attrezzature",
+      "title": "ATTREZZATURE",
+      "menu": "ATTREZZATURE"
+    },
+    "budgets": {
+      "href": "/it/preventivi",
+      "title": "PREVENTIVI",
+      "menu": "PREVENTIVI"
+    },
+    "orders": {
+      "href": "/it/ordini",
+      "title": "ORDINI",
+      "menu": "ORDINI"
+    },
+    "login": {
+      "href": "/it/entra",
+      "title": "ENTRA",
+      "menu": "ENTRA"
+    },
+    "register": {
+      "href": "/it/registrati",
+      "title": "REGISTRATI",
+      "menu": "REGISTRATI"
+    },
+    "activatedUser": {
+      "href": "/it/utenza-attiva",
+      "title": "UTENZA ATTIVATA",
+      "menu": ""
+    },
+    "recover": {
+      "href": "/it/recupera-password",
+      "title": "RECUPERA PASSWORD",
+      "menu": ""
+    },
+    "reset": {
+      "href": "/it/cambia-password",
+      "title": "CAMBIA PASSWORD",
+      "menu": ""
+    }
+  },
+  "menuHeader": {
+    "userNotLogged": "UTENTE...",
+    "logout": "ESCI..."
+  },
+  "register": {
+    "typeTitle": "NOME ORGANIZZAZIONE:",
+    "types": [
+      {"label": "CGT EDILIZIA", "value": 1},
+      {"label": "CGT", "value": 2},
+      {"label": "CONCESSIONARIO", "value": 3}
+    ],
+    "organization": "NOME ORGANIZZAZIONE",
+    "infoTitle": "I TUOI DATI:",
+    "name": "NOME",
+    "email": "EMAIL",
+    "tel": "TELEFONO",
+    "password": "PASSWORD",
+    "button": "CREA LA NUOVA UTENZA",
+    "done": "<h4>Grazie per essersi registrato.</h4><p>A breve un nostro incaricato controllera' i dati da te inseriti e attivera'la tua utenza.</p><p>Riceverai una mail di conferma quando potrai iniziare a usare la tua utenza.</p>",
+    "active": "<h4>L'UTENZA É ADESSO ATTIVA.</h4><p>UNA EMAIL DI CONFERMA É STATA INVIATA AL RICHIDENTE.</p>"
+  },
+  "login": {
+    "title": "ENTRA NEL CONFIGURATORE CGT EDILIZIA",
+    "email": "EMAIL",
+    "password": "PASSWORD",
+    "recover": "Ho dimenticato la mia password ...",
+    "button": "ENTRA"
+  },
+  "recover": {
+    "title": "RECUPERA LA TUA PASSWORD DI ACCESSO",
+    "email": "EMAIL",
+    "button": "RECUPERA"
+  },
+  "recoverDone": {
+    "title": "CONTROLLA LA TUA EMAIL",
+    "text": "Abbiamo spedito una email con le istruzioni per cambiare la tua password di accesso."
+  },
+  "reset": {
+    "title": "CAMBIA LA TUA PASSWORD",
+    "password": "PASSWORD",
+    "button": "CAMBIA"
+  },
+  "resetDone": {
+    "title": "PASSWORD CAMBIATA",
+    "text": "Adesso puoi entrare nuovamente nella tua utenza. Fai <a href='{{urls.login.href}}' onclick='window.navigate(this)'>click qui</a>."
+  }
+}

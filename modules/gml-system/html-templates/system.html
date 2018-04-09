@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>window.DOM_LOADING = Date.now();</script>
+    <meta charset="UTF-8">
+    <title>System Example</title>
+</head>
+<body>
+<script>
+    Pandora.System.setDocumentDomain();
+    (function () {
+        document.addEventListener('game', function (data) {
+            const statements = {myInjectedStatement: () => {}}; //statements are instructions/states
+            const gos = { spinButton: {} }; //gos stands for GAME OBJECTS
+            const thread = data.detail.start({ statements, gos });
+
+            thread.execute(function myDirectStatement({ system, gos, thread, wait, Queue }) {
+                console.log(this.prevStatement); // ''
+                console.log(this.actualStatement); // 'myDirectStatement'
+                thread.execute('myInjectedStatement');
+                console.log(this.prevStatement); // 'myDirectStatement'
+                console.log(this.actualStatement); // 'myInjectedStatement'
+                this.queue = Queue([
+                    () => wait.promise((res) => {console.log('1'); res()}),
+                    () => wait.time(2000),
+                    () => console.log('2')
+                ])
+            });
+
+            thread.execute(function playQueue() {
+                console.log(this.prevStatement); // 'myInjectedStatement'
+                console.log(this.actualStatement); // 'playQueue'
+                this.queue.play().then(() => {
+                    console.log(this.queue);
+                });
+            })
+        });
+    })();
+
+    (function () {
+        const config = {
+            gameId: '',
+            gameType: '',
+            gameComponent: '',
+            statsManager: {
+                scriptPath: 'assets/webtrekk-plugins/webtrekk_v4.min.js',
+                info: {
+                    productGameType: '',
+                    productName: '',
+                    subProductGameType: '',
+                    backOfficeProductId: '',
+                    dependencies: '',
+                    gameComponent: ''
+                }
+            }
+        };
+        const system = Pandora.System({
+            ua: navigator.userAgent,
+            config
+        });
+        system.status(system.STATUS.READY, { DOM_LOADING: window.DOM_LOADING });
+        system.launchApp('game');
+    })();
+
+</script>
+</body>
+</html>

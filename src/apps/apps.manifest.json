@@ -1,0 +1,22 @@
+[
+  { "color":"#ad119e", "showCartIcon": true, "icon": "flaticon-treatments", "name": "treatments", "url": "/treatments.bundle.js", "stage": ["apps", "treatments"], "type": "application", "desktop": true },
+  { "color":"#000000", "showCartIcon": true, "icon": "flaticon-scissors", "name": "bonusCards", "url": "/bonusCards.bundle.js", "stage": ["apps", "bonusCards"], "type": "application", "desktop": true },
+  { "color":"#2c6310", "showCartIcon": false, "icon": "flaticon-light-bulb" , "name": "promotions", "url": "/promotions.bundle.js", "stage": ["apps", "promotions"], "type": "application", "desktop": true  },
+  { "color":"#651d1d", "showCartIcon": false, "icon": "flaticon-calendar", "name": "bookings", "url": "/bookings.bundle.js", "stage": ["apps", "bookings"], "type": "application", "desktop": true },
+  { "color":"#000000", "showCartIcon": true, "icon": "flaticon-shopping-bag", "name": "products", "url": "/products.bundle.js", "stage": ["apps", "products"], "type": "application", "desktop": false },
+  { "color":"#059e8c", "showCartIcon": false, "icon": "flaticon-champagne" , "name": "beautyparties", "url": "/beautyparties.bundle.js", "stage": ["apps", "beautyparties"], "type": "application", "desktop": true },
+  { "color":"#ff0000", "showCartIcon": false, "icon": "flaticon-fruit" , "name": "beautycorner", "url": "/beautycorner.bundle.js", "stage": ["apps", "beautycorner"], "type": "application", "desktop": true  },
+  { "color":"#20275f", "showCartIcon": false, "icon": "flaticon-fruit-1" , "name": "inandoutgo", "url": "/inandoutgo.bundle.js", "stage": ["apps", "inandoutgo"], "type": "application", "desktop": true  },
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-communications" , "name": "news", "url": "/news.bundle.js", "stage": ["apps", "news"], "type": "application", "desktop": true  },
+  { "color":"#501c4e", "showCartIcon": false, "icon": "flaticon-photo" , "name": "photos", "url": "/photos.bundle.js", "stage": ["apps", "photos"], "type": "application", "desktop": true },
+  { "color":"#501c4e", "showCartIcon": false, "icon": "flaticon-woman-eye" , "name": "photoMeasure", "url": "/photoMeasure.bundle.js", "stage": ["apps", "photoMeasure"], "type": "application", "desktop": true },
+  { "color":"#009dff", "showCartIcon": false, "icon": "flaticon-people" , "name": "team", "url": "/team.bundle.js", "stage": ["apps", "team"], "type": "application", "desktop": true },
+  { "color":"#5c72c7", "showCartIcon": false, "icon": "flaticon-circular-clock-tool" , "name": "hours", "url": "/hours.bundle.js", "stage": ["apps", "hours"], "type": "application", "desktop": true },
+  { "color":"#7b0000", "showCartIcon": false, "icon": "flaticon-signs" , "name": "location", "url": "/location.bundle.js", "stage": ["apps", "location"], "type": "application", "desktop": true },
+  { "color":"#b77100", "showCartIcon": false, "icon": "flaticon-phone-call", "name": "callUs", "url": "/callUs.bundle.js", "stage": ["apps", "callUs"], "type": "application", "desktop": true },
+  { "color":"#717171", "showCartIcon": false, "icon": "flaticon-chat" , "name": "reviews", "url": "/reviews.bundle.js", "stage": ["apps", "reviews"], "type": "application", "desktop": true },
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-question" , "name": "questions", "url": "/questions.bundle.js", "stage": ["apps", "questions"], "type": "application", "desktop": true },
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-antenna" , "name": "press", "url": "/press.bundle.js", "stage": ["apps", "press"], "type": "application", "desktop": true },
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-profile" , "name": "login", "url": "/login.bundle.js", "stage": ["apps", "login"], "type": "application", "desktop": false },
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-shopping-basket" , "name": "login", "url": "/cart.bundle.js", "stage": ["apps", "cart"], "type": "application", "desktop": false }
+]

@@ -1,0 +1,31 @@
+<form #wrapper class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-typography--text-center">
+    <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+        {{login.title}}
+    </div>
+    <div class="mdl-list">
+        <div class="mdl-list__item">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="email" id="email">
+                <label class="mdl-textfield__label" for="email">{{login.email}}</label>
+            </div>
+        </div>
+        <div class="mdl-list__item">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="password" id="password">
+                <label class="mdl-textfield__label" for="password">{{login.password}}</label>
+            </div>
+        </div>
+        <div class="mdl-list__item">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <a href="{{urls.recover.href}}" onclick="window.navigate(this)">
+                    {{login.recover}}
+                </a>
+            </div>
+        </div>
+    </div>
+    <input #login type="button"
+           value="{{login.button}}"
+           onclick="this.form.login()"
+           class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" />
+
+</form>

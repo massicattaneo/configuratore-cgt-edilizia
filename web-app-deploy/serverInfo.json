@@ -1,0 +1,17 @@
+{
+  "host": "http://inandoutbelleza.eu-4.evennode.com",
+  "confirmRegistrationUrl": "/api/login/confirm",
+  "registerUrl": "/api/login/register",
+  "loginUrl": "/api/login/login",
+  "logoutUrl": "/api/login/logout",
+  "recoverUrl": "/api/login/recover",
+  "resetUrl": "/api/login/reset",
+  "deleteAccountUrl": "/api/login/delete",
+  "logStatusUrl": "/api/login/status",
+  "primaryColor": "#ae0e0f",
+  "secondaryColor": "#ffce12",
+  "grayColor": "#757575",
+  "urls": {
+    "resetUrl": "/es/cambia-password"
+  }
+}

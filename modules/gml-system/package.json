@@ -1,0 +1,9 @@
+{
+  "name": "gml-system-better",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {
+    "webpack": "^3.5.5",
+    "html-webpack-plugin": "^2.30.1"
+  }
+}

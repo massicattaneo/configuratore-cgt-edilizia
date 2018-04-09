@@ -1,0 +1,9 @@
+{
+  "name": "gml-html",
+  "version": "1.0.0",
+  "description": "Game Modeling Language",
+  "main": "index.js",
+  "private": true,
+  "author": "massicattaneo",
+  "license": "UNLICENSED"
+}

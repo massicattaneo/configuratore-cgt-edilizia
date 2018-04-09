@@ -1,0 +1,88 @@
+<form #wrapper class="mdl-grid cgt-content">
+    <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-cell--12-col-tablet">
+        <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            {{register.typeTitle}}
+        </div>
+
+        <div class="mdl-list">
+            <div class="mdl-list__item">
+                <label class="mdl-list__item-primary-content" for="list-option-0">
+                    <i class="material-icons mdl-list__item-avatar">person</i>
+                    {{register.types.0.label}}
+                </label>
+                <span class="mdl-list__item-secondary-action">
+                    <input type="radio" id="list-option-0" class="mdl-radio__button"
+                           name="type" value="{{register.types.0.value}}"
+                           onclick="this.form.changeOrg()"/>
+                </span>
+            </div>
+            <div class="mdl-list__item">
+                <label class="mdl-list__item-primary-content" for="list-option-1">
+                    <i class="material-icons mdl-list__item-avatar">person</i>
+                    {{register.types.1.label}}
+                </label>
+                <span class="mdl-list__item-secondary-action">
+                    <input type="radio" id="list-option-1" class="mdl-radio__button"
+                           name="type" value="{{register.types.1.value}}"
+                           onclick="this.form.changeOrg()"/>
+                </span>
+            </div>
+            <div class="mdl-list__item">
+                <label class="mdl-list__item-primary-content" for="list-option-2">
+                    <i class="material-icons mdl-list__item-avatar">person</i>
+                    {{register.types.2.label}}
+                </label>
+                <span class="mdl-list__item-secondary-action">
+                    <input type="radio" id="list-option-2" class="mdl-radio__button"
+                           name="type" value="{{register.types.2.value}}"
+                           onclick="this.form.changeOrg()"/>
+                </span>
+            </div>
+            <div #organization class="mdl-list__item">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="organization">
+                    <label class="mdl-textfield__label" for="name">{{register.organization}}</label>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--6-col mdl-cell--12-col-tablet">
+        <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            {{register.infoTitle}}
+        </div>
+        <div class="mdl-list">
+            <div class="mdl-list__item">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input #name class="mdl-textfield__input" type="text" id="name">
+                    <label class="mdl-textfield__label" for="name">{{register.name}}</label>
+                </div>
+            </div>
+            <div class="mdl-list__item">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input #email class="mdl-textfield__input" type="email" id="email">
+                    <label class="mdl-textfield__label" for="email">{{register.email}}</label>
+                </div>
+            </div>
+            <div class="mdl-list__item">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input #tel class="mdl-textfield__input" type="text" id="tel">
+                    <label class="mdl-textfield__label" for="tel">{{register.tel}}</label>
+                </div>
+            </div>
+            <div class="mdl-list__item">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input #password class="mdl-textfield__input" type="password" id="password">
+                    <label class="mdl-textfield__label" for="password">{{register.password}}</label>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <input #register type="button"
+           value="{{register.button}}"
+            onclick="this.form.register()"
+            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" />
+
+
+</form>

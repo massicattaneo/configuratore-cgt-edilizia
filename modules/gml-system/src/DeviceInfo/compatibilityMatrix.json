@@ -1,0 +1,74 @@
+{
+  "desktop": {
+    "osx": {
+      "version": -1,
+      "browsers": {
+        "chrome": 40,
+        "ie": 11,
+        "safari": 5,
+        "firefox": 36
+      }
+    },
+    "windows": {
+      "version": -1,
+      "browsers": {
+        "chrome": 40,
+        "ie": 11,
+        "firefox": 36
+      }
+    },
+    "linux": {
+      "version": -1,
+      "browsers": {
+        "chrome": 40,
+        "firefox": 36
+      }
+    },
+    "unknown": {
+      "version": -1,
+      "browsers": {
+        "chrome": 40,
+        "firefox": 36
+      }
+    }
+  },
+  "mobile": {
+    "ios": {
+      "version": 7.1,
+      "browsers": {
+        "safari": 7,
+        "chrome": 42,
+        "uc": 9.3,
+        "uchd": 3.4
+      }
+    },
+    "android": {
+      "version": 4.1,
+      "browsers": {
+        "chrome": 42,
+        "uc": 9.7,
+        "uchd": 3.4,
+        "embedded": 1
+      }
+    }
+  },
+  "tablet": {
+    "ios": {
+      "version": 7.1,
+      "browsers": {
+        "safari": 7,
+        "chrome": 42,
+        "uchd": 2.4
+      }
+    },
+    "android": {
+      "version": 4.1,
+      "browsers": {
+        "chrome": 42,
+        "uc": 9.7,
+        "uchd": 3.4,
+        "embedded": 1
+      }
+    }
+  }
+}

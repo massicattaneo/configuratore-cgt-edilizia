@@ -1,0 +1,31 @@
+{
+  "title": "Pandora-Modules",
+  "tags": {
+    "allowUnknownTags": true
+  },
+  "source": {
+    "includePattern": ".+\\.js(doc|x)?$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "plugins": [
+    "plugins/markdown",
+    "node_modules/jsdoc-babel"
+  ],
+  "templates": {
+    "default": {
+      "staticFiles": {
+        "include": [
+          "./modules/gml-system/tutorials"
+        ]
+      }
+    }
+  },
+  "opts": {
+    "access": "all",
+    "destination": "./modules/gml-system/documentation/",
+    "package": "./modules/gml-system/package.json",
+    "readme": "./modules/gml-system/README.md",
+    "tutorials": "./modules/gml-system/tutorials/",
+    "recurse": true
+  }
+}

@@ -1,0 +1,30 @@
+<header #wrapper class="cgt-drawer-header">
+    <img src="/assets/images/cgt.png" class="cgt-avatar">
+    <form #form class="cgt-avatar-dropdown">
+        <span #email></span>
+        <div class="mdl-layout-spacer"></div>
+        <button type="button" id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+            <i class="material-icons" role="presentation">arrow_drop_down</i>
+        </button>
+        <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
+            <li #logout class="mdl-menu__item">
+                <output class="mdl-color-text--blue-grey-400"
+                        style="display: block;" onclick="this.form.logout()">
+                    <i style="" class="material-icons cgt-menu-item-icon">exit_to_app</i>{{menuHeader.logout}}
+                </output>
+            </li>
+            <li #login class="mdl-menu__item">
+                <a class="mdl-color-text--blue-grey-400"
+                        style="display: block;" href="{{urls.login.href}}" onclick="window.navigate(this)">
+                    <i style="" class="material-icons cgt-menu-item-icon">account_circle</i>{{urls.login.menu}}
+                </a>
+            </li>
+            <li #register class="mdl-menu__item">
+                <a class="mdl-color-text--blue-grey-400"
+                        style="display: block;" href="{{urls.register.href}}" onclick="window.navigate(this)">
+                    <i style="" class="material-icons cgt-menu-item-icon">add_circle</i>{{urls.register.menu}}
+                </a>
+            </li>
+        </ul>
+    </form>
+</header>

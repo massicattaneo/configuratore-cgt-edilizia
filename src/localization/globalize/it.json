@@ -1,0 +1,23 @@
+{
+  "day_1": "Lunes",
+  "day_2": "Martes",
+  "day_3": "Miércoles",
+  "day_4": "Jueves",
+  "day_5": "Viernes",
+  "day_6": "Sabado",
+  "day_0": "Domingo",
+  "day_today":"hoy",
+  "day_tomorrow":"mañana",
+  "month_0": "enero",
+  "month_1": "februero",
+  "month_2": "marzo",
+  "month_3": "abril",
+  "month_4": "mayo",
+  "month_5": "junio",
+  "month_6": "julio",
+  "month_7": "agosto",
+  "month_8": "septiembre",
+  "month_9": "octubre",
+  "month_10": "noviembre",
+  "month_11": "diciembre"
+}
