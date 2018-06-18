@@ -90,17 +90,24 @@ export default async function ({ locale, system, thread }) {
             };
 
             form.updateStore = function (keys, value) {
-                const split = keys.split('.');
-                const k = split.splice(0, 1).reduce((s, i) => s[i], store);
-                k[split[split.length - 1]] = value;
-                updateValues();
+
             };
 
             form.save = async function (table, id) {
-                const res = await RetryRequest('/api/rest/vehiclebudgets', { headers: { 'Content-Type': 'application/json' } })
-                    .post(JSON.stringify(store));
-                // system.store.vehiclebudgets.push(JSON.parse(res.responseText));
-            }
+                system.store.loading = true;
+                const mTable = table === 'vehiclebudgets' ? 'vehicleorders' : 'equipmentorders';
+                const body = Object.assign({ budgetId: id }, store);
+                const res = await RetryRequest(`/api/rest/${mTable}`, { headers: { 'Content-Type': 'application/json' } })
+                    .post(JSON.stringify(body));
+                const budgetRes = await RetryRequest(`/api/rest/${table}/${id}`, { headers: { 'Content-Type': 'application/json' } })
+                    .send('PUT', JSON.stringify({ ordered: true }));
+                const b = system.store[table].find(g => g._id === id);
+                system.store[table].splice(system.store[table].indexOf(b), 1);
+                system.store[table].push(JSON.parse(budgetRes.responseText));
+                system.store[mTable].push(JSON.parse(res.responseText));
+                system.store.loading = false;
+                system.navigateTo(locale.get('urls.orders.href'))
+            };
 
         }
         if (subView && subView.get('files')) {

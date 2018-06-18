@@ -9,10 +9,20 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
         async function (req, res) {
             const userId = req.session.userId;
             const { email, userAuth } = await mongo.getUser({ _id: new ObjectId(userId) });
-            const vehiclebudgets = await mongo.rest.get('vehiclebudgets', `userId=${userId}`)  || [];
+            const vehiclebudgets = await mongo.rest.get('vehiclebudgets', `userId=${userId}`) || [];
             const equipmentbudgets = await mongo.rest.get('equipmentbudgets', `userId=${userId}`) || [];
+            const vehicleorders = await mongo.rest.get('vehicleorders', `userId=${userId}`) || [];
+            const equipmentorders = await mongo.rest.get('equipmentorders', `userId=${userId}`) || [];
             const data = {};
-            Object.assign(data, { logged: true, userAuth, email, vehiclebudgets: vehiclebudgets, equipmentbudgets: equipmentbudgets });
+            Object.assign(data, {
+                logged: true,
+                userAuth,
+                email,
+                vehiclebudgets: vehiclebudgets,
+                equipmentbudgets: equipmentbudgets,
+                vehicleorders: vehicleorders,
+                equipmentorders: equipmentorders
+            });
             res.send(data);
         });
 
@@ -42,7 +52,7 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
             .catch(function (err) {
                 res.status(500);
                 res.send(err.message);
-            })
+            });
     });
 
     app.post(resetUrl, function (req, res) {
@@ -53,7 +63,7 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
             .catch(function (err) {
                 res.status(500);
                 res.send(err.message);
-            })
+            });
     });
 
     app.post(registerUrl,
@@ -83,7 +93,7 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
                 .catch(err => {
                     res.status(500);
                     res.send(err.message);
-                })
+                });
         });
 
     app.post(logoutUrl,
@@ -121,7 +131,7 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
                 }).catch(function (err) {
                     res.status(500);
                     res.send(err.message);
-                })
+                });
             }
         });
 };

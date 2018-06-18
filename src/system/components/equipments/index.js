@@ -8,7 +8,6 @@ import { createModal } from '../../utils';
 import selectModelTpl from './selectModel.html';
 import modelsTpl from './models.html';
 import { RetryRequest } from '../../../../modules/gml-http-request';
-import { calculateTotal } from '../../../../web-app-deploy/shared';
 
 function sDisplay(id) {
     return id ? 'display: block;' : 'display: none;';
@@ -27,8 +26,6 @@ const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+")
 export default async function ({ system, locale }) {
     let { familys, models, versions, equipements } = system.db;
 
-    console.log(equipements.filter(i => i.image))
-
     const steps = ['equipements', 'summarys', 'clients'];
     const store = rx.create({
         equipment: system.getStorage('equipement').equipment || [],
@@ -44,7 +41,12 @@ export default async function ({ system, locale }) {
         address: '',
         email: '',
         pa: ''
-    }, system.getStorage('vehicle').client);
+    }, system.getStorage('equipement').client);
+    let summary = Object.assign({
+        payment: 'da concordare',
+        availability: 'da definire',
+        validity: '30'
+    }, system.getStorage('equipement').summary);
 
     const view = HtmlView(template, style, store);
     const templates = {
@@ -118,7 +120,7 @@ export default async function ({ system, locale }) {
         view.style('');
         const arg1 = Object.assign({}, arguments[0], { equipementFamilys, builders });
         system.setStorage({
-            equipement: Object.assign({ offeredPrices, client }, arguments[0])
+            equipement: Object.assign({ offeredPrices, client, summary }, arguments[0])
         });
         const itm = equipements
             .filter(() => filters.length !== 0)
@@ -144,7 +146,7 @@ export default async function ({ system, locale }) {
             return e;
         });
         const summaryTitle = system.toCurrency(summaryItems.reduce((tot, i) => tot + Number(i.offeredPrice || i.priceReal), 0));
-        updateSummarys([{ id: 0, items: summaryItems }], true, step, summaryTitle);
+        updateSummarys([{ id: 0, summary, items: summaryItems }], true, step, summaryTitle);
         updateClients([{ id: 0, client, budgetId: id, on: sDisplay(id), off: sDisplay(!id) }], true, step);
         location.href = `#${step}`;
         setTimeout(checkPrices, 500);
@@ -154,6 +156,11 @@ export default async function ({ system, locale }) {
     function reset() {
         offeredPrices.length = 0;
         client = { name: '', address: '', email: '', pa: '' };
+        summary = {
+            payment: 'da concordare',
+            availability: 'da definire',
+            validity: '30'
+        };
         store.equipment.splice(0, store.equipment.length);
         store.filters.splice(0, store.filters.length);
         store.id = '';
@@ -214,20 +221,26 @@ export default async function ({ system, locale }) {
             offeredPrices.push({ id, value });
         }
         checkPrices();
-        const temp = system.getStorage('vehicle');
+        const temp = system.getStorage('equipement');
         system.setStorage({ equipement: Object.assign(temp, { offeredPrices }) });
+    };
+
+    form.updateMainSummary = function(field, value) {
+        summary[field] = value;
+        const temp = system.getStorage('equipement');
+        system.setStorage({ equipement: Object.assign(temp, { summary }) });
     };
 
     form.updateClient = function (name, value) {
         client[name] = value;
-        const temp = system.getStorage('vehicle');
+        const temp = system.getStorage('equipement');
         system.setStorage({ equipement: Object.assign(temp, { client }) });
     };
 
     form.save = (new Function()).debouncePromise().subscribe(async function (id) {
         if (checks.client()) {
             system.store.loading = true;
-            const body = Object.assign({}, store, { client, offeredPrices });
+            const body = Object.assign({}, store, { client, summary, offeredPrices });
             if (id) {
                 system.store.equipmentbudgets.splice(system.store.equipmentbudgets.find(i => i._id === id), 1);
                 const res = await RetryRequest(`/api/rest/equipmentbudgets/${id}`, { headers: { 'Content-Type': 'application/json' } })
@@ -263,6 +276,7 @@ export default async function ({ system, locale }) {
         store.id = item.id;
         offeredPrices = item.offeredPrices;
         client = item.client;
+        summary = item.summary;
         rx.update(store, item);
         refresh(item);
     };

@@ -95,6 +95,19 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .text(toCurrency(calculateEqOfferedTotal(budget, dbx)), marginLeft + 250, pos, { align: 'right', width: 200 });
 
     pos +=20;
+    doc.fontSize(9);
+    const summary = {
+        payment: 'Pagamento',
+        availability: 'Disponibilità',
+        validity: 'Validità'
+    };
+    Object.keys(summary).forEach(function (key) {
+        if (budget.summary[key])
+            doc
+                .font('Helvetica')
+                .text(`${summary[key]}:`, marginLeft, (pos += 11))
+                .text(budget.summary[key] + (key === 'validity' ? 'gg': ''), marginLeft + 100, pos);
+    });
 
     doc.text('Restiamo a disposizione per ogni chiarimento e con l’occasione Vi inviamo i ns più Cordiali Saluti.', marginLeft, (pos +=20));
 

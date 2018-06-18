@@ -9,6 +9,8 @@ export default async function ({ system, thread, gos }) {
         userAuth: status.userAuth,
         vehiclebudgets: status.vehiclebudgets,
         equipmentbudgets: status.equipmentbudgets,
+        vehicleorders: status.vehicleorders,
+        equipmentorders: status.equipmentorders,
         loading: false
     });
 
@@ -28,6 +30,8 @@ export default async function ({ system, thread, gos }) {
                 userAuth: -1,
                 vehiclebudgets: [],
                 equipmentbudgets: [],
+                vehicleorders: [],
+                equipmentorders: []
             };
         }
     }
@@ -41,7 +45,7 @@ export default async function ({ system, thread, gos }) {
             return should;
         })
         .subscribe(async function ({ logged }) {
-            const { email, userAuth, vehiclebudgets, equipmentbudgets } = await getStatus();
+            const { email, userAuth, vehiclebudgets, equipmentbudgets, vehicleorders, equipmentorders } = await getStatus();
             system.db = logged ? await thread.execute('db-get', { url: '/all' }) : {
                 codes: [],
                 equipements: [],
@@ -55,6 +59,10 @@ export default async function ({ system, thread, gos }) {
             system.store.vehiclebudgets.push(...vehiclebudgets);
             system.store.equipmentbudgets.splice(0, system.store.equipmentbudgets.length);
             system.store.equipmentbudgets.push(...equipmentbudgets);
+            system.store.vehicleorders.splice(0, system.store.vehicleorders.length);
+            system.store.vehicleorders.push(...vehicleorders);
+            system.store.equipmentorders.splice(0, system.store.equipmentorders.length);
+            system.store.equipmentorders.push(...equipmentorders);
             gos.vehicles.updateDb();
             gos.equipments.updateDb();
         });

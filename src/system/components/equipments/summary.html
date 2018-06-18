@@ -13,6 +13,29 @@
             <br/>
         </div>
     {{/each}}
+    <div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input onkeyup="this.form.updateMainSummary('payment', this.value)" value="{{summary.payment}}"
+                   class="mdl-textfield__input" type="text" id="summary_payment">
+            <label class="mdl-textfield__label" for="summary_payment">
+                PAGAMENTO
+            </label>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input onkeyup="this.form.updateMainSummary('availability', this.value)" value="{{summary.availability}}"
+                   class="mdl-textfield__input" type="text" id="summary_availability">
+            <label class="mdl-textfield__label" for="summary_availability">
+                DISPONIBILITA'
+            </label>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input onkeyup="this.form.updateMainSummary('validity', this.value)" value="{{summary.validity}}"
+                   class="mdl-textfield__input" type="number" id="summary_validity">
+            <label class="mdl-textfield__label" for="summary_validity">
+                VALIDITA' OFFERTA (giorni)
+            </label>
+        </div>
+    </div>
     <br/>
     <div style="text-align: center">
         <button type="button"

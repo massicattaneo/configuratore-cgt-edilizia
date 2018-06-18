@@ -14,6 +14,7 @@ export default async function ({ system, gos, locale }) {
     }, function ({ vehiclebudgets, equipmentbudgets }) {
         const vb = vehiclebudgets
             .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
+            .filter(i => !i.ordered)
             .map(b => {
                 return Object.assign({
                     validity: b.summary.validity,
@@ -24,10 +25,12 @@ export default async function ({ system, gos, locale }) {
             });
         const eb = equipmentbudgets
             .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
+            .filter(i => !i.ordered)
             .map(b => {
                 const txtEq = b.equipment.map(id => system.db.equipements.find(i => i.id === id).name).join('</li><li>');
                 return Object.assign({
                     equipments: `<ul><li>${txtEq}</li></ul>`,
+                    validity: b.summary.validity,
                     clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
                     disabled: b.client.name ? '' : 'disabled="disabled"'
                 }, b);

@@ -1,0 +1,14 @@
+<div style="padding: 10px;">
+    <h4>ORDINI MACCHINE:</h4>
+    <ul class="demo-list-three mdl-list">
+        {{#each vehicleorders}}
+        <li style="clear: both; min-height: 115px;padding: 8px;" class="mdl-shadow--2dp">
+          <img src="{{this.photo}}" class="mdl-list__item-avatar" style="height: 100px;width: auto;    float: left;"/>
+          <span>{{this.version}}<br/>
+            CREATO: {{formatLongDate(this.created)}} - h.{{formatTime(this.created)}}<br/>
+              {{this.clientName}}
+          </span>
+        </li>
+        {{/each}}
+    </ul>
+</div>
