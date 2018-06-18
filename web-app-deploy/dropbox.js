@@ -66,6 +66,7 @@ const equipementDataStructure = {
     name: 'Macchina/ Attrezzatura',
     info: 'Informazioni',
     notes: 'Note',
+    image: 'Nome immagine',
     priceReal: { column: 'Listino', convert: convertCurrency },
     priceMin: { column: 'Minimo', convert: convertCurrency },
     priceOutsource: { column: 'Prezzo concessionario', convert: convertCurrency },
@@ -109,7 +110,7 @@ module.exports = function () {
         console.log(`/****** finished parsing CGT EDILIZIA DROPBOX DATABASE in ${(Date.now() - start) / 1000}s`);
         start = Date.now();
         console.log('/****** DOWNLOADING IMAGES FROM DROPBOX');
-        await copyDropboxImages(dbx, db.models, db.versions);
+        await copyDropboxImages(dbx, db.models, db.versions, db.equipements);
         console.log(`/****** finished parsing DOWNLOADING IMAGES FROM DROPBOX in ${(Date.now() - start) / 1000}s`);
     };
 
@@ -124,30 +125,30 @@ module.exports = function () {
             if (version.attachment) {
                 const url = `/APPS/configuratore-cgt-edilizia/${version.attachment.replace(/\\/g, '/')}.pdf`;
                 if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
-                const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random()*1e16).toString()}.pdf`;
+                const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
                 const i = await dbx.filesDownload({ path: url });
                 fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
-                ret.push({filename: 'Scheda Tecnica.pdf', path: pdfSpecs});
+                ret.push({ filename: 'Scheda Tecnica.pdf', path: pdfSpecs });
             }
         }
         if (budget.files) {
             await Promise.all(budget.files.map(async function (file) {
                 const url = `/APPS/configuratore-cgt-edilizia/Uploads/${file.url}`;
-                const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random()*1e16).toString()}.pdf`;
+                const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
                 const i = await dbx.filesDownload({ path: url });
                 fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
-                ret.push({filename: file.name, path: pdfSpecs});
+                ret.push({ filename: file.name, path: pdfSpecs });
             }));
         }
         return ret;
     };
 
     obj.updload = function (fileName, file) {
-        dbx.filesUpload({path: `/APPS/configuratore-cgt-edilizia/Uploads/${fileName}`, contents: file})
-            .then(function(response) {
+        dbx.filesUpload({ path: `/APPS/configuratore-cgt-edilizia/Uploads/${fileName}`, contents: file })
+            .then(function (response) {
                 console.log(response);
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 console.error(error);
             });
     };
@@ -155,11 +156,20 @@ module.exports = function () {
     return obj;
 };
 
-async function copyDropboxImages(dbx, models, versions) {
+async function copyDropboxImages(dbx, models, versions, equipements) {
     const filter = versions
         .map(v => v.image)
         .filter((img, i, a) => a.indexOf(img) === i);
 
+    const filter2 = equipements
+        .filter(i => i.image)
+        .map(v => v.image)
+        .filter((img, i, a) => a.indexOf(img) === i);
+
+    // if (!fs.existsSync(`${__dirname}/dpx-photos`)) {
+    //     fs.mkdirSync(`${__dirname}/dpx-photos`);
+    // }
+    //
     // const images = await Promise.all(filter
     //     .map(function (image) {
     //         const url = `/APPS/configuratore-cgt-edilizia/${image.replace(/\\/g, '/')}.jpg`;
@@ -169,23 +179,40 @@ async function copyDropboxImages(dbx, models, versions) {
     //             });
     //     }));
     //
-    // if (!fs.existsSync(`${__dirname}/dpx-photos`)) {
-    //     fs.mkdirSync(`${__dirname}/dpx-photos`);
-    // }
+    // const images2 = await Promise.all(filter2
+    //     .map(function (image) {
+    //         const url = `/APPS/configuratore-cgt-edilizia/${image.replace(/\\/g, '/')}.jpg`;
+    //         return dbx.filesDownload({ path: url })
+    //             .catch(function (e) {
+    //                 console.log(url);
+    //             });
+    //     }));
     //
     // images.forEach(function (image, index) {
-    //     const fileName = `/dpx-photos/model_${index}.jpg`;
+    //     const fileName = `/dpx-photos/image_${index}.jpg`;
+    //     fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
+    // });
+    //
+    // images2.forEach(function (image, index) {
+    //     const idx = index + images.length;
+    //     const fileName = `/dpx-photos/image_${idx}.jpg`;
     //     fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
     // });
 
     versions.forEach(function (version) {
-        version.src = `/dpx-photos/model_${filter.indexOf(version.image)}.jpg`;
+        version.src = `/dpx-photos/image_${filter.indexOf(version.image)}.jpg`;
     });
+
+    equipements
+        .filter(i => i.image)
+        .forEach(function (eq) {
+            eq.src = `/dpx-photos/image_${filter2.indexOf(eq.image) + filter.length}.jpg`;
+        });
 
     models.forEach(function (model) {
         const version = versions.find(v => v.modelId === model.id);
         model.src = version.src;
-    })
+    });
 }
 
 function parse(sheetName, data) {

@@ -36,7 +36,7 @@ module.exports = function (type, emailParams) {
         case 'budget':
             return {
                 to: email,
-                subject: emailParams.table === 'vehiclebudgets' ? 'OFFERTA MACCHINA NUOVA' : 'OFFERTA ATTREZZATURE NUOVE',
+                subject: emailParams.table === 'vehiclebudgets' ? 'OFFERTA MACCHINA NUOVA' : 'OFFERTA NUOVA ATTREZZATUR',
                 text: '', // plain text body
                 html: budget(params),
                 attachments: emailParams.attachments

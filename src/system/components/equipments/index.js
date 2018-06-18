@@ -26,6 +26,9 @@ const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+")
 
 export default async function ({ system, locale }) {
     let { familys, models, versions, equipements } = system.db;
+
+    console.log(equipements.filter(i => i.image))
+
     const steps = ['equipements', 'summarys', 'clients'];
     const store = rx.create({
         equipment: system.getStorage('equipement').equipment || [],
