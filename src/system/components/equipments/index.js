@@ -147,7 +147,8 @@ export default async function ({ system, locale }) {
         });
         const summaryTitle = system.toCurrency(summaryItems.reduce((tot, i) => tot + Number(i.offeredPrice || i.priceReal), 0));
         updateSummarys([{ id: 0, summary, items: summaryItems }], true, step, summaryTitle);
-        updateClients([{ id: 0, client, budgetId: id, on: sDisplay(id), off: sDisplay(!id) }], true, step);
+        const updateButton = id && system.store.equipmentbudgets.find(i => !i.ordered && i._id === id);
+        updateClients([{ id: 0, client, budgetId: id, on: sDisplay(updateButton), off: sDisplay(!updateButton) }], true, step);
         location.href = `#${step}`;
         setTimeout(checkPrices, 500);
         componentHandler.upgradeDom();

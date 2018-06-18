@@ -6,7 +6,8 @@
           <span>
               {{this.equipments}}<br/>
               CREATO: {{formatLongDate(this.created)}} - h.{{formatTime(this.created)}}<br/>
-              {{this.clientName}}
+              {{this.clientName}}<br/>
+            PREZZO: {{toCurrency(this.price)}}
           </span>
         </li>
         {{/each}}

@@ -220,7 +220,7 @@ function noCache(req, res, next) {
         requiresLogin,
         async function (req, res) {
             const table = req.params.table;
-            const order = await mongo.rest.insert(table, req.body);
+            const order = await mongo.rest.insert(table, Object.assign({userId: req.session.userId}, req.body));
             await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, {ordered: true});
             // mailer.send(createTemplate('order', { table, order, user, email, attachments }));
             res.send(order);

@@ -306,7 +306,8 @@ export default async function ({ locale, system, thread }) {
                     .join('</li><li>')}</li></ul>`
                 : 'NESSUNA ATTREZZATURA SELEZIONATA'
         }], true, step, system.toCurrency(summary.price || calculateTotal({version, equipment}, system.db)));
-        updateClients([{ id: 0, client, budgetId: id, on: sDisplay(id), off:  sDisplay(!id)}], true, step, summary.price);
+        const updateButton = id && system.store.vehiclebudgets.find(i => !i.ordered && i._id === id);
+        updateClients([{ id: 0, client, budgetId: id, on: sDisplay(updateButton), off:  sDisplay(!updateButton)}], true, step, summary.price);
         location.href = `#${step}`;
         setTimeout(checkPrice, 500);
         componentHandler.upgradeDom();

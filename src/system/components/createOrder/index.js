@@ -106,12 +106,10 @@ export default async function ({ locale, system, thread }) {
                 const body = Object.assign({ budgetId: id }, store);
                 const res = await RetryRequest(`/api/order/${mTable}`, { headers: { 'Content-Type': 'application/json' } })
                     .post(JSON.stringify(body));
-
                 const b = system.store[table].find(g => g._id === id);
                 system.store[table].splice(system.store[table].indexOf(b), 1);
                 system.store[table].push(Object.assign({ ordered: true }, b));
-                system.store[mTable].push(JSON.stringify(res));
-                system.removeStorage(table === 'vehiclebudgets' ? 'vehicle' : 'equipement');
+                system.store[mTable].push(JSON.parse(res.responseText));
                 system.store.loading = false;
                 system.navigateTo(locale.get('urls.orders.href'));
             };
