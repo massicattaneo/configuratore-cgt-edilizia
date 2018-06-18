@@ -54,7 +54,7 @@ export default async function ({ locale, system, thread }) {
                     ? calculateTotal(budget, system.db, 'priceReal')
                     : calculateEqTotal(budget, system.db),
                 priceOffered: isVehicle
-                    ? budget.summary.price
+                    ? budget.summary.price || calculateTotal(budget, system.db, 'priceReal')
                     : calculateEqOfferedTotal(budget, system.db),
                 budget,
                 table,
@@ -90,23 +90,30 @@ export default async function ({ locale, system, thread }) {
             };
 
             form.updateStore = function (keys, value) {
-
+                const split = keys.split('.');
+                if (split.length === 1) {
+                    store[keys] = value;
+                } else {
+                    const k = split.slice(0).splice(0, 1).reduce((s, i) => s[i], store);
+                    k[split[split.length - 1]] = value;
+                }
+                updateValues();
             };
 
             form.save = async function (table, id) {
                 system.store.loading = true;
                 const mTable = table === 'vehiclebudgets' ? 'vehicleorders' : 'equipmentorders';
                 const body = Object.assign({ budgetId: id }, store);
-                const res = await RetryRequest(`/api/rest/${mTable}`, { headers: { 'Content-Type': 'application/json' } })
+                const res = await RetryRequest(`/api/order/${mTable}`, { headers: { 'Content-Type': 'application/json' } })
                     .post(JSON.stringify(body));
-                const budgetRes = await RetryRequest(`/api/rest/${table}/${id}`, { headers: { 'Content-Type': 'application/json' } })
-                    .send('PUT', JSON.stringify({ ordered: true }));
+
                 const b = system.store[table].find(g => g._id === id);
                 system.store[table].splice(system.store[table].indexOf(b), 1);
-                system.store[table].push(JSON.parse(budgetRes.responseText));
-                system.store[mTable].push(JSON.parse(res.responseText));
+                system.store[table].push(Object.assign({ ordered: true }, b));
+                system.store[mTable].push(JSON.stringify(res));
+                system.removeStorage(table === 'vehiclebudgets' ? 'vehicle' : 'equipement');
                 system.store.loading = false;
-                system.navigateTo(locale.get('urls.orders.href'))
+                system.navigateTo(locale.get('urls.orders.href'));
             };
 
         }
@@ -114,8 +121,6 @@ export default async function ({ locale, system, thread }) {
             subView.clear('files').appendTo('files', filesTpl, [], { files: store.files });
         }
     }
-
-    rx.connect(store, refresh);
 
     view.style();
 
@@ -132,6 +137,7 @@ export default async function ({ locale, system, thread }) {
         refresh(store);
         setTimeout(updateValues, 500);
     };
+
     view.destroy = function () {
 
     };

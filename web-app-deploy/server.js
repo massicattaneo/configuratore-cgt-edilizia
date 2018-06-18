@@ -187,6 +187,7 @@ function noCache(req, res, next) {
         });
 
     app.put('/api/rest/:table/:id',
+        requiresLogin,
         async function (req, res) {
             const table = req.params.table;
             const id = req.params.id;
@@ -201,6 +202,7 @@ function noCache(req, res, next) {
         });
 
     app.delete('/api/rest/:table/:id',
+        requiresLogin,
         async function (req, res) {
             const table = req.params.table;
             const id = req.params.id;
@@ -212,6 +214,16 @@ function noCache(req, res, next) {
                     res.status(500);
                     res.send(err.message);
                 });
+        });
+
+    app.post('/api/order/:table',
+        requiresLogin,
+        async function (req, res) {
+            const table = req.params.table;
+            const order = await mongo.rest.insert(table, req.body);
+            await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, {ordered: true});
+            // mailer.send(createTemplate('order', { table, order, user, email, attachments }));
+            res.send(order);
         });
 
     let callback;

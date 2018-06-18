@@ -75,6 +75,8 @@ export default async function ({ system, gos, locale }) {
     };
 
     form.order = function (table, id) {
+        const budget = system.store[table].find(i => i._id === id);
+        if (budget.client.email === '') system.throw('missingBudgetClientEmail');
         gos.createOrder.init(table, id);
         system.navigateTo(`${locale.get('urls.createOrder.href')}?table=${table}&id=${id}`)
     };
