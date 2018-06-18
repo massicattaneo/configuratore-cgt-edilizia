@@ -1,0 +1,14 @@
+<div class="mdl-cell">
+    <button type="button"
+            style="{{notSelected}}; width: 100%;"
+            onclick="this.form.change('{{itemName}}', '{{id}}')"
+            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--grey-700 mdl-color-text--white">
+        {{name}}
+    </button>
+    <button type="button"
+            style="{{selected}}; width: 100%;"
+            onclick="this.form.change('{{itemName}}', '{{id}}')"
+            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        {{name}}
+    </button>
+</div>

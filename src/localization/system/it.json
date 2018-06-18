@@ -8,14 +8,27 @@
     "inactiveUser": "Per favore attendi la email di conferma che ti arrivera' quando la tua utenza sara' stata attivata",
     "missingEmail": "Aggiungi l'indirizzo email",
     "missingName": "Aggiungi il nome",
+    "missingSurname": "Aggiungi il cognome",
     "missingTel": "Aggiungi il numero di telefono",
     "missingPassword": "Aggiungi la password",
     "missingOrganizationType": "Seleziona il tipo di organizzazione a cui appartieni",
     "missingOrganizationName": "Inserisci il nome dle tuo concessionario",
     "malformedEmail": "L'indirizzo email non é in un formato valido",
+    "malformedTel": "Il numero di telefono non é in un formato valido",
     "missingUser": "L'indirizzo email non corrisponde a nessuna utenza.",
     "existingUser": "L'indirizzo email appertiene gia' a una utenza registrata.",
-    "camera-forbidden": "Il tuo dispositivo non permette l'accesso alla fotocamera."
+    "camera-forbidden": "Il tuo dispositivo non permette l'accesso alla fotocamera.",
+    "missing-exchange-vehicle-name": "Manca la Macchina",
+    "missing-exchange-vehicle-builder": "Manca il Costruttore",
+    "missing-exchange-vehicle-model": "Manca il Modello",
+    "missing-exchange-vehicle-serial": "Manca la Matricola",
+    "missing-exchange-vehicle-year": "Manca l'anno",
+    "missing-exchange-vehicle-value": "Manca il valore della permuta",
+    "missing-client-name": "Manca il nome del cliente",
+    "missing-client-address": "Manca l'indirizzo del cliente",
+    "missing-client-email": "Manca l'email del cliente",
+    "missing-client-email-malformed": "L'email inserita non è in un fomato valido",
+    "missingBudgetClientEmail": "Modifica l'offerta e inserisci i dati del cliente a cui vuoi inviarlo"
   },
   "urls": {
     "homePage": {
@@ -25,23 +38,23 @@
     },
     "vehicles": {
       "href": "/it/configuratore-macchine",
-      "title": "MACCHINE",
-      "menu": "MACCHINE"
+      "title": "IL TUO CATERPILLAR",
+      "menu": "CONFIGURA IL TUO CATERPILLAR"
     },
     "equipments": {
       "href": "/it/configuratore-attrezzature",
       "title": "ATTREZZATURE",
-      "menu": "ATTREZZATURE"
+      "menu": "SCEGLI L'ATTREZZATURA"
     },
     "budgets": {
       "href": "/it/preventivi",
-      "title": "PREVENTIVI",
-      "menu": "PREVENTIVI"
+      "title": "OFFERTE",
+      "menu": "OFFERTE SALVATE"
     },
     "orders": {
       "href": "/it/ordini",
       "title": "ORDINI",
-      "menu": "ORDINI"
+      "menu": "ORDINI INVIATI"
     },
     "login": {
       "href": "/it/entra",
@@ -67,6 +80,26 @@
       "href": "/it/cambia-password",
       "title": "CAMBIA PASSWORD",
       "menu": ""
+    },
+    "about": {
+      "href": "/it/informazioni",
+      "title": "INFORMAZIONI SULLA APPLICAZIONE",
+      "menu": "Info"
+    },
+    "contact": {
+      "href": "/it/contatti",
+      "title": "CONTATTI",
+      "menu": "Contatti"
+    },
+    "privacy": {
+      "href": "/it/privacy",
+      "title": "PRIVACY",
+      "menu": "Privacy"
+    },
+    "createOrder": {
+      "href": "/it/crea-ordine",
+      "title": "CREA UN ORDINE",
+      "menu": "CREA UN ORDINE"
     }
   },
   "menuHeader": {
@@ -83,11 +116,12 @@
     "organization": "NOME ORGANIZZAZIONE",
     "infoTitle": "I TUOI DATI:",
     "name": "NOME",
+    "surname": "COGNOME",
     "email": "EMAIL",
     "tel": "TELEFONO",
     "password": "PASSWORD",
     "button": "CREA LA NUOVA UTENZA",
-    "done": "<h4>Grazie per essersi registrato.</h4><p>A breve un nostro incaricato controllera' i dati da te inseriti e attivera'la tua utenza.</p><p>Riceverai una mail di conferma quando potrai iniziare a usare la tua utenza.</p>",
+    "done": "<h4>Grazie per essersi registrato.</h4><p>A breve un nostro incaricato controllera' i dati da lei inseriti e attivera'la sua utenza.</p><p>Riceverà una mail di conferma quando potrà iniziare a usare la sua utenza.</p>",
     "active": "<h4>L'UTENZA É ADESSO ATTIVA.</h4><p>UNA EMAIL DI CONFERMA É STATA INVIATA AL RICHIDENTE.</p>"
   },
   "login": {
@@ -114,5 +148,79 @@
   "resetDone": {
     "title": "PASSWORD CAMBIATA",
     "text": "Adesso puoi entrare nuovamente nella tua utenza. Fai <a href='{{urls.login.href}}' onclick='window.navigate(this)'>click qui</a>."
+  },
+  "equipments": {
+    "equipements": {
+      "title": "SELEZIONA LE ATTREZZATURE:",
+      "titleSelected": "N. {0} ATTREZZATURE SELEZIONATE"
+    },
+    "summarys": {
+      "title": "RIEPILOGO ATTREZZATURE:",
+      "titleSelected": "PREZZO OFFERTO: {0}"
+    },
+    "clients": {
+      "title": "SALVA e/o AGGIORNA OFFERTA:",
+      "titleSelected": "COMPLETATO"
+    }
+  },
+  "vehicles": {
+    "familys": {
+      "title": "SELEZIONA LA FAMIGLIA",
+      "titleSelected": "FAMIGLIA: {0}"
+    },
+    "models": {
+      "title": "SELEZIONA IL MODELLO",
+      "titleSelected": "MODELLO: {0}"
+    },
+    "versions": {
+      "title": "SELEZIONA LA VERSIONE",
+      "titleSelected": "VERSIONE: {0}"
+    },
+    "equipements": {
+      "title": "SELEZIONA LE ATTREZZATURE:",
+      "titleSelected": "N. {0} ATTREZZATURE SELEZIONATE"
+    },
+    "exchanges": {
+      "title": "AGGIUNGI UNA PERMUTA:",
+      "titleSelected": "PERMUTA: {0}"
+    },
+    "summarys": {
+      "title": "RIEPILOGO MACCHINA:",
+      "titleSelected": "PREZZO OFFERTO: {0}"
+    },
+    "clients": {
+      "title": "SALVA e/o AGGIORNA OFFERTA:",
+      "titleSelected": "COMPLETATO"
+    }
+  },
+  "about": {
+    "titleLicence": "LICENZA",
+    "textLicence": "<ul><li>Questo software e' di proprieta' della CGT EDILIZIA.</li></ul>",
+    "titleInfo": "SOFTWARE:",
+    "listInfo": "<ul><li>Nome: {{system.name}}</li><li>Descrizione: {{system.description}}</li><li>Versione: {{system.version}}</li><li>Sviluppatore: {{system.author}}</li></ul>",
+    "titleThanks": "RISORSE:",
+    "listThanks": "<ul><li>MATERIAL DESIGN LITE</li><li>WEBPACK - BABEL</li><li>MONGODB</li><li>NODEJS EXPRESS</li><li>EVENNODE</li></ul>"
+  },
+  "company": {
+    "name": "CGT Edilizia S.p.A.",
+    "address": "20814 VAREDO (MB) - Via Montello, 13",
+    "tel": "0362.589901",
+    "fax": "0362.589961",
+    "pIVA": "09217770156",
+    "capSoc": "€ 3.044.400 int. Versato",
+    "info": "Società soggetta a direzione e coordinamento dell’unico socio TESA S.p.A.",
+    "reg": "Registro Imprese di Milano 09217770156 - R.E.A.  MI/1275677."
+  },
+  "dbx": {
+    "families": {
+      "SSL": "MINIPALA GOMMATA",
+      "CTL": "MINIPALE CINGOLATA",
+      "MHE": "MINIESCAVATORE",
+      "CWL": "PALA GOMMATA COMPATTA",
+      "BHL": "TERNA"
+    },
+    "builders": {
+      "CAT": "CATERPILLAR"
+    }
   }
 }

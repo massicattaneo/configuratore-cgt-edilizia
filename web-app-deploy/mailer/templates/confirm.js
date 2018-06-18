@@ -4,7 +4,7 @@ const types = {
     2: 'CGT',
     3: 'CONCESSIONARIO'
 };
-module.exports = function({grayColor, type, organization, name, primaryColor, host, activationCode, footer}) {
+module.exports = function({grayColor, type, tel, email, organization, name, primaryColor, host, activationCode, footer}) {
     return `
     <div style="font-family: Arial; color: ${grayColor}">
         <h1>UTENTE:</h1>
@@ -30,7 +30,7 @@ module.exports = function({grayColor, type, organization, name, primaryColor, ho
                     EMAIL:
                 </td>
                 <td>
-                    ${name}
+                    ${email}
                 </td>
             </tr>
             <tr>
@@ -61,7 +61,7 @@ module.exports = function({grayColor, type, organization, name, primaryColor, ho
                     </a>
                 </li>
                 <li>
-                    <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=&activationCode=${activationCode}">
+                    <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=4&activationCode=${activationCode}">
                         concessionario
                     </a>
                 </li>

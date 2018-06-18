@@ -1,0 +1,43 @@
+<div style="padding: 6px;">
+    <div style="text-align: center; {{on}}">
+        Cliccando su aggiorna, modificherai il preventivo fatto anteriormente
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input autocomplete="nope" onkeyup="this.form.updateClient('name', this.value)" value="{{client.name}}" class="mdl-textfield__input" type="text" id="client_name">
+        <label class="mdl-textfield__label" for="client_name">
+            RAGIONE SOCIALE CLIENTE
+        </label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input autocomplete="nope" onkeyup="this.form.updateClient('address', this.value)" value="{{client.address}}" class="mdl-textfield__input" type="text" id="client_address">
+        <label class="mdl-textfield__label" for="client_address">
+            INDIRIZZO CLIENTE
+        </label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input autocomplete="nope" onkeyup="this.form.updateClient('email', this.value)" value="{{client.email}}" class="mdl-textfield__input" type="text" id="client_email">
+        <label class="mdl-textfield__label" for="client_email">
+            EMAIL CLIENTE
+        </label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input autocomplete="nope" onkeyup="this.form.updateClient('pa', this.value)" value="{{client.pa}}" class="mdl-textfield__input" type="text" id="client_pa">
+        <label class="mdl-textfield__label" for="client_pa">
+            CORTESE ATTENZIONE
+        </label>
+    </div>
+    <div style="text-align: center; {{off}}">
+        <button type="button"
+                onclick="this.form.save()"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+            SALVA
+        </button>
+    </div>
+    <div style="text-align: center; {{on}}">
+        <button type="button"
+                onclick="this.form.save('{{budgetId}}')"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+            AGGIORNA
+        </button>
+    </div>
+</div>

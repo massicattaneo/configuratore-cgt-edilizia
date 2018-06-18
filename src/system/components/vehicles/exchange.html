@@ -1,0 +1,79 @@
+<div style="padding: 6px;">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{exchange.name}}" onkeyup="this.form.updateExchange('name', this.value)"
+               class="mdl-textfield__input" type="text" id="exchange_vehicle_name">
+        <label class="mdl-textfield__label" for="exchange_vehicle_name">
+            Macchina
+        </label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{exchange.builder}}" onkeyup="this.form.updateExchange('builder', this.value)"
+               class="mdl-textfield__input" type="text" id="exchange_vehicle_builder">
+        <label class="mdl-textfield__label" for="exchange_vehicle_builder">
+            Costruttore
+        </label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{exchange.model}}" onkeyup="this.form.updateExchange('model', this.value)"
+               class="mdl-textfield__input" type="text" id="exchange_vehicle_model">
+        <label class="mdl-textfield__label" for="exchange_vehicle_model">
+            Modello
+        </label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{exchange.serial}}" onkeyup="this.form.updateExchange('serial', this.value)"
+               class="mdl-textfield__input" type="text" id="exchange_vehicle_serial">
+        <label class="mdl-textfield__label" for="exchange_vehicle_serial">
+            Matricola
+        </label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{exchange.year}}" onkeyup="this.form.updateExchange('year', this.value)"
+               class="mdl-textfield__input" type="text" id="exchange_vehicle_year">
+        <label class="mdl-textfield__label" for="exchange_vehicle_year">
+            Anno
+        </label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{exchange.hours}}" onkeyup="this.form.updateExchange('hours', this.value)"
+               class="mdl-textfield__input" type="text" id="exchange_vehicle_hours">
+        <label class="mdl-textfield__label" for="exchange_vehicle_hours">
+            Ore
+        </label>
+    </div>
+    <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+        <input value="{{exchange.value}}" class="mdl-currency-usd__input" type="text" id="exchange_vehicle_value" onkeyup="this.form.updateExchange('value', this.value)">
+        <label class="mdl-currency-usd__label" for="exchange_vehicle_value">Valore</label>
+        <div class="mdl-currency-usd__symbol">€</div>
+        <span class="mdl-currency-usd__error">#.##</span>
+    </div>
+    <br/>
+    <div class="mdl-textfield mdl-js-textfield" style="width: 100%">
+        <textarea onkeyup="this.form.updateExchange('notes', this.value)"
+                   style="width: 100%"
+                class="mdl-textfield__input" type="text" rows= "3" id="exchange_vehicle_notes" >{{exchange.notes}}</textarea>
+        <label class="mdl-textfield__label" for="exchange_vehicle_notes">Note ...</label>
+    </div>
+    <hr/>
+    <div>
+        ALLEGATI:
+        {{#each files}}
+        <fieldset
+                onclick="this.form.removeExchange('{{this._id}}')"
+                class="mdl-chip mdl-chip--deletable">
+            <span class="mdl-chip__text">{{this.name}}</span>
+            <button type="button" class="mdl-chip__action"><i class="material-icons">cancel</i></button>
+        </fieldset>
+        {{/each}}
+        <br/>
+        <input type="file" onchange="this.form.uploadExchange()" value="ALLEGA UN FILE" name="exchangeUpload"/>
+    </div>
+    <hr/>
+    <div style="text-align: center">
+        <button type="button"
+                onclick="this.form.step('summarys', 'exchange')"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">
+            PROSEGUI
+        </button>
+    </div>
+</div>

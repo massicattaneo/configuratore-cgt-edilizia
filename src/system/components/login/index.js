@@ -16,8 +16,8 @@ export default async function ({ system, locale, thread }) {
         };
         await thread.execute('user/login', data);
         system.store.loading = false;
+        system.navigateTo(locale.get('urls.homePage.href'));
         system.store.logged = true;
-        system.navigateTo(locale.get('urls.homePage.href'))
     };
 
     view.destroy = function () {

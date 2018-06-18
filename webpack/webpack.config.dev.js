@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const devServer = 'webpack-hot-middleware/client?reload=true';
 const fs = require('fs');
+const pkg = require('../package');
 
 const config = {
     entry: {
@@ -66,7 +67,8 @@ const config = {
         new HtmlWebpackPlugin({
             chunks: ['system'],
             template: 'src/index.hbs',
-            inject: false
+            inject: false,
+            version: pkg.version
         }),
         new CopyWebpackPlugin([
             { from: './src/css', to: 'css' },

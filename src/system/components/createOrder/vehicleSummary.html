@@ -1,0 +1,35 @@
+<div class="mdl-grid">
+    <div class="mdl-cell mdl-shadow--2dp mdl-cell--order-3">
+        <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">VEICOLO:</div>
+        <strong>FAMIGLIA:</strong> {{model.name}}<br/>
+        <strong>MODELLO:</strong> {{model.name}}</br>
+        <strong>VERSIONE:</strong> {{version.name}}<br/>
+    </div>
+    <div class="mdl-cell mdl-shadow--2dp mdl-cell--order-3" style="display: {{showEquipments}}">
+        <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">ATTREZZATURE:</div>
+        <ul>
+            {{#each equipment}}
+            <li>{{this.equipmentFamily}} - {{this.name}} ({{this.constructorId}})</li>
+            {{/each}}
+        </ul>
+    </div>
+    <div class="mdl-cell mdl-shadow--2dp mdl-cell--order-3" style="display: {{showExchange}}">
+        <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">PERMUTA:</div>
+        <strong>MACCHINA:</strong> {{exchange.name}}<br/>
+        <strong>COSTRUTTORE:</strong> {{exchange.builder}}<br/>
+        <strong>MODELLO:</strong> {{exchange.model}}<br/>
+        <strong>VALORE:</strong> {{toCurrency(exchange.value)}}<br/>
+    </div>
+    <div class="mdl-cell mdl-shadow--2dp mdl-cell--order-3">
+        <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">PREZZO:</div>
+        <strong>PREZZO LISTINO:</strong> {{toCurrency(priceReal)}}<br/>
+        <strong>PREZZO OFFERTO:</strong> {{toCurrency(budget.summary.price)}}
+    </div>
+    <div class="mdl-cell mdl-shadow--2dp mdl-cell--order-3">
+        <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">CLIENTE:</div>
+        <strong>RAGIONE SOCIALE:</strong> {{budget.client.name}}<br/>
+        <strong>INDIRIZZO:</strong> {{budget.client.address}}<br/>
+        <strong>EMAIL:</strong> {{budget.client.email}}<br/>
+        <strong>CORTESE ATTENZIONE:</strong> {{budget.client.pa}}<br/>
+    </div>
+</div>

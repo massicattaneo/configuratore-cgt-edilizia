@@ -1,5 +1,5 @@
 {
-  "host": "http://inandoutbelleza.eu-4.evennode.com",
+  "host": "http://cgtedilizia.eu-4.evennode.com",
   "confirmRegistrationUrl": "/api/login/confirm",
   "registerUrl": "/api/login/register",
   "loginUrl": "/api/login/login",

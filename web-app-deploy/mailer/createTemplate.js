@@ -3,6 +3,7 @@ const footer = require('./footer.js');
 const recover = require('./templates/recover');
 const confirm = require('./templates/confirm');
 const active = require('./templates/active');
+const budget = require('./templates/budget');
 
 module.exports = function (type, emailParams) {
     const email = emailParams.email;
@@ -12,6 +13,8 @@ module.exports = function (type, emailParams) {
         case 'confirmEmail':
             return {
                 to: 'samuele.albertini@cgtedilizia.it; carlotta.beccaro@cgtedilizia.it; francesco.cerizzi@cgtedilizia.it', // list of receivers
+                // to: 'massi.cattaneo.it@gmail.com', // list of receivers
+                // to: 'samuele.albertini@cgtedilizia.it', // list of receivers
                 subject: 'CONFIGURATORE CGT - CREAZIONE UTENZA', // Subject line
                 text: '', // plain text body
                 html: confirm(params)
@@ -29,6 +32,14 @@ module.exports = function (type, emailParams) {
                 subject: 'CONFIGURATORE CGT - CAMBIA LA PASSWORD ', // Subject line
                 text: '', // plain text body
                 html: recover(params)
+            };
+        case 'budget':
+            return {
+                to: email,
+                subject: emailParams.table === 'vehiclebudgets' ? 'OFFERTA MACCHINA NUOVA' : 'OFFERTA ATTREZZATURE NUOVE',
+                text: '', // plain text body
+                html: budget(params),
+                attachments: emailParams.attachments
             }
     }
 };

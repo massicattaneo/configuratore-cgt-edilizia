@@ -2,24 +2,31 @@ function compare(a, b, position) {
     return a.split('/')[position + 1] === b.split('/')[position + 1];
 }
 
-function setPageInfo(href, context, gos) {
-    const urls = context.locale.get('urls');
-    const goName = Object.keys(urls).filter(key => urls[key].href === href);
-    const { title } = urls[goName];
-    document.title = context.locale.get('documentWindowTitle', title);
-    document.getElementById('main').innerHTML = '';
-    document.getElementById('main').appendChild(gos[goName].get());
-    gos.header.setTitle(title);
-    document.getElementById('menu').classList.remove('is-visible');
-    let querySelector = document.querySelector('.mdl-layout__obfuscator');
-    if (querySelector)
-        querySelector.classList.remove('is-visible');
-    componentHandler.upgradeDom();
-}
+const publicUrls = ['/it/entra', '/it/registrati', '/it/recupera-password', '/it/cambia-password', '/it/utenza-attiva'];
 
 export default async function ({ system, gos }) {
     const context = this;
     let activeUrl = '';
+
+    function setPageInfo(href, context, gos) {
+        const urls = context.locale.get('urls');
+        let isPublic = publicUrls.indexOf(href) !== -1;
+        const length = href.indexOf('?') === -1 ? href.length : href.indexOf('?');
+        const url = (isPublic || system.store.logged) ? href.substr(0, length) : '/it/entra';
+        const goName = Object.keys(urls).find(key => urls[key].href === url);
+        const { title } = urls[goName];
+        document.title = context.locale.get('documentWindowTitle', title);
+        if (document.getElementById('main').children[0]) {
+            document.getElementById('main').removeChild(document.getElementById('main').children[0])
+        }
+        document.getElementById('main').appendChild(gos[goName].get());
+        gos.header.setTitle(title);
+        document.getElementById('menu').removeStyle('is-visible');
+        let querySelector = document.querySelector('.mdl-layout__obfuscator');
+        if (querySelector)
+            querySelector.removeStyle('is-visible');
+        componentHandler.upgradeDom()
+    }
 
     /** START an APP */
     system
@@ -63,7 +70,7 @@ export default async function ({ system, gos }) {
         .subscribe(function (errorName, { message }) {
             const errorMessage = context.locale.get(`errors.${errorName}`);
             const errorGeneric = context.locale.get(`errors.generic`);
-            const msg = errorName !== 'custom' ? (errorMessage instanceof String ? errorMessage : errorGeneric) : message;
+            const msg = errorName !== 'custom' ? (typeof errorMessage == 'string' ? errorMessage : errorGeneric) : message;
             const error = document.getElementById('errors');
             error.MaterialSnackbar.showSnackbar({ message: msg });
             system.store.loading = false;

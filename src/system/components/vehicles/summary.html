@@ -1,0 +1,54 @@
+<div style="padding: 6px;">
+    <img src="{{version.src}}" style="width: 30%;height: 30%;float: left"/>
+    <div>
+        <strong>FAMIGLIA:</strong> {{family.name}}
+    </div>
+    <div>
+        <strong>MODELLO:</strong> {{model.name}}
+    </div>
+    <div>
+        <strong>VERSIONE:</strong> {{version.name}}<br/>
+    </div>
+    <div style="clear: both;">
+        {{version.description}}
+        <br/><br/>
+        <div>{{selEquipments}}</div>
+        <div>{{selExchange}}</div>
+        PREZZO LISTINO <em>(Attrezzature comprese)</em>: {{toCurrency(price)}}<br/>
+        <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+            <input value="{{summary.price}}" class="mdl-currency-usd__input" type="text" id="v_summary_price"
+                   onkeyup="this.form.updateSummary('price', this.value)">
+            <label class="mdl-currency-usd__label" for="v_summary_price">PREZZO PROPOSTO</label>
+            <div class="mdl-currency-usd__symbol">€</div>
+            <span class="mdl-currency-usd__error">#.##</span>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input onkeyup="this.form.updateSummary('payment', this.value)" value="{{summary.payment}}"
+                   class="mdl-textfield__input" type="text" id="summary_payment">
+            <label class="mdl-textfield__label" for="summary_payment">
+                PAGAMENTO
+            </label>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input onkeyup="this.form.updateSummary('availability', this.value)" value="{{summary.availability}}"
+                   class="mdl-textfield__input" type="text" id="summary_availability">
+            <label class="mdl-textfield__label" for="summary_availability">
+                DISPONIBILITA'
+            </label>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input onkeyup="this.form.updateSummary('validity', this.value)" value="{{summary.validity}}"
+                   class="mdl-textfield__input" type="number" id="summary_validity">
+            <label class="mdl-textfield__label" for="summary_validity">
+                VALIDITA' OFFERTA (giorni)
+            </label>
+        </div>
+    </div>
+    <div style="text-align: center">
+        <button type="button"
+                onclick="this.form.step('clients')"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+            PROSEGUI
+        </button>
+    </div>
+</div>

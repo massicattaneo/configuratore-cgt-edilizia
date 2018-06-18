@@ -1,0 +1,43 @@
+<div style="padding: 10px;">
+    <h4>PREVENTIVI MACCHINE:</h4>
+    <ul class="demo-list-three mdl-list">
+        {{#each vehiclebudgets}}
+        <li style="clear: both; min-height: 115px;padding: 8px;" class="mdl-shadow--2dp">
+            <div  style="float: right; margin: 0 5px">
+                <button type="button"
+                        class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="vb_{{this._id}}">
+                    <i class="material-icons">more_vert</i>
+                </button>
+                <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="vb_{{this._id}}">
+                    <li class="mdl-menu__item"><fieldset
+                            class="mdl-color-text--grey-700"
+                            style="display: block;"
+                            onclick="this.form.delete('vehiclebudgets', '{{this._id}}')">ELIMINA</fieldset></li>
+                    <li class="mdl-menu__item"><fieldset
+                            class="mdl-color-text--grey-700"
+                            style="display: block;"
+                            onclick="this.form.modify('vehiclebudgets', '{{this._id}}')">MODIFICA</fieldset></li>
+                    <li class="mdl-menu__item"><fieldset
+                            class="mdl-color-text--grey-700"
+                            style="display: block;"
+                            onclick="this.form.preview('vehiclebudgets', '{{this._id}}')">ANTEPRIMA OFFERTA</fieldset></li>
+                    <li class="mdl-menu__item"><fieldset
+                            class="mdl-color-text--grey-700"
+                            style="display: block;"
+                            onclick="this.form.email('vehiclebudgets', '{{this._id}}')">INVIA PER EMAIL</fieldset></li>
+                    <li class="mdl-menu__item"><fieldset
+                            class="mdl-color-text--grey-700"
+                            style="display: block;"
+                            onclick="this.form.order('vehiclebudgets', '{{this._id}}')">CREA ORDINE</fieldset></li>
+                </ul>
+            </div>
+          <img src="{{this.photo}}" class="mdl-list__item-avatar" style="height: 100px;width: auto;    float: left;"/>
+          <span>{{this.version}}<br/>
+            CREATO: {{formatLongDate(this.created)}} - h.{{formatTime(this.created)}}<br/>
+            VALIDITA': {{this.validity}} giorni<br/>
+              {{this.clientName}}
+          </span>
+        </li>
+        {{/each}}
+    </ul>
+</div>

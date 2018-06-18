@@ -32,7 +32,11 @@ export default function (system, callback) {
     };
 
     thread.inject = function (o) {
-        Object.assign(injected, o);
+        Object.keys(o).forEach(function (item) {
+            Object.keys(o[item]).forEach(function (key) {
+               injected[item][key] = o[item][key]
+            });
+        });
     };
 
     return thread;

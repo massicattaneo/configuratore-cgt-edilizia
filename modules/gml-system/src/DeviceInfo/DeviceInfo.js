@@ -93,7 +93,7 @@ function getWindowInfo() {
 
 export default function ({ ua, assetsQuality, throwError }) {
     const em = EventEmitter('device-info');
-    const privateInfo = ({
+    const privateInfo = rx.create({
         deviceType: 'unknown',
         os: 'unknown',
         osVersion: -1,
@@ -107,7 +107,7 @@ export default function ({ ua, assetsQuality, throwError }) {
         height: getWindowInfo().height,
         forceCanvas: false,
         orientation: 'landscape'
-    }).reactive();
+    });
     try {
         const osInfo = getOsInfo(ua);
         const browserInfo = getBrowserInfo(ua);

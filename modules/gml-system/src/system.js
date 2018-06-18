@@ -73,7 +73,6 @@ function System({ ua, config = {} }) {
     let DOM_LOADING = Date.now();
     let audioPlayer = {};
 
-
     // *************************************************************************** STORAGE
     const storage = Storage({ prefix: config.appName });
     /**
@@ -129,14 +128,14 @@ function System({ ua, config = {} }) {
         return system;
     };
     // ***************************************************************************  INFO
-    const info = ({
+    const info = rx.create({
         lang: '',
         maxRetry: 3,
         retryTimeout: 2000,
         timeout: 1000,
         activationCode: getUrlParameter('activationCode'),
         version: config.version
-    }).reactive();
+    });
     /**
      * retrieves the system info coming from the url and the configuration passed
      * @example

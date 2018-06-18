@@ -1,13 +1,21 @@
-export default async function ({ system }) {
+export default async function ({ system, thread, gos }) {
     let status = await getStatus();
 
-    system.store = ({
+    system.db = await thread.execute('db-get', { url: '/all' });
+
+    system.store = rx.create({
         logged: status.logged,
         email: status.email,
+        userAuth: status.userAuth,
+        vehiclebudgets: status.vehiclebudgets,
+        equipmentbudgets: status.equipmentbudgets,
         loading: false
-    }).reactive();
+    });
 
-    system.initStorage({});
+    system.initStorage({
+        vehicle: {},
+        equipement: {}
+    });
 
     async function getStatus() {
         const reqStatus = RetryRequest('/api/login/status');
@@ -16,15 +24,38 @@ export default async function ({ system }) {
         } catch (e) {
             return status = {
                 logged: false,
-                email: ''
-            }
+                email: '',
+                userAuth: -1,
+                vehiclebudgets: [],
+                equipmentbudgets: [],
+            };
         }
     }
 
-    ({ logged: () => system.store.logged })
-        .reactive()
-        .connect(async function () {
-            const { email } = await getStatus();
+    let firstTime = false;
+    rx.connect
+        .partial({ logged: () => system.store.logged })
+        .filter(() => {
+            const should = firstTime;
+            firstTime = true;
+            return should;
+        })
+        .subscribe(async function ({ logged }) {
+            const { email, userAuth, vehiclebudgets, equipmentbudgets } = await getStatus();
+            system.db = logged ? await thread.execute('db-get', { url: '/all' }) : {
+                codes: [],
+                equipements: [],
+                familys: [],
+                models: [],
+                versions: []
+            };
             system.store.email = email;
+            system.store.userAuth = userAuth;
+            system.store.vehiclebudgets.splice(0, system.store.vehiclebudgets.length);
+            system.store.vehiclebudgets.push(...vehiclebudgets);
+            system.store.equipmentbudgets.splice(0, system.store.equipmentbudgets.length);
+            system.store.equipmentbudgets.push(...equipmentbudgets);
+            gos.vehicles.updateDb();
+            gos.equipments.updateDb();
         });
 }

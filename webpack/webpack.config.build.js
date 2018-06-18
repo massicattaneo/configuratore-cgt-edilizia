@@ -3,7 +3,11 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const fs = require('fs');
+const pkg = require('../package');
+const WebpackAutoInject = require('webpack-auto-inject-version');
 
+const array = pkg.version.split('.');
+const version = `${array[0]}.${array[1]}.${Number(array[2]) + 1}`;
 
 const config = {
     entry: {
@@ -61,6 +65,11 @@ const config = {
         descriptionFiles: ['package.json']
     },
     plugins: [
+        new WebpackAutoInject({
+            components: {
+                AutoIncreaseVersion: true
+            }
+        }),
         new HtmlWebpackPlugin({
             chunks: ['system'],
             template: 'src/index.hbs',
@@ -71,7 +80,8 @@ const config = {
                 minifyJS: true,
                 removeAttributeQuotes: true,
                 removeComments: true
-            }
+            },
+            version
         }),
         new CopyWebpackPlugin([
             { from: './src/css', to: 'css' },

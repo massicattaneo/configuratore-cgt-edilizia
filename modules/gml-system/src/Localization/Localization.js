@@ -49,7 +49,8 @@ export default function Localization(config) {
     loc.parse = (string, ...args) => {
         return [string, ...args].reduce((a, b, i) => {
             const regEx = new RegExp(`\\{${i - 1}\\}`, 'g');
-            return a.replace(regEx, loc.get(b));
+            const source = loc.get(b);
+            return a.replace(regEx, source instanceof String ? source : b);
         });
     };
 

@@ -3126,24 +3126,24 @@ input.mdl-button[type="submit"] {
 }
 
 .mdl-button[disabled][disabled], .mdl-button.mdl-button--disabled.mdl-button--disabled {
-    color: rgba(0, 0, 0, .26);
+    color: rgba(0, 0, 0, .26) !important;
     cursor: default;
     background-color: transparent
 }
 
 .mdl-button--fab[disabled][disabled], .mdl-button--fab.mdl-button--disabled.mdl-button--disabled {
-    background-color: rgba(0, 0, 0, .12);
+    background-color: rgba(0, 0, 0, .12) !important;
     color: rgba(0, 0, 0, .26)
 }
 
 .mdl-button--raised[disabled][disabled], .mdl-button--raised.mdl-button--disabled.mdl-button--disabled {
-    background-color: rgba(0, 0, 0, .12);
+    background-color: rgba(0, 0, 0, .12) !important;
     color: rgba(0, 0, 0, .26);
     box-shadow: none
 }
 
 .mdl-button--colored[disabled][disabled], .mdl-button--colored.mdl-button--disabled.mdl-button--disabled {
-    color: rgba(0, 0, 0, .26)
+    color: rgba(0, 0, 0, .26) !important;
 }
 
 .mdl-button .material-icons {
@@ -3321,7 +3321,7 @@ input.mdl-button[type="submit"] {
 }
 
 fieldset[disabled] .mdl-checkbox .mdl-checkbox__box-outline, .mdl-checkbox.is-disabled .mdl-checkbox__box-outline {
-    border: 2px solid rgba(0, 0, 0, .26);
+    border: 2px solid rgba(0, 0, 0, .26) !important;
     cursor: auto
 }
 

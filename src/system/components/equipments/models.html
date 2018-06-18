@@ -1,0 +1,10 @@
+<div class="mdl-grid">
+    {{#each models}}
+        <fieldset onclick="this.form.select('{{this.id}}')"
+                class="mdl-card mdl-cell--4-col mdl-shadow--2dp" style="margin: 10px 0;">
+            {{this.name}}
+            <img src="{{this.src}}" style="height: auto; width: 100%;"/>
+        </fieldset>
+    <div class="mdl-layout-spacer"></div>
+    {{/each}}
+</div>

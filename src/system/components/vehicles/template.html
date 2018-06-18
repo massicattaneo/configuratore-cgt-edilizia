@@ -1,3 +1,72 @@
-<div #wrapper>
-    VEHICLES
-</div>
+<form #wrapper enctype="multipart/form-data">
+    <fieldset #familyswrapper
+         onclick="this.form.step('familys')"
+         class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div #familystitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            {{vehicles.familys.title}}
+        </div>
+        <div #familys class="mdl-grid">
+
+        </div>
+    </fieldset>
+    <fieldset #modelswrapper
+         onclick="this.form.step('models')"
+         class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div #modelstitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            {{vehicles.models.title}}
+        </div>
+        <div #models class="mdl-grid">
+
+        </div>
+    </fieldset>
+    <fieldset #versionswrapper
+         onclick="this.form.step('versions')"
+         class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div #versionstitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            {{vehicles.versions.title}}
+        </div>
+        <div #versions class="mdl-grid">
+
+        </div>
+    </fieldset>
+    <fieldset #equipementswrapper
+         onclick="this.form.step('equipements')"
+         class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div #equipementstitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            {{vehicles.versions.title}}
+        </div>
+        <div #equipements>
+
+        </div>
+    </fieldset>
+    <fieldset #exchangeswrapper
+            onclick="this.form.step('exchanges')"
+            class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div #exchangestitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            {{vehicles.exchanges.title}}
+        </div>
+        <div #exchanges>
+
+        </div>
+    </fieldset>
+    <fieldset #summaryswrapper
+            onclick="this.form.step('summarys')"
+            class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div #summarystitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            {{vehicles.summarys.title}}
+        </div>
+        <div #summarys>
+
+        </div>
+    </fieldset>
+    <fieldset #clientswrapper
+            onclick="this.form.step('clients')"
+            class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div #clientstitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            {{vehicles.clients.title}}
+        </div>
+        <div #clients>
+
+        </div>
+    </fieldset>
+</form>

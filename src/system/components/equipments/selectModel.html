@@ -1,0 +1,22 @@
+<dialog class="mdl-dialog" style="width: 90%; top: 16px">
+    <form #form>
+        <div class="mdl-dialog__content">
+            {{#each familys}}
+            <span class="mdl-list__item-secondary-action">
+              <label class="demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect" for="list-option-{{this.id}}">
+                <input onchange="this.form.change('{{this.id}}')" type="radio" id="list-option-{{this.id}}" class="mdl-radio__button" name="options" value="{{this.id}}"/>
+              </label>
+            </span>
+            <span class="mdl-list__item-primary-content">
+              {{this.name}}
+            </span>
+            {{/each}}
+            <hr/>
+            <div #models></div>
+        </div>
+        <div class="mdl-dialog__actions">
+            <button type="button" style="display: none;" class="mdl-button"></button>
+            <button type="button" class="mdl-button close" onclick="this.form.close()">ANNULLA</button>
+        </div>
+    </form>
+</dialog>

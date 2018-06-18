@@ -1,0 +1,24 @@
+<div style="padding: 6px;">
+    {{#each items}}
+        <div class="mdl-shadow--2dp" style="padding: 10px">
+            NOME: {{this.name}} <br/>
+            PREZZO: {{toCurrency(this.priceReal)}}<br/>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input onkeyup="this.form.updateSummary('{{this.id}}', this.value)" value="{{this.offeredPrice}}"
+                       class="mdl-textfield__input" type="text" id="e_summary_price_{{this.id}}">
+                <label class="mdl-textfield__label" for="e_summary_price_{{this.id}}">
+                    PREZZO PROPOSTO
+                </label>
+            </div>
+            <br/>
+        </div>
+    {{/each}}
+    <br/>
+    <div style="text-align: center">
+        <button type="button"
+                onclick="this.form.step('clients')"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+            PROSEGUI
+        </button>
+    </div>
+</div>

@@ -1,0 +1,84 @@
+<div style="padding: 16px">
+    <div>
+        ATTREZZATURE AGGIUNTIVE:
+        <table width="100%">
+            {{#each equipment}}
+            <tr>
+                <td width="70%">{{this.name}}</td>
+                <td width="30%" style="text-align: right; min-width: 180px;">
+                    <button type="button"
+                            onclick="this.form.removeEquipment('{{this.id}}')"
+                            class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">
+                        -
+                    </button>
+                    {{this.count}}
+                    <button type="button"
+                            onclick="this.form.addEquipment('{{this.id}}')"
+                            class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">
+                        +
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><em style="font-size: 12px; color: #b51700">ATTENZIONE: {{this.notes}}</em></td>
+            </tr>
+            <tr>
+                <td colspan="2"><em style="font-size: 12px;">INFORMAZIONE: {{this.info}}</em></td>
+            </tr>
+            {{/each}}
+        </table>
+    </div>
+    <hr/>
+    <button type="button" id="demo-menu-lower-left"
+            class="mdl-button mdl-js-button mdl-button--icon">
+        <i class="material-icons">add_box</i>
+    </button>
+
+    <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+        style="overflow: scroll;height: 200px;"
+        for="demo-menu-lower-left">
+        {{#each categories}}
+        <li class="mdl-menu__item">
+            <fieldset style="display: block;" onclick="this.form.addCategory('{{this}}')">
+                {{this}}
+            </fieldset>
+        </li>
+        {{/each}}
+    </ul>
+    {{#each selectedCategories}}
+    <fieldset
+            onclick="this.form.removeCategory('{{this}}')"
+            class="mdl-chip mdl-chip--deletable">
+        <span class="mdl-chip__text">{{this}}</span>
+        <button type="button" class="mdl-chip__action"><i class="material-icons">cancel</i></button>
+    </fieldset>
+    {{/each}}
+    <span class="mdl-color-text--grey-300">SELEZIONA CATEGORIE ...</span>
+    <hr/>
+    <div class="mdl-grid">
+        {{#each selectedEquipments}}
+        <div style="margin: 5px; min-height: auto;"
+             class="mdl-card mdl-cell--4-col mdl-shadow--2dp">
+            <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+                {{this.name}}
+            </div>
+            <div>
+                <div style="font-size: 12px; color: #b51700">ATTENZIONE: {{this.notes}}</div>
+                <div style="font-size: 12px;">INFORMAZIONE: {{this.info}}</div>
+                <div>LISTINO: {{toCurrency(this.priceReal)}}</div>
+            </div>
+            <button type="button"
+                    onclick="this.form.addEquipment('{{this.id}}')"
+                    class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">AGGIUNGI
+            </button>
+        </div>
+        {{/each}}
+    </div>
+    <div style="text-align: center">
+        <button type="button"
+                onclick="this.form.step('exchanges')"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">
+            PROSEGUI
+        </button>
+    </div>
+</div>

@@ -8,9 +8,11 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
         requiresLogin,
         async function (req, res) {
             const userId = req.session.userId;
-            const { email } = await mongo.getUser({ _id: new ObjectId(userId) });
+            const { email, userAuth } = await mongo.getUser({ _id: new ObjectId(userId) });
+            const vehiclebudgets = await mongo.rest.get('vehiclebudgets', `userId=${userId}`)  || [];
+            const equipmentbudgets = await mongo.rest.get('equipmentbudgets', `userId=${userId}`) || [];
             const data = {};
-            Object.assign(data, { logged: true, email });
+            Object.assign(data, { logged: true, userAuth, email, vehiclebudgets: vehiclebudgets, equipmentbudgets: equipmentbudgets });
             res.send(data);
         });
 
@@ -72,9 +74,10 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
         bruteforce.prevent,
         async function response(req, res) {
             mongo.loginUser(req.body)
-                .then(({ _id, email }) => {
+                .then(({ _id, email, userAuth }) => {
                     req.session.userId = _id;
                     req.session.email = email;
+                    req.session.userAuth = userAuth;
                     res.send('ok');
                 })
                 .catch(err => {

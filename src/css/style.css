@@ -1,10 +1,9 @@
 /* fallback */
-@font-face {
-    font-family: 'Material Icons';
-    font-style: normal;
-    font-weight: 400;
-    src: url(/assets/fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2) format('woff2');
-}
+input::-webkit-datetime-edit{ color: transparent; }
+input:focus::-webkit-datetime-edit{ color: initial; }
+.is-dirty input::-webkit-datetime-edit{ color: initial; }
+input {    height: 18px;}
+select {    height: 26px;}
 
 .material-icons {
     font-family: 'Material Icons';
@@ -47,7 +46,7 @@
     -ms-flex-pack: end;
     justify-content: flex-end;
     padding: 16px;
-    height: 151px;
+    height: 116px;
 }
 .cgt-avatar {
     width: 100%;

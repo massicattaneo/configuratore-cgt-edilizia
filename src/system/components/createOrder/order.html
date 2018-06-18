@@ -1,0 +1,153 @@
+<form #form enctype="multipart/form-data" class="mdl-grid">
+    <div #summary></div>
+    <div style="display: {{showExchange}}" class="mdl-cell mdl-shadow--2dp mdl-cell--12-col">
+        <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">
+            PERMUTA: {{exchange.name}} ({{exchange.builder}}) - ESTIMATO: {{toCurrency(exchange.value)}}
+        </div>
+
+        <div style="padding: 10px">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input onkeyup="this.form.updateStore('exchange.overvalue', this.value)" class="mdl-textfield__input" type="text" id="exchange_overvalue">
+                <label class="mdl-textfield__label" for="exchange_overvalue">
+                    SUPERVALUTAZIONE PERMUTA
+                </label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input onchange="this.form.updateStore('exchange.date', this.value)" class="mdl-textfield__input" type="date" id="exchange_date">
+                <label class="mdl-textfield__label" for="exchange_date">
+                    DATA VENDITA
+                </label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input onchange="this.form.updateStore('exchange.availability', this.value)" class="mdl-textfield__input" type="date" id="exchange_availability">
+                <label class="mdl-textfield__label" for="exchange_availability">
+                    DISPONIBILITÁ MACCHINA
+                </label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <select onchange="this.form.updateStore('exchange.documents', this.value)" class="mdl-textfield__input" id="exchange_documents" name="exchange_documents">
+                    <option value=""></option>
+                    <option value="Presenti">Presenti</option>
+                    <option value="Non presenti">Non presenti</option>
+                    <option value="Incompleti">Incompleti</option>
+                </select>
+                <label class="mdl-textfield__label" for="exchange_documents">DOCUMENTI PERMUTA</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input onchange="this.form.updateStore('xxx', this.value)" class="mdl-textfield__input" type="date" id="exchange_delivery">
+                <label class="mdl-textfield__label" for="exchange_delivery">
+                    DATA PREVISTA CONSEGNA MACCHINA
+                </label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <select onchange="this.form.updateStore('exchange.declaration', this.value)" class="mdl-textfield__input" id="exchange_declaration" name="exchange_declaration">
+                    <option value=""></option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                    <option value="N.A.">N.A.</option>
+                </select>
+                <label class="mdl-textfield__label" for="exchange_declaration">DICHIARAZIONE PER SOLLEVAMENTO</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <select onchange="this.form.updateStore('exchange.plate', this.value)" class="mdl-textfield__input" id="exchange_plate" name="exchange_plate">
+                    <option value=""></option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                </select>
+                <label class="mdl-textfield__label" for="exchange_plate">TARGATURA</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <select onchange="this.form.updateStore('exchange.mechanic', this.value)" class="mdl-textfield__input" id="exchange_mechanic" name="exchange_mechanic">
+                    <option value=""></option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                </select>
+                <label class="mdl-textfield__label" for="exchange_mechanic">CONSEGNA MECCANICO OFFICINA ESTERNA</label>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mdl-cell mdl-shadow--2dp mdl-cell--12-col" style="display: {{showLeasing}};">
+        <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">LEASING:</div>
+        <div style="padding: 10px">
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <select onchange="this.form.updateStore('leasing.on', this.value)" class="mdl-textfield__input" id="leasing" name="leasing">
+                    <option value=""></option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                </select>
+                <label class="mdl-textfield__label" for="leasing">LEASING</label>
+            </div>
+            <span id="leasing-wrapper">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <select onchange="this.form.updateStore('leasing.documents', this.value)" class="mdl-textfield__input" id="leasing_documents" name="leasing_documents">
+                    <option value=""></option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                    <option value="In attesa">In attesa</option>
+                </select>
+                <label class="mdl-textfield__label" for="leasing_documents">DOCUMENTI CONSEGNATI A SOCIETÀ
+                    LEASING?</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <select onchange="this.form.updateStore('leasing.approved', this.value)" class="mdl-textfield__input" id="leasing_approved" name="leasing_approved">
+                    <option value=""></option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                    <option value="In attesa">In attesa</option>
+                </select>
+                <label class="mdl-textfield__label" for="leasing_approved">LEASING APPROVATO?</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <select onchange="this.form.updateStore('leasing.payment', this.value)" class="mdl-textfield__input" id="leasing_payment" name="leasing_payment">
+                    <option value=""></option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                    <option value="In attesa">In attesa</option>
+                </select>
+                <label class="mdl-textfield__label" for="leasing_payment">LEASING CON PAGAMENTO ANTICIPO?</label>
+            </div>
+            </span>
+        </div>
+    </div>
+
+    <div class="mdl-cell mdl-shadow--2dp mdl-cell--12-col">
+        <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">
+            ORDINA: {{title}}</div>
+        <div style="padding: 10px">
+
+            <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+                <input onkeyup="this.form.updateStore('price', this.value)" class="mdl-currency-usd__input" type="text" id="price"/>
+                <label class="mdl-currency-usd__label" for="price">PREZZO TOTALE</label>
+                <div class="mdl-currency-usd__symbol">€</div>
+                <span class="mdl-currency-usd__error">#.##</span>
+            </div>
+            (PREZZO OFFERTO: {{toCurrency(priceOffered)}} - PREZZO LISTINO: {{toCurrency(priceReal)}})
+
+            <fieldset>
+                <legend>INVIA L'ORDINE VIA MAIL A:</legend>
+                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-1">
+                    <input disabled type="checkbox" id="checkbox-1" class="mdl-checkbox__input" checked>
+                    <span class="mdl-checkbox__label">UFFICIO VENDITE CGT</span>
+                </label>
+                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="emailMe">
+                    <input onchange="this.form.updateStore('xxx', this.value)" type="checkbox" id="emailMe" class="mdl-checkbox__input">
+                    <span class="mdl-checkbox__label">A ME</span>
+                </label>
+            </fieldset>
+            <br/>
+            <div #files></div>
+        </div>
+        <div style="text-align: center; {{on}}">
+            <button type="button"
+                    onclick="this.form.save('{{table}}', '{{id}}')"
+                    class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+                INVIA ORDINE
+            </button>
+        </div>
+        <br/>
+    </div>
+
+</form>

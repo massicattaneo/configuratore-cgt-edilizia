@@ -1,14 +1,16 @@
-import {HtmlView} from "gml-html";
+import { HtmlView } from 'gml-html';
 import template from './template.html';
 import * as style from './style.scss';
 
-export default async function ({system}) {
-    const view = HtmlView(template, style);
+export default async function ({ system, locale }) {
+    const view = HtmlView(template, style, locale.get());
+    view.style();
 
-    ({
-        loading: () => system.store.loading
-    }).reactive()
-        .connect(function ({ loading }) {
+    rx.connect
+        .partial({
+            loading: () => system.store.loading
+        })
+        .subscribe(function ({loading}) {
             view.get('progress').style.opacity = loading ? 1 : 0;
         });
 

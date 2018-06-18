@@ -5,12 +5,13 @@ import * as style from './style.scss';
 export default async function ({ locale, system, thread }) {
     const view = HtmlView(template, style, locale.get());
 
-    ({
-        logged: () => system.store.logged,
-        email: () => system.store.email
-    })
-        .reactive()
-        .connect(function ({ logged, email }) {
+
+    rx.connect
+        .partial({
+            logged: () => system.store.logged,
+            email: () => system.store.email
+        })
+        .subscribe(function ({logged, email}) {
             view.get('email').innerHTML = logged ? email : locale.get('menuHeader.userNotLogged');
             view.get('logout').style.display = logged ? 'block' : 'none';
             view.get('login').style.display = !logged ? 'block' : 'none';

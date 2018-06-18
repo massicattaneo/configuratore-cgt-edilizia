@@ -5,6 +5,32 @@ let text = process.env.APP_CONFIG || JSON.stringify(access.config);
 const config = JSON.parse(text);
 const bcrypt = require('bcrypt');
 const ObjectID = require('mongodb').ObjectID;
+const path = require('path');
+
+function getObjectId(id) {
+    try {
+        return new ObjectID(id);
+    } catch (e) {
+        return e;
+    }
+}
+
+function clean(o) {
+    return Object.keys(o).reduce(function (ret, key) {
+        ret[key] = o[key];
+        if (typeof ret[key] === 'string') {
+            ret[key] = o[key].trim();
+        }
+        if (key.indexOf('Id') !== -1 && o[key] !== '' && o[key] && o[key].toString().length <= 40) {
+            try {
+                ret[key] = getObjectId(o[key]);
+            } catch (e) {
+                ret[key] = o[key];
+            }
+        }
+        return ret;
+    }, {});
+}
 
 module.exports = function (isDeveloping) {
     const obj = {};
@@ -24,18 +50,19 @@ module.exports = function (isDeveloping) {
                     }
                 });
             });
-        })
+        });
     };
 
     obj.insertUser = function ({ email, password, tel = '', type, organization, name, lang }) {
         return new Promise(function (resolve, rej) {
-            db.collection("users").find({ email }).toArray(function (err, result) {
+            db.collection('users').find({ email }).toArray(function (err, result) {
                 if (err) return rej(new Error('generic'));
                 if (result.length) return rej(new Error('existingUser'));
                 const activationCode = bcrypt.hashSync(password, 4);
                 const hash = bcrypt.hashSync(password, 10);
-                const insert = { hash, activationCode, type, organization, name, tel, email, active: false, lang };
-                db.collection("users").insertOne(insert, function (err, res) {
+                const created = (new Date()).toISOString();
+                const insert = { created, hash, activationCode, type, organization, name, tel, email, active: false, lang };
+                db.collection('users').insertOne(insert, function (err, res) {
                     if (err)
                         rej(new Error('dbError'));
                     else {
@@ -50,7 +77,7 @@ module.exports = function (isDeveloping) {
     obj.activateUser = function (activationCode, userAuth) {
         return new Promise(function (res, rej) {
             db
-                .collection("users")
+                .collection('users')
                 .findOneAndUpdate(
                     { activationCode },
                     { $set: { active: true, userAuth } },
@@ -59,25 +86,25 @@ module.exports = function (isDeveloping) {
                         if (err) return rej(new Error('generic'));
                         if (r.value === null) return rej(new Error('generic'));
                         res(r.value);
-                    })
-        })
+                    });
+        });
     };
 
     obj.getUser = function (data) {
         return new Promise(function (resolve, reject) {
-            db.collection("users")
+            db.collection('users')
                 .findOne(data, function (err, user) {
                     if (err) return reject(new Error('generic'));
                     if (!user) return reject(new Error('missingUser'));
                     resolve(user);
                 });
-        })
+        });
     };
 
     obj.recoverPassword = function (data) {
         return new Promise(function (resolve, reject) {
             db
-                .collection("users")
+                .collection('users')
                 .findOneAndUpdate(
                     data,
                     { $set: { activationCode: bcrypt.hashSync('re$eTPas$W0Rd', 4) } },
@@ -93,7 +120,7 @@ module.exports = function (isDeveloping) {
     obj.resetPassword = function ({ activationCode, password }) {
         return new Promise(function (resolve, reject) {
             db
-                .collection("users")
+                .collection('users')
                 .findOneAndUpdate(
                     { activationCode },
                     { $set: { hash: bcrypt.hashSync(password, 10) } },
@@ -103,7 +130,7 @@ module.exports = function (isDeveloping) {
                         if (r.value === null) return reject(new Error('missingUser'));
                         resolve(r.value);
                     });
-        })
+        });
     };
 
     obj.deleteUser = function ({ userId, password }) {
@@ -115,7 +142,7 @@ module.exports = function (isDeveloping) {
                 if (!res) return reject(new Error('wrongPassword'));
 
                 db
-                    .collection("users")
+                    .collection('users')
                     .findOneAndUpdate(
                         { email },
                         { $set: { deleted: true, _email: email, email: '' } },
@@ -126,13 +153,13 @@ module.exports = function (isDeveloping) {
                             resolve(r.value);
                         });
             });
-        })
+        });
     };
 
     obj.loginUser = function ({ email, password }) {
         return new Promise(function (resolve, rej) {
             db
-                .collection("users")
+                .collection('users')
                 .findOne({ email }, function (err, user) {
                     if (err) return rej(new Error('generic'));
                     if (!user) return rej(new Error('wrongEmail'));
@@ -142,111 +169,94 @@ module.exports = function (isDeveloping) {
                         if (!res) return rej(new Error('wrongPassword'));
                         resolve(user);
                     });
-                })
-        })
-    };
-
-    obj.reviewsList = function () {
-        return new Promise(function (resolve, reject) {
-            db.collection("reviews").find({}, { limit: 100 }).sort({ created: -1 }).toArray(function (err, res) {
-                resolve(res);
-            })
-        })
-    };
-
-    obj.insertReview = function ({ rate, description, userId, lang }) {
-        return new Promise(async function (resolve, rej) {
-            const { name } = await obj.getUser({ _id: new ObjectID(userId) }).catch(rej);
-            db.collection("reviews").insertOne({
-                name,
-                rate,
-                description,
-                created: Date.now(),
-                userId,
-                lang
-            }, function (err, res) {
-                if (err)
-                    rej(new Error('dbError'));
-                else {
-                    resolve(res.ops[0]);
-                }
-            });
+                });
         });
-    };
-
-    obj.favouriteTreatment = function ({ treatmentId, value, userId }) {
-        db.collection('favourites').update({ treatmentId, userId }, { treatmentId, userId, value }, { upsert: true })
-        return Promise.resolve();
     };
 
     obj.getUserData = function (userId) {
         return new Promise(function (resolve, reject) {
-            db.collection("favourites").find({ userId, value: true }).toArray(function (err, res) {
+            db.collection('favourites').find({ userId, value: true }).toArray(function (err, res) {
                 resolve(res.map(i => i.treatmentId));
-            })
-        })
-    };
-
-    obj.buy = function ({ cart, userId, amount, email }) {
-        return new Promise(function (resolve, reject) {
-            const doc = { userId, cart, email, amount, payed: false };
-            db.collection("orders").insertOne(doc, function (err, res) {
-                if (err)
-                    reject(new Error('dbError'));
-                else {
-                    Object.assign(doc, { id: res.insertedId });
-                    resolve(doc);
-                }
             });
         });
     };
 
-    obj.confirmBuy = function ({ id, stripeId, amount, last4 }) {
-        return new Promise(function (resolve, reject) {
-            db
-                .collection("orders")
-                .findOneAndUpdate(
-                    { _id: id },
-                    { $set: { payed: true, stripeId, amount, last4 } },
-                    { returnOriginal: false },
-                    function (err, r) {
-                        if (err) return reject(new Error('generic'));
-                        if (r.value === null) return reject(new Error('missingOrder'));
-                        resolve(r.value);
-                    });
-        })
-    };
-
-    obj.getReviewsInfo = function () {
-        const col = db.collection('reviews');
-        return Promise.all([
-            new Promise(async function (resolve, reject) {
-                col.aggregate([{ $count: "count" }]).toArray(function (err, docs) {
-                    if (err) return reject(new Error('generic'));
-                    resolve(docs);
+    obj.rest = {
+        get: function (table, filter = '') {
+            const find = {};
+            const filters = filter.split('&');
+            filters.forEach(f => {
+                if (f.indexOf('>') !== -1) {
+                    const tmp = f.split('>');
+                    find[tmp[0]] = find[tmp[0]] || {};
+                    find[tmp[0]]['$gt'] = Number(tmp[1]);
+                }
+                if (f.indexOf('<') !== -1) {
+                    const tmp = f.split('<');
+                    find[tmp[0]] = find[tmp[0]] || {};
+                    find[tmp[0]]['$lt'] = Number(tmp[1]);
+                }
+                if (f.indexOf('=') !== -1) {
+                    const tmp = f.split('=');
+                    if (tmp[0].toLowerCase().indexOf('id') !== -1) {
+                        try {
+                            find[tmp[0]] = getObjectId(tmp[1]);
+                        } catch (e) {
+                            find[tmp[0]] = tmp[1];
+                        }
+                    } else {
+                        find[tmp[0]] = tmp[1];
+                    }
+                }
+            });
+            return new Promise(async function (resolve, rej) {
+                db.collection(table).find(find).toArray(function (err, result) {
+                    if (err) return rej(new Error('generic'));
+                    resolve(result);
                 });
-            }),
-            new Promise(async function (resolve, reject) {
-                col.aggregate([{ $group: { _id: null, average: { $avg: "$rate" } } }]).toArray(function (err, docs) {
-                    if (err) return reject(new Error('generic'));
-                    resolve(docs);
+            });
+        },
+        insert: function (table, body) {
+            return new Promise(async function (resolve, rej) {
+                const o = Object.assign({created: (new Date()).toISOString()}, body);
+                db.collection(table).insertOne(clean(o), function (err, res) {
+                    if (err)
+                        rej(new Error('dbError'));
+                    else {
+                        const data = Object.assign({ _id: res.insertedId }, o);
+                        resolve(data);
+                    }
                 });
-            })
-        ]).then(function (array) {
-            return { count: array[0][0].count, average: array[1][0].average };
-        });
-    };
-
-    obj.getOrderInfo = function (id) {
-        return new Promise(function (resolve, reject) {
-            db.collection("orders")
-                .findOne({ _id: new ObjectID(id) }, function (err, order) {
-                    if (err) return reject(new Error('generic'));
-                    if (!order) return reject(new Error('generic'));
-                    resolve(order);
+            });
+        },
+        update: function (table, id, body) {
+            return new Promise(async function (resolve, rej) {
+                const o = Object.assign({modified: (new Date()).toISOString()}, body);
+                db
+                    .collection(table)
+                    .findOneAndUpdate(
+                        { _id: getObjectId(id) },
+                        { $set: clean(o) },
+                        { returnOriginal: false },
+                        function (err, r) {
+                            if (err) return rej(new Error('generic'));
+                            if (r.value === null) return rej(new Error('generic'));
+                            resolve(r.value);
+                        });
+            });
+        },
+        delete: function (table, id) {
+            return new Promise(async function (resolve, rej) {
+                const item = await obj.rest.get(table, `_id=${id}`);
+                db.collection(table).remove({ _id: getObjectId(id) }, function (err, res) {
+                    if (err)
+                        rej(new Error('dbError'));
+                    else {
+                        resolve(item[0]);
+                    }
                 });
-        })
+            });
+        }
     };
-
     return obj;
 };

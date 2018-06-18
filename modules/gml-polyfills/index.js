@@ -5,6 +5,7 @@ import './EventEmitter';
 import './Promise';
 import './Store';
 import './Function';
+import './HTMLElement';
 import {RetryRequest} from "../gml-http-request";
 
 window.RetryRequest = RetryRequest;

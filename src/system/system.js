@@ -1,11 +1,10 @@
 import {System} from 'gml-system';
 import 'gml-polyfills';
-import {version} from '../../package.json';
+import {version, author, name, description} from '../../package.json';
 
-const appName = 'configuratore-cgt-edilizia';
 const system = System({
     ua: window.navigator.userAgent,
-    config: { appName, version }
+    config: { name, version, author, description }
 });
 
 window.system = system;
@@ -33,7 +32,7 @@ const Gos = gosFolders.keys().map((filename) => {
 
         this.locale = locale;
         for (let index = 0; index < Gos.length; index++) {
-            gos[Gos[index].name] = await Gos[index].init({ locale, system, thread });
+            gos[Gos[index].name] = await Gos[index].init({ locale, system, thread, gos });
         }
         thread.inject({ gos });
     });

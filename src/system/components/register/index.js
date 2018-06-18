@@ -4,7 +4,7 @@ import * as style from './style.scss';
 import registerDone from './register-done.html';
 
 const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const telRegEx = /^(\+34|0034|34)?[\s|\-|\.]?[6|7|9][\s|\-|\.]?([0-9][\s|\-|\.]?){8}$/;
+const telRegEx = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
 
 export default async function ({ locale, system, thread }) {
     const view = HtmlView(template, style, locale.get());
@@ -16,6 +16,7 @@ export default async function ({ locale, system, thread }) {
         if (this.type.value === '3' && this.organization.value === '')
             error({text: 'missingOrganizationName', focus: 'organization'});
         if (this.name.value === '') error({ text: 'missingName', focus: 'name' });
+        if (this.surname.value === '') error({ text: 'missingSurname', focus: 'surname' });
         if (this.email.value === '') error({ text: 'missingEmail', focus: 'email' });
         if (!emailRegEx.test(this.email.value)) error({ text: 'malformedEmail', focus: 'email' });
         if (this.tel.value === '') error({ text: 'missingTel', focus: 'tel' });
@@ -33,7 +34,7 @@ export default async function ({ locale, system, thread }) {
     };
 
     function error({ text, focus }) {
-        form[focus].focus();
+        focus && form[focus].focus();
         system.throw(text);
     }
 
@@ -43,6 +44,7 @@ export default async function ({ locale, system, thread }) {
             email: form.email.value,
             password: form.password.value,
             name: form.name.value,
+            surname: form.surname.value,
             tel: form.tel.value,
             lang: system.info().lang,
             type: form.type.value,

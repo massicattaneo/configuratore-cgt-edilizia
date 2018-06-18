@@ -1,0 +1,109 @@
+<div style="padding: 16px">
+    <div>
+        ATTREZZATURE:
+        <table width="100%">
+            {{#each equipments}}
+            <tr>
+                <td width="70%">{{this.name}}</td>
+                <td width="30%" style="text-align: right; min-width: 180px;">
+                    <button type="button"
+                            onclick="this.form.removeEquipment('{{this.id}}')"
+                            class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">
+                        -
+                    </button>
+                    {{this.count}}
+                    <button type="button"
+                            onclick="this.form.addEquipment('{{this.id}}')"
+                            class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">
+                        +
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><em style="font-size: 12px; color: #38b562">{{this.notes}}</em></td>
+            </tr>
+            <tr>
+                <td colspan="2"><em style="font-size: 12px; color: #d19241">{{this.info}}</em></td>
+            </tr>
+            {{/each}}
+        </table>
+    </div>
+    <hr/>
+    <button type="button" id="equipementFamilysFilter"
+            class="mdl-button mdl-js-button mdl-button--icon">
+        <i class="material-icons">add_box</i>
+    </button>
+
+    <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+        style="overflow: scroll;height: 200px;"
+        for="equipementFamilysFilter">
+        {{#each equipementFamilys}}
+        <li class="mdl-menu__item">
+            <fieldset style="display: block;" onclick="this.form.addFilter('equipmentFamily', '{{this.equipmentFamily}}')">
+                {{this.equipmentFamily}}
+            </fieldset>
+        </li>
+        {{/each}}
+    </ul>
+    <span class="mdl-color-text--grey-300">FAMIGLIA ATTREZZATURE ...</span>
+
+    <button type="button" id="buildersFilter"
+            class="mdl-button mdl-js-button mdl-button--icon">
+        <i class="material-icons">add_box</i>
+    </button>
+    <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+        style="overflow: scroll;height: 200px;"
+        for="buildersFilter">
+        {{#each builders}}
+        <li class="mdl-menu__item">
+            <fieldset style="display: block;" onclick="this.form.addFilter('constructorId', '{{this.constructorId}}')">
+                {{this.constructorId}}
+            </fieldset>
+        </li>
+        {{/each}}
+    </ul>
+    <span class="mdl-color-text--grey-300">COSTRUTTORE ...</span>
+
+    <button onclick="this.form.selectVehicle()"
+            type="button" class="mdl-button mdl-js-button mdl-button--icon">
+        <i class="material-icons">add_box</i>
+    </button>
+    <span class="mdl-color-text--grey-300">MACCHINA ...</span>
+
+    <hr/>
+    {{#each filters}}
+    <fieldset
+            onclick="this.form.removeFilter('{{this.id}}')"
+            class="mdl-chip mdl-chip--deletable">
+        <span class="mdl-chip__text">{{this.name}}</span>
+        <button type="button" class="mdl-chip__action"><i class="material-icons">cancel</i></button>
+    </fieldset>
+    {{/each}}
+    <hr/>
+    <div class="mdl-grid">
+        {{#each items}}
+        <div style="margin: 5px; min-height: auto;"
+             class="mdl-card mdl-cell--4-col mdl-shadow--2dp">
+            <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+                {{this.name}}
+            </div>
+            <div>
+                <div style="font-size: 12px; color: #38b562">{{this.notes}}</div>
+                <div style="font-size: 12px; color: #d19241">{{this.info}}</div>
+                <div>PREZZO: {{toCurrency(this.priceReal)}}</div>
+            </div>
+            <button type="button"
+                    onclick="this.form.addEquipment('{{this.id}}')"
+                    class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">AGGIUNGI
+            </button>
+        </div>
+        {{/each}}
+    </div>
+    <div style="text-align: center">
+        <button type="button"
+                onclick="this.form.step('summarys')"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">
+            PROSEGUI
+        </button>
+    </div>
+</div>

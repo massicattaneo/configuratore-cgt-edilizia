@@ -1,3 +1,10 @@
 #wrapper {
 
 }
+
+#title {
+  max-width: 70%;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

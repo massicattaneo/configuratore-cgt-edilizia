@@ -1,13 +1,11 @@
 function addItem(node, items) {
 
-    Object.keys(node.attributes).map(key => node.attributes[key])
-        .filter(attr => {
-            return attr.name && attr.name.indexOf('#') === 0;
-        })
-        .forEach(item => {
-            items[item.name.substr(1)] = node;
-            node.removeAttribute(item.name);
-        });
+    for (let i=0; i<node.attributes.length; i++) {
+        if (node.attributes[i].name && node.attributes[i].name.indexOf('#') === 0) {
+            items[node.attributes[i].name.substr(1)] = node;
+            node.removeAttribute(node.attributes[i].name);
+        }
+    }
 }
 
 function exploreNode(node, before) {
@@ -47,13 +45,72 @@ export function Node(markup) {
     return div.children[0];
 }
 
+const myParsers = {
+    toCurrency: (number) => {
+        const string = parseFloat(number).toFixed(2);
+        const integer = string.split('.')[0].split('').reverse().reduce((array, item, index) => {
+            const number = Math.floor(index / 3);
+            array[number] = array[number] || [];
+            array[number].push(item)
+            return array;
+        }, []).map(a => a.reverse()).reverse().join('.').replace(/,/g, '');
+        const decimals = string.split('.')[1];
+        return `${integer},${decimals} €`
+    },
+    formatLongDate: function (d) {
+        const date = new Date(d);
+        return date.formatDay('dddd dd/mm/yyyy', ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica']);
+    },
+    formatTime: function (d) {
+        const date = new Date(d);
+        return date.formatTime('hh:mm');
+    }
+};
+
 export function HtmlView(markup, styles, variables = {}) {
+    markup = markup.replace(/\n/g, '');
+    let matcher = /\{{#each [^}}]*}}.*{{\/each}}/;
+    while (markup.match(matcher)) {
+        let myMatch = markup.match(matcher);
+        let str = markup.substr(myMatch.index, markup.indexOf('{{/each}}') -myMatch.index + 9);
+        markup = markup.replace(str, variables[str.match(/{{#each ([^{{]*)}}/)[1]].map(item => {
+            let ret = str.replace(/\{{#each [^}}]*}}/, '').replace('{{/each}}', '').trim();
+            if (item instanceof Object) {
+                Object.keys(item).forEach(key => {
+                    let regEx = new RegExp(`{{this.${key}}}`, 'g');
+                    ret = ret.replace(regEx, item[key]);
+                    Object.keys(myParsers).forEach(function (fnName) {
+                        regEx = new RegExp(`{{${fnName}\\(this.${key}\\)}}`, 'g');
+                        ret = ret.replace(regEx, myParsers[fnName](item[key]));
+                    });
+                });
+                return ret;
+            } else {
+                let regEx;
+                Object.keys(myParsers).forEach(function (fnName) {
+                    regEx = new RegExp(`{{${fnName}\\(this\\)}}`, 'g');
+                    ret = ret.replace(regEx, item);
+                });
+                return ret.replace(/{{this}}/g, item)
+            }
+        }).join(''));
+    }
+
     const regEx = new RegExp(`\{\{([^}}]*)\}\}`, 'g');
     while (markup.match(regEx)) {
         (markup.match(regEx))
             .map(variable => variable.replace('{{', '').replace('}}', ''))
             .forEach(function (variable) {
-                const replace = variable.split('.').reduce((val, item) => val[item] || '', variables);
+                Object.keys(myParsers).forEach(function (fnName) {
+                    if (variable.indexOf(fnName + '(') === 0) {
+                        const r1 = variable.replace(fnName + '(', '').replace(')', '');
+                        const r2 = r1.split('.').reduce((val, item) =>
+                            val[item] !== undefined ? val[item] : '', variables);
+                        markup = markup.replace(`{{${variable}}}`, myParsers[fnName](r2));
+                    }
+                });
+                const replace = variable.split('.').reduce((val, item) =>
+                    val[item] !== undefined ? val[item] : '', variables);
                 markup = markup.replace(`{{${variable}}}`, replace);
             });
     }

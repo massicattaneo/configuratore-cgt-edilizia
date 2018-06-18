@@ -1,11 +1,5 @@
 const nodemailer = require('nodemailer');
-const webmail = {
-    smtpHost: '',
-    smtpPort: '',
-    user: '',
-    password: '',
-};
-
+const webmail = require('../private/dondominio-webmail');
 
 module.exports = function () {
     const obj = {};
@@ -27,7 +21,7 @@ module.exports = function () {
 
     obj.send = function (mailOptions) {
         return new Promise(function (res, reject) {
-            mailOptions.from = `"In&Out Belleza" <${webmail.user}>`;
+            mailOptions.from = `"CGT EDILIZIA" <${webmail.user}>`;
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
                     return reject(new Error('mail-error'))
