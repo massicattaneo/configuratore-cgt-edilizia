@@ -328,9 +328,9 @@ export default async function ({ locale, system, thread }) {
     view.updateFromItem = function (item) {
         store.id = item._id;
         rx.update(store, item);
-        rx.update(exchange, item.exchange);
-        rx.update(summary, item.summary);
-        rx.update(client, item.client);
+        exchange = item.exchange;
+        summary = item.summary;
+        client = item.client;
         refresh(item);
     };
 

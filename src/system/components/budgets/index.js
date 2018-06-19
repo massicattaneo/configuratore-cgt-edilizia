@@ -37,6 +37,7 @@ export default async function ({ system, gos, locale }) {
             });
         view.clear('vehiclebudgets').appendTo('vehiclebudgets', vehiclebudgetsTpl, [], { vehiclebudgets: vb });
         view.clear('equipmentbudgets').appendTo('equipmentbudgets', equipmentbudgetsTpl, [], { equipmentbudgets: eb });
+        componentHandler.upgradeDom();
     });
 
     const form = view.get();
