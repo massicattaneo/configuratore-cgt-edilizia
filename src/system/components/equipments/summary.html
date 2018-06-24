@@ -1,7 +1,7 @@
 <div style="padding: 6px;">
     {{#each items}}
         <div class="mdl-shadow--2dp" style="padding: 10px">
-            NOME: {{this.name}} <br/>
+            {{this.code}} - {{this.name}} ({{this.constructorId}}) <br/>
             PREZZO: {{toCurrency(this.priceReal)}}<br/>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input onkeyup="this.form.updateSummary('{{this.id}}', this.value)" value="{{this.offeredPrice}}"

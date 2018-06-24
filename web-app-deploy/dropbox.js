@@ -31,7 +31,7 @@ const modeldataStructure = {
     image: 'Immagine'
 };
 const versionDataStructure = {
-    id: 'Codice',
+    id: 'identificatore',
     name: 'Codice',
     modelId: 'Modello',
     description: { column: 'Macchina', convert: string => string.replace('\n', '') },
@@ -76,13 +76,20 @@ const equipementDataStructure = {
     constructorId: 'Costruttore',
     time: 'Tempi da fabbrica',
     compatibility: { column: 'Codice', convert: mapCompatibility },
-    id: {
-        column: 'Codice', convert: (codice, item, row, db) => {
-            const comp = mapCompatibility(codice, item, row, db);
-            return `${codice}.${comp.map(i => i.id).join('-')}`;
-        }
-    }
+    id: 'Identificatore'
 };
+
+function getDropboxSpecialOffert(dbx) {
+    return dbx.filesListFolder({ path: `/APPS/configuratore-cgt-edilizia/Offerte speciali/Venditori` })
+        .then(function (response) {
+            return response.entries.map(({ name, id }) => {
+                return { name, id };
+            });
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+}
 
 module.exports = function () {
     const obj = {};
@@ -111,6 +118,8 @@ module.exports = function () {
         start = Date.now();
         console.log('/****** DOWNLOADING IMAGES FROM DROPBOX');
         await copyDropboxImages(dbx, db.models, db.versions, db.equipements);
+        console.log('/****** CREATING SPECIAL OFFERS FROM DROPBOX');
+        db.specialOffers = await getDropboxSpecialOffert(dbx);
         console.log(`/****** finished parsing DOWNLOADING IMAGES FROM DROPBOX in ${(Date.now() - start) / 1000}s`);
     };
 
@@ -151,6 +160,10 @@ module.exports = function () {
             .catch(function (error) {
                 console.error(error);
             });
+    };
+
+    obj.download = function (path) {
+        return downloadFile(dbx, path);
     };
 
     return obj;
@@ -215,6 +228,13 @@ async function copyDropboxImages(dbx, models, versions, equipements) {
     });
 }
 
+function downloadFile(dbx, path) {
+    return dbx.filesDownload({ path: `/APPS/configuratore-cgt-edilizia/${path}` })
+        .catch(function (e) {
+            console.log(e);
+        });
+}
+
 function parse(sheetName, data) {
     return originalDb[sheetName].map(function (row) {
         return Object.keys(data).reduce(function (ret, otherKey) {
@@ -223,7 +243,7 @@ function parse(sheetName, data) {
                 datum = { column: data[otherKey], convert: e => e };
             }
             const idKey = Object.keys(row).find(key => key.indexOf(datum.column) !== -1);
-            ret[otherKey] = datum.convert(row[idKey], ret, row, db);
+            ret[otherKey] = datum.convert(row[idKey] ? row[idKey].trim() : row[idKey], ret, row, db);
             return ret;
         }, {});
     });

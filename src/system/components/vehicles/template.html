@@ -1,5 +1,12 @@
-<form #wrapper enctype="multipart/form-data">
-    <fieldset #familyswrapper
+<form #wrapper enctype="multipart/form-data" autocomplete="off">
+    <div style="text-align: center; {{on}}">
+        <button type="button"
+                onclick="this.form.reset()"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+            RIPARTI DA ZERO
+        </button>
+    </div>
+    <fieldset #familyswrapper id="familys"
          onclick="this.form.step('familys')"
          class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         <div #familystitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
@@ -9,7 +16,7 @@
 
         </div>
     </fieldset>
-    <fieldset #modelswrapper
+    <fieldset #modelswrapper id="models"
          onclick="this.form.step('models')"
          class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         <div #modelstitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
@@ -19,7 +26,7 @@
 
         </div>
     </fieldset>
-    <fieldset #versionswrapper
+    <fieldset #versionswrapper id="versions"
          onclick="this.form.step('versions')"
          class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         <div #versionstitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
@@ -29,7 +36,7 @@
 
         </div>
     </fieldset>
-    <fieldset #equipementswrapper
+    <fieldset #equipementswrapper id="equipements"
          onclick="this.form.step('equipements')"
          class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         <div #equipementstitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
@@ -39,7 +46,7 @@
 
         </div>
     </fieldset>
-    <fieldset #exchangeswrapper
+    <fieldset #exchangeswrapper id="exchanges"
             onclick="this.form.step('exchanges')"
             class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         <div #exchangestitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
@@ -49,7 +56,7 @@
 
         </div>
     </fieldset>
-    <fieldset #summaryswrapper
+    <fieldset #summaryswrapper id="summarys"
             onclick="this.form.step('summarys')"
             class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         <div #summarystitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
@@ -59,7 +66,7 @@
 
         </div>
     </fieldset>
-    <fieldset #clientswrapper
+    <fieldset #clientswrapper id="clients"
             onclick="this.form.step('clients')"
             class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         <div #clientstitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">

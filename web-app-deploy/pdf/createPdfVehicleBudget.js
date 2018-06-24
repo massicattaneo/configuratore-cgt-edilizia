@@ -59,11 +59,11 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .stroke('red');
 
     doc
-        .image(path.resolve(`${__dirname}/..${dbx.models.find(m => m.id === budget.model).src}`), 150, (pos += 50), { width: 225 });
+        .image(path.resolve(`${__dirname}/..${dbx.versions.find(v => v.id === budget.version).src}`), (docWidth - 400) / 2, (pos +=10), { width: 300 });
 
     doc
         .fontSize(8)
-        .text('Foto puramente a scopo illustrativo', marginLeft, (pos - 10), { align: 'center', features: ['ital'] });
+        .text('Foto puramente a scopo illustrativo', marginLeft, (pos + 250), { align: 'center', features: ['ital'] });
 
     doc.addPage();
 

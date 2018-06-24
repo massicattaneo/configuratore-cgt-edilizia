@@ -1,6 +1,6 @@
 const path = require('path');
 const express = require('express');
-const port = process.env.PORT || 8093;
+const port = process.env.PORT || 8097;
 const app = express();
 const mailer = require('./mailer/mailer')();
 const isDeveloping = process.env.NODE_ENV === 'development';
@@ -14,6 +14,7 @@ const fs = require('fs');
 const compression = require('compression');
 const createPdfVehicleBudget = require('./pdf/createPdfVehicleBudget');
 const createPdfEquipmentBudget = require('./pdf/createPdfEquipmentBudget');
+const createPdfPriceList = require('./pdf/createPdfPriceList');
 const https = require('https');
 const dropbox = require('./dropbox')();
 const httpsOptions = {
@@ -86,6 +87,19 @@ function noCache(req, res, next) {
         }
     });
 
+    app.get('/api/dropbox/*',
+        requiresLogin,
+        async function (req, res) {
+            const path = decodeURIComponent(req.url.replace('/api/dropbox/', ''));
+            const file = await dropbox.download(path);
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'Content-disposition': 'attachment;filename=' + file.name,
+                'Content-Length': file.size
+            });
+            res.end(new Buffer(file.fileBinary, 'binary'));
+        });
+
     app.get('/api/pdf/:table/:id',
         requiresLogin,
         async function (req, res) {
@@ -100,6 +114,14 @@ function noCache(req, res, next) {
             } else {
                 res.send('');
             }
+        });
+
+    app.get('/api/price-list/',
+        requiresLogin,
+        async function (req, res) {
+            const models = (req.query.models || '').split(',');
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`))[0];
+            createPdfPriceList(res, models, dropbox.getDb(req.session.userAuth), user);
         });
 
     app.get('/api/email/:table/:id',
@@ -220,8 +242,8 @@ function noCache(req, res, next) {
         requiresLogin,
         async function (req, res) {
             const table = req.params.table;
-            const order = await mongo.rest.insert(table, Object.assign({userId: req.session.userId}, req.body));
-            await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, {ordered: true});
+            const order = await mongo.rest.insert(table, Object.assign({ userId: req.session.userId }, req.body));
+            await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, { ordered: true });
             // mailer.send(createTemplate('order', { table, order, user, email, attachments }));
             res.send(order);
         });

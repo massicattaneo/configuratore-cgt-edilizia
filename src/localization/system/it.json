@@ -100,6 +100,16 @@
       "href": "/it/crea-ordine",
       "title": "CREA UN ORDINE",
       "menu": "CREA UN ORDINE"
+    },
+    "specialOffers": {
+      "href": "/it/offerte-special",
+      "title": "OFFERTE SPECIALI",
+      "menu": "OFFERTE SPECIALI"
+    },
+    "priceList": {
+      "href": "/it/listino-prezzi",
+      "title": "ESTRAZIONE LISTINO",
+      "menu": "ESTRAZIONE LISTINO"
     }
   },
   "menuHeader": {

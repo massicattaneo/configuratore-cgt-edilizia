@@ -43,7 +43,7 @@
     </div>
     <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
         <input value="{{exchange.value}}" class="mdl-currency-usd__input" type="text" id="exchange_vehicle_value" onkeyup="this.form.updateExchange('value', this.value)">
-        <label class="mdl-currency-usd__label" for="exchange_vehicle_value">Valore</label>
+        <label class="mdl-currency-usd__label" for="exchange_vehicle_value">Valore di ritiro</label>
         <div class="mdl-currency-usd__symbol">€</div>
         <span class="mdl-currency-usd__error">#.##</span>
     </div>
@@ -56,7 +56,7 @@
     </div>
     <hr/>
     <div>
-        ALLEGATI:
+        ALLEGA RAPPORTO DI ISPEZIONE:
         {{#each files}}
         <fieldset
                 onclick="this.form.removeExchange('{{this._id}}')"

@@ -39,7 +39,7 @@ module.exports = {
     getLongDate: function getLongDate(date) {
         return `${globalize[`day_${date.getDay()}`]}, ${date.getDate()} ${globalize[`month_${date.getMonth()}`]} ${date.getFullYear()}`;
     },
-    toCurrency: function toCurrency(number) {
+    toCurrency: function toCurrency(number, currency = 'Euro') {
         const string = parseFloat(number).toFixed(2);
         const integer = string.split('.')[0].split('').reverse().reduce((array, item, index) => {
             const number = Math.floor(index / 3);
@@ -48,6 +48,6 @@ module.exports = {
             return array;
         }, []).map(a => a.reverse()).reverse().join('.').replace(/,/g, '');
         const decimals = string.split('.')[1];
-        return `Euro ${integer},${decimals}`;
+        return `${currency} ${integer},${decimals}`;
     }
 };

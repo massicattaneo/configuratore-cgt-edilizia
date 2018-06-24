@@ -20,6 +20,9 @@
                 </td>
             </tr>
             <tr>
+                <td colspan="2"><em style="font-size: 12px;">TEMPI DI CONSEGNA: {{this.time}}</em></td>
+            </tr>
+            <tr>
                 <td colspan="2"><em style="font-size: 12px; color: #b51700">ATTENZIONE:  {{this.notes}}</em></td>
             </tr>
             <tr>
@@ -80,7 +83,7 @@
     </fieldset>
     {{/each}}
     <hr/>
-    <div class="mdl-grid">
+    <div class="mdl-grid" style="padding: 0">
         {{#each items}}
         <div style="margin: 5px; min-height: auto;"
              class="mdl-card mdl-cell--4-col mdl-shadow--2dp">
@@ -91,7 +94,8 @@
                 <img src="{{this.src}}" style="width: 100%; padding: 0 10px 10px 10px" />
                 <div style="font-size: 12px; color: #b51700">ATTENZIONE: {{this.notes}}</div>
                 <div style="font-size: 12px;">INFORMAZIONE: {{this.info}}</div>
-                <div>PREZZO: {{toCurrency(this.priceReal)}}</div>
+                <div style="font-size: 12px;">TEMPI DI CONSEGNA: {{this.time}}</div>
+                <div>PREZZO LISTINO: {{toCurrency(this.priceReal)}}</div>
             </div>
             <button type="button"
                     onclick="this.form.addEquipment('{{this.id}}')"

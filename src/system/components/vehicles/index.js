@@ -245,12 +245,19 @@ export default async function ({ locale, system, thread }) {
         }
     });
 
+    form.reset = function() {
+        if (confirm('TUTTI I DATI INSERITI IN QUESTA PAGINA VERRANNO ELIMINATI. CONTINUARE?')) {
+            reset()
+        }
+    };
+
     function getCatregories(model, remove) {
         return equipements
             .filter(i => i.compatibility.filter(o => o.id === model).length)
             .map(i => i.equipmentFamily)
             .filter((item, pos, a) => a.indexOf(item) === pos)
-            .filter(item => remove.indexOf(item) === -1);
+            .filter(item => remove.indexOf(item) === -1)
+            .sort();
     }
 
     function getSelectedEquipments(model, array) {
@@ -302,7 +309,10 @@ export default async function ({ locale, system, thread }) {
                 : 'NESSUNA PERMUTA',
             selEquipments: equipment.length
                 ? `<div>ATTREZZATURE:</div><ul><li>${equipment
-                    .map(id => equipements.find(e => e.id == id).name + ' - ' + system.toCurrency(equipements.find(e => e.id == id).priceReal))
+                    .map(id => {
+                        const find = equipements.find(e => e.id == id);
+                        return `${find.code}${find.name} - ${system.toCurrency(find.priceReal)}`
+                    })
                     .join('</li><li>')}</li></ul>`
                 : 'NESSUNA ATTREZZATURA SELEZIONATA'
         }], true, step, system.toCurrency(summary.price || calculateTotal({version, equipment}, system.db)));

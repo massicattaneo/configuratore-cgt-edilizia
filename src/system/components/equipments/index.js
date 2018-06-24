@@ -14,11 +14,15 @@ function sDisplay(id) {
 }
 
 function getEquipFamilys(equipements) {
-    return equipements.filter((e, i, a) => a.indexOf(a.find(f => f.equipmentFamily === e.equipmentFamily)) === i);
+    return equipements
+        .filter((e, i, a) => a.indexOf(a.find(f => f.equipmentFamily === e.equipmentFamily)) === i)
+        .sort((a,b) => a.equipmentFamily.localeCompare(b.equipmentFamily));
 }
 
 function getBuilders(equipements) {
-    return equipements.filter((e, i, a) => a.indexOf(a.find(f => f.constructorId === e.constructorId)) === i);
+    return equipements
+        .filter((e, i, a) => a.indexOf(a.find(f => f.constructorId === e.constructorId)) === i)
+        .sort((a,b) => a.constructorId.localeCompare(b.constructorId));
 }
 
 const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -258,6 +262,12 @@ export default async function ({ system, locale }) {
             system.navigateTo('/it/preventivi');
         }
     });
+
+    form.reset = function() {
+        if (confirm('TUTTI I DATI INSERITI IN QUESTA PAGINA VERRANNO ELIMINATI. CONTINUARE?')) {
+            reset()
+        }
+    };
 
     view.destroy = function () {
 

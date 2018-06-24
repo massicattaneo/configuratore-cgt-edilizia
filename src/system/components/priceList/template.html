@@ -1,0 +1,20 @@
+<form #wrapper>
+    <div class="mdl-grid">
+        {{#each familys}}
+        <div class="mdl-cell mdl-cell--4-col mdl-card">
+            <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">{{this.name}}</div>
+            <div style="padding: 10px">
+                {{this.checkboxes}}
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    <div style="text-align: center; {{on}}">
+        <button type="button"
+                onclick="this.form.download()"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+            SCARICA
+        </button>
+    </div>
+    <br/>
+</form>

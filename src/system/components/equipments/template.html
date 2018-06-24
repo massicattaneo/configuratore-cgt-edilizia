@@ -1,6 +1,12 @@
-<form #wrapper>
-
-    <fieldset #equipementswrapper
+<form #wrapper autocomplete="off">
+    <div style="text-align: center; {{on}}">
+        <button type="button"
+                onclick="this.form.reset()"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+            RIPARTI DA ZERO
+        </button>
+    </div>
+    <fieldset #equipementswrapper id="equipements"
             onclick="this.form.step('equipements')"
             class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         <div #equipementstitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
@@ -10,7 +16,7 @@
 
         </div>
     </fieldset>
-    <fieldset #summaryswrapper
+    <fieldset #summaryswrapper id="summarys"
             onclick="this.form.step('summarys')"
             class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         <div #summarystitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
@@ -20,7 +26,7 @@
 
         </div>
     </fieldset>
-    <fieldset #clientswrapper
+    <fieldset #clientswrapper id="clients"
             onclick="this.form.step('clients')"
             class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         <div #clientstitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
