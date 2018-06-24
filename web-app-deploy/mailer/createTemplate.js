@@ -44,9 +44,8 @@ module.exports = function (type, emailParams) {
             };
         case 'order':
             return {
-                // to: 'giovanna.pittelli@cgtedilizia.it;barbara.rizzuti@cgtedilizia.it;Vanessa.Aprigliano@cgtedilizia.it',
-                to: 'massi.cattaneo.it@gmail.com;massi.cattaneo@alice.it',
-                subject: `ORDINE ${emailParams.dbx.versions.find(v => v.id === emailParams.budget.version).name} per ${emailParams.budget.client.name}`,
+                to: email,
+                subject: `ORDINE per ${emailParams.budget.client.name}`,
                 text: '', // plain text body
                 html: order(params),
                 attachments: emailParams.attachments

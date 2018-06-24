@@ -47,7 +47,7 @@ export default async function ({ locale, system, thread }) {
                 version: version,
                 family: family,
                 model: system.db.models.find(i => i.id === budget.model),
-                showLeasing: (isVehicle) ? 'block' : 'none',
+                showLeasing: 'block',
                 showExchange: (isVehicle && budget.exchange.name) ? 'block' : 'none',
                 exchange: budget.exchange,
                 priceReal: isVehicle
@@ -65,19 +65,6 @@ export default async function ({ locale, system, thread }) {
             });
 
             const form = subView.get();
-
-            form.uploadFile = async function () {
-                system.store.loading = true;
-                const file = await RetryRequest('/api/upload', { timeout: 30000 }).post(new FormData(this))
-                    .catch(function (e) {
-                        system.throw('generic-error');
-                        system.store.loading = false;
-                    });
-                setTimeout(function () {
-                    store.files.push(JSON.parse(file.responseText));
-                    system.store.loading = false;
-                }, 100);
-            };
 
             form.removeFile = async function (id) {
                 const file = store.files.find(f => f._id === id);
