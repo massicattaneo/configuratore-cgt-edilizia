@@ -14,8 +14,6 @@ module.exports = function (type, emailParams) {
         case 'confirmEmail':
             return {
                 to: 'samuele.albertini@cgtedilizia.it; carlotta.beccaro@cgtedilizia.it; francesco.cerizzi@cgtedilizia.it', // list of receivers
-                // to: 'massi.cattaneo.it@gmail.com', // list of receivers
-                // to: 'samuele.albertini@cgtedilizia.it', // list of receivers
                 subject: 'CONFIGURATORE CGT - CREAZIONE UTENZA', // Subject line
                 text: '', // plain text body
                 html: confirm(params)

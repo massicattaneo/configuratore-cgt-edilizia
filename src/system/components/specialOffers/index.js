@@ -4,7 +4,7 @@ import * as style from './style.scss';
 
 export default async function ({locale, system, thread}) {
     const params = Object.assign({
-        specialOffers: system.db.specialOffers
+        specialOffers: system.db.specialOffers || []
     }, locale.get());
     const view = HtmlView(template, style, params);
     view.style();
