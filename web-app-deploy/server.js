@@ -25,6 +25,8 @@ const urlParse = require('url');
 const fileUpload = require('express-fileupload');
 const createTemplate = require('./mailer/createTemplate');
 const privateInfo = require('./private/privateInfo.json');
+const XLSX = require('xlsx');
+const shared = require('./shared');
 
 function noCache(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
@@ -243,8 +245,59 @@ function noCache(req, res, next) {
         async function (req, res) {
             const table = req.params.table;
             const order = await mongo.rest.insert(table, Object.assign({ userId: req.session.userId }, req.body));
-            await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, { ordered: true });
-            // mailer.send(createTemplate('order', { table, order, user, email, attachments }));
+            const budget = await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, { ordered: true });
+            const dbx = dropbox.getDb(req.session.userAuth);
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`))[0];
+            const orderDetails = XLSX.utils.json_to_sheet([
+                { CAMPO: 'Cliente', VALORE: budget.client.name },
+                { CAMPO: 'Modello macchina', VALORE: dbx.versions.find(v => v.id === budget.version).name },
+                { CAMPO: 'Stato macchina', VALORE: 'Nuova' },
+                { CAMPO: 'Prezzo vendita', VALORE: order.price },
+                { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateTotal(budget, dbx) },
+                { CAMPO: 'Valore permuta', VALORE: budget.exchange.value},
+                { CAMPO: 'Supervalutazione permuta', VALORE: order.exchange.overvalue},
+                { CAMPO: 'Data vendita', VALORE: order.exchange.date},
+                { CAMPO: 'Disponibilità macchina', VALORE: order.exchange.availability},
+                { CAMPO: 'Venditore', VALORE: `${user.name} ${user.surname} ${user.organization ? ` - ${user.organization}` : ''}`},
+                { CAMPO: 'Documenti permuta', VALORE: order.exchange.documents},
+                { CAMPO: 'Data prevista consegna macchina', VALORE: order.exchange.delivery},
+                { CAMPO: 'Dichiarazione per sollevamento', VALORE: order.exchange.declaration},
+                { CAMPO: 'Targatura', VALORE: order.exchange.plate},
+                { CAMPO: 'Leasing - documenti consegnati a società leasing', VALORE: order.leasing.documents},
+                { CAMPO: 'Leasing approvato', VALORE: order.leasing.approved},
+                { CAMPO: 'Leasing - pagamento anticipo', VALORE: order.leasing.payment},
+                { CAMPO: 'Consegna meccanico officina esterna', VALORE: order.exchange.mechanic},
+                { CAMPO: 'Note', VALORE: order.exchange.notes}
+            ]);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, orderDetails, 'Dettaglio Ordine');
+            const data = budget.equipment.map(eId => {
+                const eq = dbx.equipements.find(e => e.id === eId)
+                return {
+                    'Codice Articolo': eq.code,
+                    'Descrizione Articolo': eq.name,
+                    'Fornitore': eq.builder,
+                    'SERIAL NUMBER': '',
+                    'Data invio ordine': '',
+                    'Disponibilita': '',
+                    'Completamento allestimento': '',
+                }
+            });
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), 'Attrezzature');
+
+            /* generate buffer */
+            const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+            const xlsxPath = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.xlsx`;
+            fs.writeFileSync(xlsxPath, buf);
+            const attachments = [{
+                filename: 'Ordine.xlsx',
+                path: xlsxPath
+            }];
+            attachments.push(...(await dropbox.getAttachments(table,budget, order)));
+            mailer.send(createTemplate('order', {table, order, budget, user, dbx, attachments}));
+            const date = '' + new Date().getFullYear() + (new Date().getMonth()+1) + new Date().getDate();
+            dropbox.updload(`Dettaglio_ordine_${user.name}_${user.surname}_${date}.xlsx`, fs.readFileSync(xlsxPath, 'binary'), '/Ordini');
             res.send(order);
         });
 

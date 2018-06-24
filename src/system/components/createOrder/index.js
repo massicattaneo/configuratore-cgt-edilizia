@@ -101,6 +101,7 @@ export default async function ({ locale, system, thread }) {
             };
 
             form.save = async function (table, id) {
+                if (!store.price) return system.throw('missingOrderPrice');
                 system.store.loading = true;
                 const mTable = table === 'vehiclebudgets' ? 'vehicleorders' : 'equipmentorders';
                 const body = Object.assign({ budgetId: id }, store);

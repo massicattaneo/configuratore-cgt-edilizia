@@ -47,7 +47,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
 
     const startRect = (pos += 20);
     doc
-        .text(dbx.models.find(m => m.id === budget.model).name, marginLeft, (pos += 10), { align: 'center' })
+        .text(dbx.versions.find(m => m.id === budget.version).name, marginLeft, (pos += 10), { align: 'center' })
         .font('Helvetica')
         .text(dbx.versions.find(m => m.id === budget.version).description, 65, (pos += bodyLineHeight), {
             align: 'center',

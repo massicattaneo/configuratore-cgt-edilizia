@@ -20,7 +20,8 @@ export default async function ({ system, gos, locale }) {
                     validity: b.summary.validity,
                     photo: system.db.models.find(m => m.id === b.model).src,
                     clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
-                    disabled: b.client.name ? '' : 'disabled="disabled"'
+                    disabled: b.client.name ? '' : 'disabled="disabled"',
+                    versionName: system.db.versions.find(v => v.id === b.version).name
                 }, b);
             });
         const eb = equipmentbudgets

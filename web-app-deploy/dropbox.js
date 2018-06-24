@@ -127,7 +127,7 @@ module.exports = function () {
         return db;
     };
 
-    obj.getAttachments = async function (table, budget) {
+    obj.getAttachments = async function (table, budget, order) {
         const ret = [];
         if (table === 'vehiclebudgets') {
             const version = db.versions.find(v => v.id === budget.version);
@@ -149,11 +149,20 @@ module.exports = function () {
                 ret.push({ filename: file.name, path: pdfSpecs });
             }));
         }
+        if (order && order.files) {
+            await Promise.all(order.files.map(async function (file) {
+                const url = `/APPS/configuratore-cgt-edilizia/Uploads/${file.url}`;
+                const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
+                const i = await dbx.filesDownload({ path: url });
+                fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
+                ret.push({ filename: file.name, path: pdfSpecs });
+            }));
+        }
         return ret;
     };
 
-    obj.updload = function (fileName, file) {
-        dbx.filesUpload({ path: `/APPS/configuratore-cgt-edilizia/Uploads/${fileName}`, contents: file })
+    obj.updload = function (fileName, file, subPath = '/Uploads') {
+        dbx.filesUpload({ path: `/APPS/configuratore-cgt-edilizia${subPath}/${fileName}`, contents: file })
             .then(function (response) {
                 console.log(response);
             })

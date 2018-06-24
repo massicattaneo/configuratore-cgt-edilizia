@@ -92,87 +92,87 @@ module.exports = function createPdfOrder(res, models, dbx, user) {
     });
     doc.pipe(res);
 
-    // const date = new Date();
-    // let pos = 40;
-    //
-    // doc
-    //     .fontSize(28)
-    //     .font('Helvetica-Bold')
-    //     .text('LISTINO PREZZI CGT Edilizia', { align: 'center' });
-    //
-    // doc.y = 100;
-    // doc
-    //     .fontSize(10)
-    //     .font('Helvetica')
-    //     .text(`Listino ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} – Annulla e sostituisce il precedente.`,
-    //         { align: 'center' });
-    //
-    // doc.y = 200;
-    // doc
-    //     .image(path.resolve(__dirname, '../static/assets/images/price-list-pdf-front.png'),
-    //         (docWidth - 500) / 2, doc.y, { width: 500 });
-    //
-    // doc.y = 450;
-    // doc
-    //     .fontSize(13)
-    //     .font('Helvetica')
-    //     .text(`IL PRESENTE LISTINO ANNULLA E SOSTITUISCE IL PRECEDENTE E
-    //     POTRA’ ESSERE VARIATO IN QUALSIASI MOMENTO.
-    //
-    //     I PREZZI DELLE ATTREZZATURE SI INTENDONO VALIDI SE VENDUTE INSIEME
-    //     ALLA MACCHINA COME PRIMO EQUIPAGGIAMENTO.
-    //
-    //     PER ULTERIORI CHIARIMENTI CONTATTARE L’UFFICIO PRODOTTO.
-    //
-    //     INFORMAZIONI PER ESCLUSIVO USO INTERNO AZIENDALE.
-    //     VIETATA LA RIPRODUZIONE, DIFFUSIONE E CESSIONE A TERZI.
-    //     `,
-    //         { align: 'center' });
-    //
-    // doc.y = 750;
-    //
-    // doc
-    //     .rect(0, doc.y, docWidth, 45)
-    //     .fillAndStroke(primaryBackColor);
-    //
-    // doc.y += 8;
-    // doc
-    //     .image(path.resolve(__dirname, '../static/assets/images/cgt.png'), (docWidth - 100) / 2, doc.y, { width: 100 });
-    //
-    // doc.addPage();
-    // doc.font('Helvetica').fontSize(9);
-    // doc.rect(marginLeft / 2, doc.y - 20, docWidth - marginLeft, doc.y).fill(primaryBackColor);
-    // doc.fill('#ffffff');
-    // let y = doc.y;
-    // doc.text('VERSIONE', marginLeft, y-16);
-    // doc.text('LISTINO', marginLeft + 145, y-16);
-    // doc.text('CONFIGURAZIONE BASE (O)', marginLeft + 210, y-16);
-    // doc.text('DISPONIBILITÀ', marginLeft + 365, y-16);
-    // doc.text('FABBRICA', marginLeft + 430, y-16);
-    // doc.text('EUROSTOCK', marginLeft + 495, y-16);
-    //
-    // doc.y += 10;
-    //
-    // dbx.versions
-    //     .filter(v => models.find(m => m === v.modelId))
-    //     .forEach(function (version, index) {
-    //         y = doc.y;
-    //         let maxY = doc.y;
-    //         maxY = printTableLine(doc, version, y);
-    //         const color = index % 2 === 0 ? '#dddddd' : '#ffffff';
-    //         doc.rect(marginLeft / 2, y - 5, docWidth - marginLeft, maxY - y + 5).fill(color);
-    //         doc.fill('#000000');
-    //         printTableLine(doc, version, y);
-    //
-    //         if (doc.y > 600) {
-    //             doc.addPage()
-    //         } else {
-    //             doc.y = maxY + 10;
-    //         }
-    //     });
+    const date = new Date();
+    let pos = 40;
+
+    doc
+        .fontSize(28)
+        .font('Helvetica-Bold')
+        .text('LISTINO PREZZI CGT Edilizia', { align: 'center' });
+
+    doc.y = 100;
+    doc
+        .fontSize(10)
+        .font('Helvetica')
+        .text(`Listino ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} – Annulla e sostituisce il precedente.`,
+            { align: 'center' });
+
+    doc.y = 200;
+    doc
+        .image(path.resolve(__dirname, '../static/assets/images/price-list-pdf-front.png'),
+            (docWidth - 500) / 2, doc.y, { width: 500 });
+
+    doc.y = 450;
+    doc
+        .fontSize(13)
+        .font('Helvetica')
+        .text(`IL PRESENTE LISTINO ANNULLA E SOSTITUISCE IL PRECEDENTE E
+        POTRA’ ESSERE VARIATO IN QUALSIASI MOMENTO.
+
+        I PREZZI DELLE ATTREZZATURE SI INTENDONO VALIDI SE VENDUTE INSIEME
+        ALLA MACCHINA COME PRIMO EQUIPAGGIAMENTO.
+
+        PER ULTERIORI CHIARIMENTI CONTATTARE L’UFFICIO PRODOTTO.
+
+        INFORMAZIONI PER ESCLUSIVO USO INTERNO AZIENDALE.
+        VIETATA LA RIPRODUZIONE, DIFFUSIONE E CESSIONE A TERZI.
+        `,
+            { align: 'center' });
+
+    doc.y = 750;
+
+    doc
+        .rect(0, doc.y, docWidth, 45)
+        .fillAndStroke(primaryBackColor);
+
+    doc.y += 8;
+    doc
+        .image(path.resolve(__dirname, '../static/assets/images/cgt.png'), (docWidth - 100) / 2, doc.y, { width: 100 });
+
+    doc.addPage();
+    doc.font('Helvetica').fontSize(9);
+    doc.rect(marginLeft / 2, doc.y - 20, docWidth - marginLeft, doc.y).fill(primaryBackColor);
+    doc.fill('#ffffff');
+    let y = doc.y;
+    doc.text('VERSIONE', marginLeft, y-16);
+    doc.text('LISTINO', marginLeft + 145, y-16);
+    doc.text('CONFIGURAZIONE BASE (O)', marginLeft + 210, y-16);
+    doc.text('DISPONIBILITÀ', marginLeft + 365, y-16);
+    doc.text('FABBRICA', marginLeft + 430, y-16);
+    doc.text('EUROSTOCK', marginLeft + 495, y-16);
+
+    doc.y += 10;
+
+    dbx.versions
+        .filter(v => models.find(m => m === v.modelId))
+        .forEach(function (version, index) {
+            y = doc.y;
+            let maxY = doc.y;
+            maxY = printTableLine(doc, version, y);
+            const color = index % 2 === 0 ? '#dddddd' : '#ffffff';
+            doc.rect(marginLeft / 2, y - 5, docWidth - marginLeft, maxY - y + 5).fill(color);
+            doc.fill('#000000');
+            printTableLine(doc, version, y);
+
+            if (doc.y > 600) {
+                doc.addPage()
+            } else {
+                doc.y = maxY + 10;
+            }
+        });
 
     models.forEach(function (modelId, mIndex) {
-        // doc.addPage();
+        doc.addPage();
         const model = dbx.models.find(i => i.id === modelId);
         const family = dbx.familys.find(f => f.id === model.familyId);
         doc.fontSize(16).font('Helvetica-Bold')

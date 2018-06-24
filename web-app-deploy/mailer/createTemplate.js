@@ -4,6 +4,7 @@ const recover = require('./templates/recover');
 const confirm = require('./templates/confirm');
 const active = require('./templates/active');
 const budget = require('./templates/budget');
+const order = require('./templates/order');
 
 module.exports = function (type, emailParams) {
     const email = emailParams.email;
@@ -39,6 +40,15 @@ module.exports = function (type, emailParams) {
                 subject: emailParams.table === 'vehiclebudgets' ? 'OFFERTA MACCHINA NUOVA' : 'OFFERTA NUOVA ATTREZZATUR',
                 text: '', // plain text body
                 html: budget(params),
+                attachments: emailParams.attachments
+            };
+        case 'order':
+            return {
+                // to: 'giovanna.pittelli@cgtedilizia.it;barbara.rizzuti@cgtedilizia.it;Vanessa.Aprigliano@cgtedilizia.it',
+                to: 'massi.cattaneo.it@gmail.com;massi.cattaneo@alice.it',
+                subject: `ORDINE ${emailParams.dbx.versions.find(v => v.id === emailParams.budget.version).name} per ${emailParams.budget.client.name}`,
+                text: '', // plain text body
+                html: order(params),
                 attachments: emailParams.attachments
             }
     }
