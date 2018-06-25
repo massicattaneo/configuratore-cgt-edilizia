@@ -3,12 +3,14 @@
         <div class="mdl-shadow--2dp" style="padding: 10px">
             {{this.code}} - {{this.name}} ({{this.constructorId}}) <br/>
             PREZZO: {{toCurrency(this.priceReal)}}<br/>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
                 <input onkeyup="this.form.updateSummary('{{this.id}}', this.value)" value="{{this.offeredPrice}}"
-                       class="mdl-textfield__input" type="text" id="e_summary_price_{{this.id}}">
-                <label class="mdl-textfield__label" for="e_summary_price_{{this.id}}">
+                       class="mdl-currency-usd__input" type="text" id="e_summary_price_{{this.id}}">
+                <label class="mdl-currency-usd__label" for="e_summary_price_{{this.id}}">
                     PREZZO PROPOSTO
                 </label>
+                <div class="mdl-currency-usd__symbol">€</div>
+                <span class="mdl-currency-usd__error">#.##</span>
             </div>
             <br/>
         </div>

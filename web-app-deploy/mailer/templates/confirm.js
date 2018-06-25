@@ -46,22 +46,22 @@ module.exports = function({grayColor, type, tel, email, organization, name, prim
             Seleziona il tipo ti utenza che vuoi assegnare a questo utente:
             <ul>
                 <li>
-                    <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=1&activationCode=${activationCode}">
-                        funzionario vendite CGT edilizia
-                    </a>
-                </li>
-                <li>
-                    <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=2&activationCode=${activationCode}">
-                        funzionario vendite CGT
-                    </a>
-                </li>
-                <li>
-                    <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=3&activationCode=${activationCode}">
+                    <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=0&activationCode=${activationCode}">
                         direzione vendite
                     </a>
                 </li>
                 <li>
-                    <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=4&activationCode=${activationCode}">
+                    <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=1&activationCode=${activationCode}">
+                        funzionario vendite CGT
+                    </a>
+                </li>
+                <li>
+                    <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=2&activationCode=${activationCode}">
+                        funzionario vendite CGT edilizia
+                    </a>
+                </li>
+                <li>
+                    <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=3&activationCode=${activationCode}">
                         concessionario
                     </a>
                 </li>

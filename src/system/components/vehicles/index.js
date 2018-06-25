@@ -16,7 +16,7 @@ function sDisplay(id) {
     return id ? 'display: block;' : 'display: none;'
 }
 
-import {calculateTotal} from '../../../../web-app-deploy/shared';
+import { calculateTotal, getPriceType } from '../../../../web-app-deploy/shared';
 
 export default async function ({ locale, system, thread }) {
     const view = HtmlView(template, style, locale.get());
@@ -59,7 +59,7 @@ export default async function ({ locale, system, thread }) {
 
     function checkPrice() {
         const el = document.getElementById('v_summary_price');
-        if (el) {
+        if (el && system.store.userAuth <= 1) {
             const priceMin = calculateTotal(store, system.db, 'priceMin');
             el.style.backgroundColor = 'rgba(0,255,0,0.2)';
             if (priceMin > Number(summary.price)) {
@@ -296,6 +296,9 @@ export default async function ({ locale, system, thread }) {
         }], equipment, step, equipment.length.toString());
         let exchangeTitle = exchange.value ? `${exchange.name} - ${system.toCurrency(exchange.value)}` : 'NESSUNA PERMUTA';
         updateExchanges([{ id: 0, files, exchange }], true, step, exchangeTitle);
+        if (!summary.price && step === 'summarys') {
+            summary.price = calculateTotal({version, equipment}, system.db, getPriceType(system.store.userAuth))
+        }
         updateSummarys([{
             id: 0,
             model: models.find(f => f.id === model),

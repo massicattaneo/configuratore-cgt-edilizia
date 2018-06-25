@@ -27,7 +27,7 @@ export default async function ({ system, thread, gos }) {
             return status = {
                 logged: false,
                 email: '',
-                userAuth: -1,
+                userAuth: 5,
                 vehiclebudgets: [],
                 equipmentbudgets: [],
                 vehicleorders: [],

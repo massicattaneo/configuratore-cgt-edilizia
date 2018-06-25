@@ -47,8 +47,8 @@ export default async function ({ locale, system, thread }) {
                 version: version,
                 family: family,
                 model: system.db.models.find(i => i.id === budget.model),
-                showLeasing: 'block',
-                showExchange: (isVehicle && budget.exchange.name) ? 'block' : 'none',
+                showLeasing: (system.store.userAuth <= 1) ? 'block' : 'none',
+                showExchange: (system.store.userAuth <= 1 && isVehicle && budget.exchange.name) ? 'block' : 'none',
                 exchange: budget.exchange,
                 priceReal: isVehicle
                     ? calculateTotal(budget, system.db, 'priceReal')

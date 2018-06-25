@@ -8,6 +8,7 @@ import { createModal } from '../../utils';
 import selectModelTpl from './selectModel.html';
 import modelsTpl from './models.html';
 import { RetryRequest } from '../../../../modules/gml-http-request';
+import { calculateEqTotal, calculateTotal, getPriceType } from '../../../../web-app-deploy/shared';
 
 function sDisplay(id) {
     return id ? 'display: block;' : 'display: none;';
@@ -80,7 +81,7 @@ export default async function ({ system, locale }) {
     function checkPrices() {
         offeredPrices.forEach(function ({ id, value }) {
             const el = document.getElementById(`e_summary_price_${id}`);
-            if (el) {
+            if (el && system.store.userAuth <= 1) {
                 const priceMin = equipements.find(e => e.id === id).priceMin;
                 el.style.backgroundColor = 'rgba(0,255,0,0.2)';
                 if (priceMin > Number(value)) {
@@ -146,7 +147,7 @@ export default async function ({ system, locale }) {
         })], true, step, equipment.length.toString());
         const summaryItems = selEquipment.map(e => {
             const offeredPrice = offeredPrices.find(p => p.id === e.id);
-            e.offeredPrice = offeredPrice ? offeredPrice.value : '';
+            e.offeredPrice = offeredPrice ? offeredPrice.value : calculateEqTotal({ equipment}, system.db, getPriceType(system.store.userAuth));
             return e;
         });
         const summaryTitle = system.toCurrency(summaryItems.reduce((tot, i) => tot + Number(i.offeredPrice || i.priceReal), 0));
@@ -186,7 +187,7 @@ export default async function ({ system, locale }) {
         store.step = name;
     };
     form.removeFilter = function (id) {
-        const item = store.filters.find(i => i.id === id);
+        const item = store.filters.find(i => i.id == id);
         store.filters.splice(store.filters.indexOf(item), 1);
     };
     form.selectVehicle = function () {
