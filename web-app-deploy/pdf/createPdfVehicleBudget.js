@@ -134,7 +134,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
 
     pos += 20;
 
-    if (!budget.exchange.name) {
+    if (!budget.exchange.name && !budget.files.length) {
         doc
             .font('Helvetica')
             .fontSize(15)

@@ -59,7 +59,7 @@ export default async function ({ locale, system, thread }) {
                         view.clear().appendTo('', loadedTpl, [], params);
                         componentHandler.upgradeDom();
                     });
-            })
+            }, 300)
         } else {
 
         }
