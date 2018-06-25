@@ -276,10 +276,10 @@ function noCache(req, res, next) {
     if (isDeveloping) {
         callback = require('../webpack/dev-server')(app, express);
     } else {
-        app.use(express.static(__dirname + '/static'), {
+        app.use(express.static(__dirname + '/static', {
             maxage: 365 * 24 * 60 * 60 * 1000,
             etag: false
-        });
+        }));
         callback = function response(req, res) {
             res.sendFile(path.join(__dirname, 'static/index.html'));
         };
