@@ -129,9 +129,12 @@ export default async function ({ locale, system, thread }) {
     };
 
     if (location.search) {
-        const table = location.search.match(/table=([^&]*)/)[1];
-        const id = location.search.match(/id=([^&]*)/)[1];
-        view.init(table, id);
+        const match = location.search.match(/table=([^&]*)/);
+        if (match) {
+            const table = match[1];
+            const id = location.search.match(/id=([^&]*)/)[1];
+            view.init(table, id);
+        }
     }
 
     return view;

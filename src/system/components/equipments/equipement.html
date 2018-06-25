@@ -91,7 +91,7 @@
                 {{this.code}} - {{this.name}} ({{this.constructorId}})
             </div>
             <div style="padding: 4px">
-                <img src="{{this.src}}" style="width: 100%; padding: 0 10px 10px 10px" />
+                <img src="{{this.src}}?v={{system.version}}"  onerror="this.style.display='none'" style="width: 100%; padding: 0 10px 10px 10px" />
                 <div style="font-size: 12px; color: #b51700">ATTENZIONE: {{this.notes}}</div>
                 <div style="font-size: 12px;">INFORMAZIONE: {{this.info}}</div>
                 <div style="font-size: 12px;">TEMPI DI CONSEGNA: {{this.time}}</div>

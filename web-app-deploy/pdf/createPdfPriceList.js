@@ -87,7 +87,7 @@ module.exports = function createPdfOrder(res, models, dbx, user) {
             top: 40,
             left: marginLeft,
             bottom: 40,
-            right: 10
+            right: marginLeft
         }
     });
     doc.pipe(res);
@@ -116,16 +116,7 @@ module.exports = function createPdfOrder(res, models, dbx, user) {
     doc
         .fontSize(13)
         .font('Helvetica')
-        .text(`IL PRESENTE LISTINO ANNULLA E SOSTITUISCE IL PRECEDENTE E
-        POTRA’ ESSERE VARIATO IN QUALSIASI MOMENTO.
-
-        I PREZZI DELLE ATTREZZATURE SI INTENDONO VALIDI SE VENDUTE INSIEME
-        ALLA MACCHINA COME PRIMO EQUIPAGGIAMENTO.
-
-        PER ULTERIORI CHIARIMENTI CONTATTARE L’UFFICIO PRODOTTO.
-
-        INFORMAZIONI PER ESCLUSIVO USO INTERNO AZIENDALE.
-        VIETATA LA RIPRODUZIONE, DIFFUSIONE E CESSIONE A TERZI.
+        .text(`IL PRESENTE LISTINO ANNULLA E SOSTITUISCE IL PRECEDENTE E POTRA’ ESSERE VARIATO IN QUALSIASI MOMENTO. \n\nI PREZZI DELLE ATTREZZATURE SI INTENDONO VALIDI SE VENDUTE INSIEME ALLA MACCHINA COME PRIMO EQUIPAGGIAMENTO.\n\nPER ULTERIORI CHIARIMENTI CONTATTARE L’UFFICIO PRODOTTO.\n\nINFORMAZIONI PER ESCLUSIVO USO INTERNO AZIENDALE.\n\n VIETATA LA RIPRODUZIONE, DIFFUSIONE E CESSIONE A TERZI.
         `,
             { align: 'center' });
 
@@ -175,10 +166,12 @@ module.exports = function createPdfOrder(res, models, dbx, user) {
         doc.addPage();
         const model = dbx.models.find(i => i.id === modelId);
         const family = dbx.familys.find(f => f.id === model.familyId);
+
         doc.fontSize(16).font('Helvetica-Bold')
             .text(`${family.name} ${model.name} – ${family.id}`, { align: 'center' });
+
         doc
-            .image(path.resolve(`${__dirname}/..${model.src}`), (docWidth - 300) / 2, 60, { width: 300 });
+            .image(path.resolve(`${__dirname}/..${model.src}`), (docWidth - 300) / 2, 55, { width: 300 });
 
         const versions = dbx.versions.filter(v => v.modelId === modelId);
 
@@ -188,8 +181,8 @@ module.exports = function createPdfOrder(res, models, dbx, user) {
             { title: 'VERSIONE', width: 150, field: 'name' },
             { title: 'LISTINO', width: 70, field: 'priceReal', format: (value) => toCurrency(value, '€') },
             { title: 'DIPONIBILITÁ', width: 100, field: 'available' },
-            { title: 'TEMPI DA FABBRICA', width: 100, field: 'available' },
-            { title: 'TEMPI DA EUROSTOCK', width: 100, field: 'available' }
+            { title: 'DA FABBRICA', width: 100, field: 'available' },
+            { title: 'DA EUROSTOCK', width: 100, field: 'available' }
         ];
         y = printList(doc, columns, versions, y) + 10;
         const info = versions

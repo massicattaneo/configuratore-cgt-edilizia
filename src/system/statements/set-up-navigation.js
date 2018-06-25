@@ -9,9 +9,9 @@ export default async function ({ system, gos }) {
     let activeUrl = '';
 
     function setPageInfo(href, context, gos) {
-        const urls = context.locale.get('urls');
-        let isPublic = publicUrls.indexOf(href) !== -1;
         const length = href.indexOf('?') === -1 ? href.length : href.indexOf('?');
+        const urls = context.locale.get('urls');
+        let isPublic = publicUrls.indexOf(href.substr(0, length)) !== -1;
         const url = (isPublic || system.store.logged) ? href.substr(0, length) : '/it/entra';
         const goName = Object.keys(urls).find(key => urls[key].href === url);
         const { title } = urls[goName];

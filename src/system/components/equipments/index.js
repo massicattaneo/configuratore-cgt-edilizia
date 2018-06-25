@@ -100,7 +100,7 @@ export default async function ({ system, locale }) {
                 const { id } = item;
                 const selectedClass = selectedId.toString() === id.toString() ? '' : 'mdl-color-text--white mdl-color--grey-700';
                 const gridNum = ar.length === 1 ? 12 : (ar.length === 2 ? 6 : 4);
-                const variables = Object.assign({}, item, { itemName, selectedClass, gridNum });
+                const variables = Object.assign({}, item, { itemName, selectedClass, gridNum, system: locale.get('system') });
                 return view.appendTo(itemName, templates[`${itemName}Template`], [], variables);
             });
         }
@@ -199,7 +199,7 @@ export default async function ({ system, locale }) {
         modalForm.change = function (id) {
             const ms = models.filter(m => m.familyId === id);
             modalView.clear('models').appendTo('models', modelsTpl, [], {
-                models: ms
+                models: ms, system: locale.get('system')
             });
         };
         modalForm.select = function (id) {

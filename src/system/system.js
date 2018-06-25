@@ -23,6 +23,7 @@ const Gos = gosFolders.keys().map((filename) => {
 
 (async function () {
     const thread = system.createThread(() => Object.create({ statements, gos: {} }));
+    thread.execute('set-up-environment');
     await thread.execute('create-store');
     await thread.execute(async function () {
         const gos = {};
@@ -36,7 +37,6 @@ const Gos = gosFolders.keys().map((filename) => {
         }
         thread.inject({ gos });
     });
-    thread.execute('set-up-environment');
     thread.execute('set-up-navigation');
     await thread.execute('load-resources');
     thread.execute(function ({ gos }) {

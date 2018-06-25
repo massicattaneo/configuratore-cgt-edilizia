@@ -18,7 +18,7 @@ export default async function ({ system, gos, locale }) {
             .map(b => {
                 return Object.assign({
                     validity: b.summary.validity,
-                    photo: system.db.models.find(m => m.id === b.model).src,
+                    photo: `${system.db.models.find(m => m.id === b.model).src}?v=${system.info().version}`,
                     clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
                     disabled: b.client.name ? '' : 'disabled="disabled"',
                     versionName: system.db.versions.find(v => v.id === b.version).name

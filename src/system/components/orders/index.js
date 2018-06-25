@@ -18,7 +18,7 @@ export default async function ({ system, gos, locale }) {
                 const b = system.store.vehiclebudgets.find(r => r._id === o.budgetId);
                 return Object.assign({
                     validity: b.summary.validity,
-                    photo: system.db.models.find(m => m.id === b.model).src,
+                    photo: `${system.db.models.find(m => m.id === b.model).src}?v=${system.info().version}`,
                     clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
                     disabled: b.client.name ? '' : 'disabled="disabled"'
                 }, o);

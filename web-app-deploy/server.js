@@ -77,7 +77,12 @@ function noCache(req, res, next) {
 
     LoginServices({ app, mongo, mailer, bruteforce, requiresLogin });
 
-    app.get('/dpx-photos/*', function (req, res) {
+    app.get('/dpx-photos/*',
+        function(req,res,next) {
+            res.setHeader('Cache-Control', 'public, max-age=31557600');
+            next();
+        },
+        function (req, res) {
         const file = __dirname + decodeURI(urlParse.parse(req.url).pathname);
         if (fs.existsSync(file)) {
             const s = fs.createReadStream(file);
@@ -271,7 +276,10 @@ function noCache(req, res, next) {
     if (isDeveloping) {
         callback = require('../webpack/dev-server')(app, express);
     } else {
-        app.use(express.static(__dirname + '/static'));
+        app.use(express.static(__dirname + '/static'), {
+            maxage: 365 * 24 * 60 * 60 * 1000,
+            etag: false
+        });
         callback = function response(req, res) {
             res.sendFile(path.join(__dirname, 'static/index.html'));
         };

@@ -77,7 +77,7 @@ export default async function ({ locale, system, thread }) {
                 const selected = sDisplay(selectedId.toString() === id.toString());
                 const notSelected = sDisplay(selectedId.toString() !== id.toString());
                 const gridNum = ar.length === 1 ? 12 : (ar.length === 2 ? 6 : 4);
-                const variables = Object.assign({}, item, { itemName, selected, notSelected, gridNum });
+                const variables = Object.assign({}, item, { itemName, selected, notSelected, gridNum, system: locale.get('system') });
                 return view.appendTo(itemName, templates[`${itemName}Template`], [], variables);
             });
         }

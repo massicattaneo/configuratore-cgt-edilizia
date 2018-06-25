@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const webmail = require('../private/dondominio-webmail');
+const webmail = require('../private/webmail');
 
 module.exports = function () {
     const obj = {};
@@ -12,16 +12,12 @@ module.exports = function () {
             user: webmail.user,
             pass: webmail.password
         },
-        tls: {
-            // do not faFil on invalid certs
-            rejectUnauthorized: false
-        },
-        requireTLS: true
+        tls: {rejectUnauthorized: false}
     });
 
     obj.send = function (mailOptions) {
         return new Promise(function (res, reject) {
-            mailOptions.from = `"CGT EDILIZIA" <${webmail.user}>`;
+            mailOptions.from = `"CGT EDILIZIA" <${webmail.email}>`;
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
                     return reject(new Error('mail-error'))
