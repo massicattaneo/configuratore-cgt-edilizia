@@ -147,7 +147,7 @@ export default async function ({ system, locale }) {
         })], true, step, equipment.length.toString());
         const summaryItems = selEquipment.map(e => {
             const offeredPrice = offeredPrices.find(p => p.id === e.id);
-            e.offeredPrice = offeredPrice ? offeredPrice.value : calculateEqTotal({ equipment}, system.db, getPriceType(system.store.userAuth));
+            e.offeredPrice = offeredPrice ? offeredPrice.value : calculateEqTotal({ equipment: [e.id]}, system.db, getPriceType(system.store.userAuth));
             return e;
         });
         const summaryTitle = system.toCurrency(summaryItems.reduce((tot, i) => tot + Number(i.offeredPrice || i.priceReal), 0));

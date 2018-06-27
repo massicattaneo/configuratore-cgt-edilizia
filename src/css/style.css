@@ -60,3 +60,7 @@ select {    height: 26px;}
     width: 100%;
     opacity: 0;
 }
+
+.alternate-table tr:nth-child(even) {
+    background-color: #e2e2e2;
+}

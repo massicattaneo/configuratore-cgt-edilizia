@@ -76,9 +76,11 @@ export default async function ({ system, gos }) {
             system.store.loading = false;
         });
 
-    window.navigate = function (el) {
-        this.event.preventDefault();
+    window.navigate = function (el, e) {
+        const event = e || this.event;
+        event.preventDefault();
         system.navigateTo(el.pathname);
-    }
+        return false;
+    };
 
 }

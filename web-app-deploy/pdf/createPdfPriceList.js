@@ -8,6 +8,8 @@ const docHeight = 740;
 const primaryBackColor = '#AE0E0E';
 const marginLeft = 30;
 
+//305.5E2CR, 308E2CR
+
 function printTableLine(doc, version, y) {
     let maxY = y;
     doc.text(`${version.name}`, marginLeft, y, { width: 140 });
@@ -171,7 +173,7 @@ module.exports = function createPdfOrder(res, models, dbx, user) {
             .text(`${family.name} ${model.name} – ${family.id}`, { align: 'center' });
 
         doc
-            .image(path.resolve(`${__dirname}/..${model.src}`), (docWidth - 300) / 2, 55, { width: 300 });
+            .image(path.resolve(`${__dirname}/..${model.src}`), (docWidth - 300) / 2, 60, { width: 300 });
 
         const versions = dbx.versions.filter(v => v.modelId === modelId);
 
@@ -181,8 +183,8 @@ module.exports = function createPdfOrder(res, models, dbx, user) {
             { title: 'VERSIONE', width: 150, field: 'name' },
             { title: 'LISTINO', width: 70, field: 'priceReal', format: (value) => toCurrency(value, '€') },
             { title: 'DIPONIBILITÁ', width: 100, field: 'available' },
-            { title: 'DA FABBRICA', width: 100, field: 'available' },
-            { title: 'DA EUROSTOCK', width: 100, field: 'available' }
+            { title: 'DA FABBRICA', width: 100, field: 'time' },
+            { title: 'DA EUROSTOCK', width: 100, field: 'timeEurostock' }
         ];
         y = printList(doc, columns, versions, y) + 10;
         const info = versions
@@ -199,7 +201,7 @@ module.exports = function createPdfOrder(res, models, dbx, user) {
         const ls = [{
             field: 'info',
             title: 'Caratteristiche',
-            width: docWidth - (marginLeft * 2) - (20 * versions.length)
+            width: docWidth - 50 - (marginLeft * 2) - (20 * versions.length)
         }];
         ls.push(...versions.map((v, i) => {
             return { field: i, title: `${i + 1}`, width: 20 };

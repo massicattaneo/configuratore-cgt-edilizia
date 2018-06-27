@@ -111,6 +111,11 @@
       "href": "/it/listino-prezzi",
       "title": "ESTRAZIONE LISTINO",
       "menu": "ESTRAZIONE LISTINO"
+    },
+    "logged": {
+      "href": "/it/il-mio-profilo",
+      "title": "IL MIO PROFILO",
+      "menu": "IL MIO PROFILO"
     }
   },
   "menuHeader": {
@@ -158,7 +163,7 @@
   },
   "resetDone": {
     "title": "PASSWORD CAMBIATA",
-    "text": "Adesso puoi entrare nuovamente nella tua utenza. Fai <a href='{{urls.login.href}}' onclick='window.navigate(this)'>click qui</a>."
+    "text": "Adesso puoi entrare nuovamente nella tua utenza. Fai <a href='{{urls.login.href}}' onclick='window.navigate(this, event)'>click qui</a>."
   },
   "equipments": {
     "equipements": {

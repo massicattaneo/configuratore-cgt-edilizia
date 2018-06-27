@@ -17,7 +17,9 @@ module.exports = function () {
 
     obj.send = function (mailOptions) {
         return new Promise(function (res, reject) {
-            mailOptions.from = `"CGT EDILIZIA" <${webmail.email}>`;
+            if (!mailOptions.from) {
+                mailOptions.from = `"CGT EDILIZIA" <${webmail.email}>`;
+            }
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
                     return reject(new Error('mail-error'))

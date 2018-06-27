@@ -53,7 +53,7 @@ module.exports = function (isDeveloping) {
         });
     };
 
-    obj.insertUser = function ({ email, password, tel = '', type, organization, name, lang }) {
+    obj.insertUser = function ({ email, password, tel = '', surname, type, organization, name, lang }) {
         return new Promise(function (resolve, rej) {
             db.collection('users').find({ email }).toArray(function (err, result) {
                 if (err) return rej(new Error('generic'));
@@ -61,7 +61,7 @@ module.exports = function (isDeveloping) {
                 const activationCode = bcrypt.hashSync(password, 4);
                 const hash = bcrypt.hashSync(password, 10);
                 const created = (new Date()).toISOString();
-                const insert = { created, hash, activationCode, type, organization, name, tel, email, active: false, lang };
+                const insert = { created, userAuth: 4, hash, activationCode, type, organization, surname, name, tel, email, active: false, lang };
                 db.collection('users').insertOne(insert, function (err, res) {
                     if (err)
                         rej(new Error('dbError'));
@@ -182,7 +182,7 @@ module.exports = function (isDeveloping) {
     };
 
     obj.rest = {
-        get: function (table, filter = '') {
+        get: function (table, filter = '', {userId, userAuth}) {
             const find = {};
             const filters = filter.split('&');
             filters.forEach(f => {
@@ -209,6 +209,9 @@ module.exports = function (isDeveloping) {
                     }
                 }
             });
+            if (userAuth.toString() !== '0') {
+                find.userId = getObjectId(userId);
+            }
             return new Promise(async function (resolve, rej) {
                 db.collection(table).find(find).toArray(function (err, result) {
                     if (err) return rej(new Error('generic'));
@@ -229,13 +232,17 @@ module.exports = function (isDeveloping) {
                 });
             });
         },
-        update: function (table, id, body) {
+        update: function (table, id, body, {userId, userAuth}) {
             return new Promise(async function (resolve, rej) {
                 const o = Object.assign({modified: (new Date()).toISOString()}, body);
+                const find = { _id: getObjectId(id) };
+                if (userAuth.toString() !== '0') {
+                    find.userId = getObjectId(userId);
+                }
                 db
                     .collection(table)
                     .findOneAndUpdate(
-                        { _id: getObjectId(id) },
+                        find,
                         { $set: clean(o) },
                         { returnOriginal: false },
                         function (err, r) {
@@ -245,9 +252,10 @@ module.exports = function (isDeveloping) {
                         });
             });
         },
-        delete: function (table, id) {
+        delete: function (table, id, session) {
             return new Promise(async function (resolve, rej) {
-                const item = await obj.rest.get(table, `_id=${id}`);
+                const item = await obj.rest.get(table, `_id=${id}`, session);
+                if (!item) return rej('dbError');
                 db.collection(table).remove({ _id: getObjectId(id) }, function (err, res) {
                     if (err)
                         rej(new Error('dbError'));

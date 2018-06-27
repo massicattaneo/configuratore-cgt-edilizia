@@ -61,6 +61,10 @@ const myParsers = {
         const date = new Date(d);
         return date.formatDay('dddd dd/mm/yyyy', ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica']);
     },
+    formatShortDate: function (d) {
+        const date = new Date(d);
+        return date.formatDay('dd/mm/yyyy', []);
+    },
     formatTime: function (d) {
         const date = new Date(d);
         return date.formatTime('hh:mm');

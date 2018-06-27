@@ -15,13 +15,13 @@
             </li>
             <li #login class="mdl-menu__item">
                 <a class="mdl-color-text--blue-grey-400"
-                        style="display: block;" href="{{urls.login.href}}" onclick="window.navigate(this)">
+                        style="display: block;" href="{{urls.login.href}}" onclick="window.navigate(this, event)">
                     <i style="" class="material-icons cgt-menu-item-icon">account_circle</i>{{urls.login.menu}}
                 </a>
             </li>
             <li #register class="mdl-menu__item">
                 <a class="mdl-color-text--blue-grey-400"
-                        style="display: block;" href="{{urls.register.href}}" onclick="window.navigate(this)">
+                        style="display: block;" href="{{urls.register.href}}" onclick="window.navigate(this, event)">
                     <i style="" class="material-icons cgt-menu-item-icon">add_circle</i>{{urls.register.menu}}
                 </a>
             </li>

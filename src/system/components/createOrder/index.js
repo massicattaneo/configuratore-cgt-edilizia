@@ -43,6 +43,9 @@ export default async function ({ locale, system, thread }) {
             const version = system.db.versions.find(i => i.id === budget.version);
             const isVehicle = !!budget.exchange;
             const equipmentsCount = budget.equipment.length ? `+ ${budget.equipment.length} ATTREZZATURE` : 'NESSUNA ATTREZZATURA';
+            const priceOffered = isVehicle
+                ? budget.summary.price || calculateTotal(budget, system.db, 'priceReal')
+                : calculateEqOfferedTotal(budget, system.db);
             subView = view.clear().appendTo('', orderTpl, [], {
                 version: version,
                 family: family,
@@ -53,9 +56,7 @@ export default async function ({ locale, system, thread }) {
                 priceReal: isVehicle
                     ? calculateTotal(budget, system.db, 'priceReal')
                     : calculateEqTotal(budget, system.db),
-                priceOffered: isVehicle
-                    ? budget.summary.price || calculateTotal(budget, system.db, 'priceReal')
-                    : calculateEqOfferedTotal(budget, system.db),
+                priceOffered: priceOffered,
                 budget,
                 table,
                 id,
@@ -63,6 +64,10 @@ export default async function ({ locale, system, thread }) {
                     ? `${family.name} - ${version.name} (${equipmentsCount})`
                     : `${budget.equipment.length} ATTREZZATURE`
             });
+
+            if (!store.price) {
+                store.price = priceOffered;
+            }
 
             const form = subView.get();
 

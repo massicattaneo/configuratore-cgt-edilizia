@@ -144,6 +144,17 @@ Function.prototype.map = function (map) {
     }
 };
 
+Function.prototype.execute = function (fn) {
+    const self = this;
+    return function (callback) {
+        function toRemove() {
+            fn(...arguments);
+            return callback(...arguments)
+        }
+        return self(toRemove) || toRemove;
+    }
+};
+
 Function.prototype.subscribe = function (callback) {
     return this(callback);
 };

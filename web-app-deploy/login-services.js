@@ -8,16 +8,17 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
         requiresLogin,
         async function (req, res) {
             const userId = req.session.userId;
-            const { email, userAuth } = await mongo.getUser({ _id: new ObjectId(userId) });
-            const vehiclebudgets = await mongo.rest.get('vehiclebudgets', `userId=${userId}`) || [];
-            const equipmentbudgets = await mongo.rest.get('equipmentbudgets', `userId=${userId}`) || [];
-            const vehicleorders = await mongo.rest.get('vehicleorders', `userId=${userId}`) || [];
-            const equipmentorders = await mongo.rest.get('equipmentorders', `userId=${userId}`) || [];
+            const user = await mongo.getUser({ _id: new ObjectId(userId) });
+            const vehiclebudgets = await mongo.rest.get('vehiclebudgets', `userId=${userId}`, {userAuth: 0}) || [];
+            const equipmentbudgets = await mongo.rest.get('equipmentbudgets', `userId=${userId}`, {userAuth: 0}) || [];
+            const vehicleorders = await mongo.rest.get('vehicleorders', `userId=${userId}`, {userAuth: 0}) || [];
+            const equipmentorders = await mongo.rest.get('equipmentorders', `userId=${userId}`, {userAuth: 0}) || [];
             const data = {};
+            delete user.activationCode;
+            delete user.hash;
             Object.assign(data, {
                 logged: true,
-                userAuth,
-                email,
+                user,
                 vehiclebudgets: vehiclebudgets,
                 equipmentbudgets: equipmentbudgets,
                 vehicleorders: vehicleorders,

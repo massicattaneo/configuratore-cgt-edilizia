@@ -5,8 +5,9 @@ export default async function ({ system, thread, gos }) {
 
     system.store = rx.create({
         logged: status.logged,
-        email: status.email,
-        userAuth: status.userAuth,
+        email: status.user.email,
+        userAuth: status.user.userAuth,
+        user: status.user,
         vehiclebudgets: status.vehiclebudgets,
         equipmentbudgets: status.equipmentbudgets,
         vehicleorders: status.vehicleorders,
@@ -28,6 +29,7 @@ export default async function ({ system, thread, gos }) {
                 logged: false,
                 email: '',
                 userAuth: 5,
+                user: {},
                 vehiclebudgets: [],
                 equipmentbudgets: [],
                 vehicleorders: [],
@@ -45,7 +47,7 @@ export default async function ({ system, thread, gos }) {
             return should;
         })
         .subscribe(async function ({ logged }) {
-            const { email, userAuth, vehiclebudgets, equipmentbudgets, vehicleorders, equipmentorders } = await getStatus();
+            const { user, vehiclebudgets, equipmentbudgets, vehicleorders, equipmentorders } = await getStatus();
             system.db = logged ? await thread.execute('db-get', { url: '/all' }) : {
                 codes: [],
                 equipements: [],
@@ -53,8 +55,9 @@ export default async function ({ system, thread, gos }) {
                 models: [],
                 versions: []
             };
-            system.store.email = email;
-            system.store.userAuth = userAuth;
+            system.store.email = user.email;
+            system.store.userAuth = user.userAuth;
+            system.store.user = user;
             system.store.vehiclebudgets.splice(0, system.store.vehiclebudgets.length);
             system.store.vehiclebudgets.push(...vehiclebudgets);
             system.store.equipmentbudgets.splice(0, system.store.equipmentbudgets.length);

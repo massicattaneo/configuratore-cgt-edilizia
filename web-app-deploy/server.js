@@ -1,6 +1,6 @@
 const path = require('path');
 const express = require('express');
-const port = process.env.PORT || 8097;
+const port = process.env.PORT || 8110;
 const app = express();
 const mailer = require('./mailer/mailer')();
 const isDeveloping = process.env.NODE_ENV === 'development';
@@ -75,6 +75,19 @@ function noCache(req, res, next) {
         }
     }
 
+    function filterUserAuth(type) {
+        return function (req, res, next) {
+            if (req.session.userAuth.toString() === '0') return next();
+            if (type === 'get') {
+                const path = decodeURI(req.url).substr(10, 1000000).split('?');
+                if (path[0] === 'users') return false;
+            } else {
+                const table = req.params.table;
+                if (table === 'users') return false;
+            }
+        }
+    }
+
     LoginServices({ app, mongo, mailer, bruteforce, requiresLogin });
 
     app.get('/dpx-photos/*',
@@ -112,8 +125,8 @@ function noCache(req, res, next) {
         async function (req, res) {
             const table = req.params.table;
             const id = req.params.id;
-            const budget = (await mongo.rest.get(table, `_id=${id}`))[0];
-            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`))[0];
+            const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, req.session))[0];
             if (table === 'vehiclebudgets') {
                 createPdfVehicleBudget(res, budget, dropbox.getDb(), user);
             } else if (table === 'equipmentbudgets') {
@@ -127,7 +140,7 @@ function noCache(req, res, next) {
         requiresLogin,
         async function (req, res) {
             const models = (req.query.models || '').split(',');
-            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`))[0];
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, req.session))[0];
             createPdfPriceList(res, models, dropbox.getDb(), user);
         });
 
@@ -136,8 +149,8 @@ function noCache(req, res, next) {
         async function (req, res) {
             const table = req.params.table;
             const id = req.params.id;
-            const budget = (await mongo.rest.get(table, `_id=${id}`))[0];
-            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`))[0];
+            const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, req.session))[0];
             const email = [budget.client.email, user.email];
             if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
             const pdfBudget = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
@@ -171,7 +184,7 @@ function noCache(req, res, next) {
             const ext = path.extname(name);
             const { _id } = await mongo.rest.insert('uploads', { name });
             const url = `${_id}${ext}`;
-            const file = await mongo.rest.update('uploads', _id, { url });
+            const file = await mongo.rest.update('uploads', _id, { url }, {userAuth: 0});
             dropbox.updload(url, req.files.exchangeUpload.data);
             res.send(file);
         });
@@ -180,16 +193,17 @@ function noCache(req, res, next) {
         requiresLogin,
         async function (req, res) {
             const id = req.params.id;
-            await mongo.rest.delete('uploads', id);
+            await mongo.rest.delete('uploads', id, {userAuth: 0});
             res.send('ok');
         });
 
     app.get('/api/rest/*',
         requiresLogin,
+        filterUserAuth('get'),
         noCache,
         async function (req, res) {
             const path = decodeURI(req.url).substr(10, 1000000).split('?');
-            mongo.rest.get(path[0], path[1])
+            mongo.rest.get(path[0], path[1], req.session)
                 .then(function (cash) {
                     res.send(cash);
                 })
@@ -201,6 +215,7 @@ function noCache(req, res, next) {
 
     app.post('/api/rest/:table',
         requiresLogin,
+        filterUserAuth('post'),
         async function (req, res) {
             const table = req.params.table;
             const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -217,10 +232,11 @@ function noCache(req, res, next) {
 
     app.put('/api/rest/:table/:id',
         requiresLogin,
+        filterUserAuth('put'),
         async function (req, res) {
             const table = req.params.table;
             const id = req.params.id;
-            mongo.rest.update(table, id, req.body)
+            mongo.rest.update(table, id, req.body, req.session)
                 .then(function (cash) {
                     res.send(cash);
                 })
@@ -232,10 +248,11 @@ function noCache(req, res, next) {
 
     app.delete('/api/rest/:table/:id',
         requiresLogin,
+        filterUserAuth('delete'),
         async function (req, res) {
             const table = req.params.table;
             const id = req.params.id;
-            mongo.rest.delete(table, id)
+            mongo.rest.delete(table, id, req.session)
                 .then(function (cash) {
                     res.send(cash);
                 })
@@ -250,9 +267,9 @@ function noCache(req, res, next) {
         async function (req, res) {
             const table = req.params.table;
             const order = await mongo.rest.insert(table, Object.assign({ userId: req.session.userId }, req.body));
-            const budget = await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, { ordered: true });
+            const budget = await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, { ordered: true }, req.session);
             const dbx = dropbox.getDb();
-            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`))[0];
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, {userAuth: 0}))[0];
             const xlsxPath = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.xlsx`;
             const attachments = [];
             if (table === 'vehicleorders') {

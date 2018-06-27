@@ -1,11 +1,4 @@
-<div #wrapper class="cgt-content" style="padding: 10px">
-    <h3>BENVENUTO NEL CONFIGURATORE CGT EDILIZIA:</h3>
-    <hr/>
-    <p>Con questa applicazione web potrai:</p>
-    <ul>
-        <li><a onclick="window.navigate(this,event)" href="{{urls.vehicles.href}}">CONFIGURA IL TUO CATERPILLAR</a></li>
-        <li><a onclick="window.navigate(this,event)" href="{{urls.equipments.href}}">SCEGLI L’ATTREZZATURA</a></li>
-        <li><a onclick="window.navigate(this,event)" href="{{urls.budgets.href}}">OFFERTE SALVATE</a></li>
-        <li><a onclick="window.navigate(this,event)" href="{{urls.orders.href}}">ORDINI INVIATI</a></li>
-    </ul>
-</div>
+<form #wrapper style="padding: 10px;">
+    <div #filter></div>
+    <div #list></div>
+</form>
