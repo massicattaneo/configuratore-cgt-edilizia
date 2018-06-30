@@ -52,12 +52,12 @@ module.exports = function({grayColor, type, tel, email, organization, name, prim
                 </li>
                 <li>
                     <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=1&activationCode=${activationCode}">
-                        funzionario vendite CGT
+                        funzionario vendite CGT edilizia
                     </a>
                 </li>
                 <li>
                     <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=2&activationCode=${activationCode}">
-                        funzionario vendite CGT edilizia
+                        funzionario vendite CGT
                     </a>
                 </li>
                 <li>

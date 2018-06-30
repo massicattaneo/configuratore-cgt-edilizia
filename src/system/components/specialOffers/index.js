@@ -1,22 +1,23 @@
-import {HtmlView} from "gml-html";
+import { HtmlView } from 'gml-html';
 import template from './template.html';
 import * as style from './style.scss';
 
-export default async function ({locale, system, thread}) {
+export default async function ({ locale, system, thread }) {
     const view = HtmlView('<div/>', style, {});
     view.style();
 
-    rx.connect({ logged: () => system.store.logged }, function (logged) {
-        view.clear();
-        if (logged) {
-            setTimeout(function() {
+    rx.connect
+        .partial({ logged: () => system.store.logged })
+        .debounce(300)
+        .subscribe(function (logged) {
+            view.clear();
+            if (logged) {
                 const params = Object.assign({
                     specialOffers: system.db.specialOffers || []
                 }, locale.get());
-                view.appendTo('', template, [], params)
-            }, 300)
-        }
-    });
+                view.appendTo('', template, [], params);
+            }
+        });
 
     view.destroy = function () {
 

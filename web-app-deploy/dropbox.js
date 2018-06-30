@@ -42,6 +42,7 @@ const versionDataStructure = {
     image: 'Nome immagine',
     notes: 'Note',
     attachment: 'Allegato offerta',
+    depliants: 'Depliants',
     priceReal: { column: 'Listino', convert: convertCurrency },
     priceMin: { column: 'Minimo', convert: convertCurrency },
     priceOutsource: { column: 'Prezzo concessionario', convert: convertCurrency },

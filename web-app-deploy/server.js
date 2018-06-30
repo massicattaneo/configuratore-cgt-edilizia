@@ -85,6 +85,7 @@ function noCache(req, res, next) {
                 const table = req.params.table;
                 if (table === 'users') return false;
             }
+            next();
         }
     }
 
@@ -126,7 +127,7 @@ function noCache(req, res, next) {
             const table = req.params.table;
             const id = req.params.id;
             const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
-            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, req.session))[0];
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, {userAuth: 0}))[0];
             if (table === 'vehiclebudgets') {
                 createPdfVehicleBudget(res, budget, dropbox.getDb(), user);
             } else if (table === 'equipmentbudgets') {
@@ -140,7 +141,7 @@ function noCache(req, res, next) {
         requiresLogin,
         async function (req, res) {
             const models = (req.query.models || '').split(',');
-            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, req.session))[0];
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, {userAuth: 0}))[0];
             createPdfPriceList(res, models, dropbox.getDb(), user);
         });
 
@@ -150,7 +151,7 @@ function noCache(req, res, next) {
             const table = req.params.table;
             const id = req.params.id;
             const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
-            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, req.session))[0];
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, {userAuth: 0}))[0];
             const email = [budget.client.email, user.email];
             if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
             const pdfBudget = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
@@ -298,9 +299,16 @@ function noCache(req, res, next) {
             etag: false
         }));
         callback = function response(req, res) {
-            res.sendFile(path.join(__dirname, 'static/index.html'));
+            if (req.headers['x-forwarded-proto'] === 'http') {
+                res.redirect(`https://${req.headers.host}${req.url}`);
+            } else {
+                res.sendFile(path.join(__dirname, 'static/index.html'));
+            }
         };
     }
+
+
+
     app.get('*', callback);
 
     app.listen(port, () => {

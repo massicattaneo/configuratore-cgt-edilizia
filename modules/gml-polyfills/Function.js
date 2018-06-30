@@ -50,18 +50,16 @@ Function.prototype.filter = function (filter) {
 
 Function.prototype.debounce = function (time) {
     const self = this;
-    let first = true;
+    let timeout;
     return function (callback) {
-        let start = Date.now();
-
         function toRemove() {
-            if (first || (Date.now() - start) > time) {
-                start = Date.now();
-                first = false;
-                return callback(...arguments);
+            if (!timeout) {
+                timeout = setTimeout(function () {
+                    timeout = null;
+                    callback(...arguments)
+                }, time, ...arguments);
             }
         }
-
         self(toRemove);
         return toRemove;
     }
