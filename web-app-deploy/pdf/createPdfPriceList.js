@@ -10,78 +10,91 @@ const marginLeft = 30;
 
 //305.5E2CR, 308E2CR
 
-function printTableLine(doc, version, y) {
-    let maxY = y;
-    doc.text(`${version.name}`, marginLeft, y, { width: 140 });
-    maxY = Math.max(doc.y, maxY);
-    doc.text(toCurrency(version.priceReal, '€'), marginLeft + 145, y, { width: 60 });
-    maxY = Math.max(doc.y, maxY);
-    doc.text(version.description, marginLeft + 210, y, { width: 150 });
-    maxY = Math.max(doc.y, maxY);
-    doc.text(version.available, marginLeft + 365, y, { width: 60 });
-    maxY = Math.max(doc.y, maxY);
-    doc.text(version.time, marginLeft + 430, y, { width: 60 });
-    maxY = Math.max(doc.y, maxY);
-    doc.text(version.timeEurostock, marginLeft + 495, y, { width: 60 });
-    maxY = Math.max(doc.y, maxY);
-    return maxY;
-}
+module.exports = function createPdfOrder(res, models, dbx, includeMin) {
 
-function printHead(doc, y, columns) {
-    doc.font('Helvetica').fontSize(9);
-    doc.rect(marginLeft / 2, y, docWidth - marginLeft, 20).fill(primaryBackColor);
-    doc.fill('#ffffff');
-
-    let posX = marginLeft;
-    columns.forEach(col => {
-        doc.text(col.title, posX, y + 6);
-        posX += col.width + 5;
-    });
-
-    doc.fill('#000000');
-    return posX;
-}
-
-function printList(doc, columns, list, y, offset = 5) {
-    let maxY = y;
-    let posX = printHead(doc, y, columns);
-    y = doc.y + offset;
-
-    function printItem(version, index) {
-        columns.forEach(col => {
-            const format = col.format || (e => e);
-            doc.text(format(version[col.field], index, version), posX, y + 6, { width: col.width, height: 100 });
-            maxY = Math.max(doc.y, maxY);
-            posX += col.width + 5;
-        });
+    function printTableLine(doc, version, y) {
+        let maxY = y;
+        doc.fontSize(9);
+        doc.text(`${version.name}`, marginLeft, y, { width: 140 });
+        maxY = Math.max(doc.y, maxY);
+        if (includeMin) {
+            doc.text(`${toCurrency(version.priceReal, '€')}`, marginLeft + 145, y, { width: 60, continued: true });
+            doc.fontSize(7).text(`\nmv: ${toCurrency(version.priceMin, '€')}`, marginLeft + 145, y, { width: 60 });
+            doc.fontSize(9);
+        } else {
+            doc.text(toCurrency(version.priceReal, '€'), marginLeft + 145, y, { width: 60 });
+        }
+        maxY = Math.max(doc.y, maxY);
+        doc.text(version.description, marginLeft + 210, y, { width: 150 });
+        maxY = Math.max(doc.y, maxY);
+        doc.text(version.available, marginLeft + 365, y, { width: 60 });
+        maxY = Math.max(doc.y, maxY);
+        doc.text(version.time, marginLeft + 430, y, { width: 60 });
+        maxY = Math.max(doc.y, maxY);
+        doc.text(version.timeEurostock, marginLeft + 495, y, { width: 60 });
+        maxY = Math.max(doc.y, maxY);
+        return maxY;
     }
 
-    list.forEach((version, index) => {
-        posX = marginLeft;
-        printItem(version, index);
-        const shouldChangePage = maxY > docHeight;
-        if (shouldChangePage) {
-            doc.rect(marginLeft / 2, y - offset, docWidth - marginLeft, maxY - y + offset).fill('#ffffff');
-            doc.addPage();
-            y = doc.y;
-            maxY = y;
-            printHead(doc, y, columns);
-            y = doc.y + offset;
+    function printHead(doc, y, columns) {
+        doc.font('Helvetica').fontSize(9);
+        doc.rect(marginLeft / 2, y, docWidth - marginLeft, 20).fill(primaryBackColor);
+        doc.fill('#ffffff');
+
+        let posX = marginLeft;
+        columns.forEach(col => {
+            doc.text(col.title, posX, y + 6);
+            posX += col.width + 5;
+        });
+
+        doc.fill('#000000');
+        return posX;
+    }
+
+    function printList(doc, columns, list, y, offset = 5) {
+        let maxY = y;
+        let posX = printHead(doc, y, columns);
+        y = doc.y + offset;
+
+        function printItem(version, index) {
+            columns.forEach(col => {
+                const format = col.format || (e => e);
+                if (col.field === 'priceReal' && includeMin) {
+                    doc.text(format(version[col.field], index, version), posX, y + 6, { width: col.width, height: 100, continued:true });
+                    doc.fontSize(7).text(`\nmv: ${toCurrency(version.priceMin, '€')}`, posX);
+                    doc.fontSize(9);
+                } else {
+                    doc.text(format(version[col.field], index, version), posX, y + 6, { width: col.width, height: 100 });
+                }
+                maxY = Math.max(doc.y, maxY);
+                posX += col.width + 5;
+            });
+        }
+
+        list.forEach((version, index) => {
             posX = marginLeft;
             printItem(version, index);
-        }
-        const color = index % 2 === 0 ? '#dddddd' : '#ffffff';
-        doc.rect(marginLeft / 2, y - offset, docWidth - marginLeft, maxY - y + offset).fill(color);
-        doc.fill('#000000');
-        y -= 4;
-        posX = marginLeft;
-        printItem(version, index);
-        y = maxY + offset;
-    });
-    return maxY;
-}
-
-module.exports = function createPdfOrder(res, models, dbx, user) {
+            const shouldChangePage = maxY > docHeight;
+            if (shouldChangePage) {
+                doc.rect(marginLeft / 2, y - offset, docWidth - marginLeft, maxY - y + offset).fill('#ffffff');
+                doc.addPage();
+                y = doc.y;
+                maxY = y;
+                printHead(doc, y, columns);
+                y = doc.y + offset;
+                posX = marginLeft;
+                printItem(version, index);
+            }
+            const color = index % 2 === 0 ? '#dddddd' : '#ffffff';
+            doc.rect(marginLeft / 2, y - offset, docWidth - marginLeft, maxY - y + offset).fill(color);
+            doc.fill('#000000');
+            y -= 4;
+            posX = marginLeft;
+            printItem(version, index);
+            y = maxY + offset;
+        });
+        return maxY;
+    }
 
     const doc = new PdfDoc({
         bufferPages: true,

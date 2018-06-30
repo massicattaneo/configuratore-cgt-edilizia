@@ -8,25 +8,29 @@ module.exports = {
             { CAMPO: 'Cliente', VALORE: budget.client.name },
             { CAMPO: 'Modello macchina', VALORE: dbx.versions.find(v => v.id === budget.version).name },
             { CAMPO: 'Stato macchina', VALORE: 'Nuova' },
+            { CAMPO: 'Data vendita', VALORE: order.created.substr(0, 10) },
+            { CAMPO: 'Data prevista consegna macchina', VALORE: order.deliveryDate },
             { CAMPO: 'Prezzo vendita', VALORE: order.price },
-            { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateTotal(budget, dbx) },
+            { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateTotal(budget, dbx, 'priceMin') },
+            { CAMPO: 'PERMUTA', VALORE: ''},
             { CAMPO: 'Valore permuta', VALORE: budget.exchange.value },
             { CAMPO: 'Supervalutazione permuta', VALORE: order.exchange.overvalue },
-            { CAMPO: 'Data vendita', VALORE: order.exchange.date },
+            { CAMPO: 'Data vendita permuta', VALORE: order.exchange.date },
             { CAMPO: 'Disponibilità macchina', VALORE: order.exchange.availability },
             {
                 CAMPO: 'Venditore',
                 VALORE: `${user.name} ${user.surname} ${user.organization ? ` - ${user.organization}` : ''}`
             },
+            { CAMPO: 'Note permuta', VALORE: order.exchange.notes },
             { CAMPO: 'Documenti permuta', VALORE: order.exchange.documents },
-            { CAMPO: 'Data prevista consegna macchina', VALORE: order.exchange.delivery },
+            { CAMPO: 'Consegna meccanico officina esterna', VALORE: order.exchange.mechanic },
+            { CAMPO: 'Data prevista consegna macchina in permuta', VALORE: order.exchange.delivery },
             { CAMPO: 'Dichiarazione per sollevamento', VALORE: order.exchange.declaration },
             { CAMPO: 'Targatura', VALORE: order.exchange.plate },
+            { CAMPO: 'LEASING', VALORE: ''},
             { CAMPO: 'Leasing - documenti consegnati a società leasing', VALORE: order.leasing.documents },
             { CAMPO: 'Leasing approvato', VALORE: order.leasing.approved },
-            { CAMPO: 'Leasing - pagamento anticipo', VALORE: order.leasing.payment },
-            { CAMPO: 'Consegna meccanico officina esterna', VALORE: order.exchange.mechanic },
-            { CAMPO: 'Note', VALORE: order.exchange.notes }
+            { CAMPO: 'Leasing - pagamento anticipo', VALORE: order.leasing.payment }
         ]);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, orderDetails, 'Dettaglio Ordine');
@@ -56,17 +60,20 @@ module.exports = {
     },
     createEquipmentXlsx: function (budget, dbx, order, user, xlsxPath) {
         const orderDetails = XLSX.utils.json_to_sheet([
+
             { CAMPO: 'Cliente', VALORE: budget.client.name },
-            { CAMPO: 'Prezzo vendita', VALORE: shared.calculateEqOfferedTotal(budget, dbx) },
-            { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateEqTotal(budget, dbx) },
+            { CAMPO: 'Data vendita', VALORE: order.created.substr(0, 10) },
+            { CAMPO: 'Data prevista consegna attrezzature', VALORE: order.deliveryDate },
+            { CAMPO: 'Prezzo vendita', VALORE: order.price },
+            { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateTotal(budget, dbx, 'priceMin') },
             {
                 CAMPO: 'Venditore',
                 VALORE: `${user.name} ${user.surname} ${user.organization ? ` - ${user.organization}` : ''}`
             },
+            { CAMPO: 'LEASING', VALORE: ''},
             { CAMPO: 'Leasing - documenti consegnati a società leasing', VALORE: order.leasing.documents },
             { CAMPO: 'Leasing approvato', VALORE: order.leasing.approved },
-            { CAMPO: 'Leasing - pagamento anticipo', VALORE: order.leasing.payment },
-            { CAMPO: 'Consegna meccanico officina esterna', VALORE: order.exchange.mechanic }
+            { CAMPO: 'Leasing - pagamento anticipo', VALORE: order.leasing.payment }
         ]);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, orderDetails, 'Dettaglio Ordine');

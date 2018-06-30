@@ -17,10 +17,10 @@ export default async function ({ locale, system, thread }) {
     const view = HtmlView(template, style, {});
     view.style();
 
-    view.get().download = async function () {
+    view.get().download = async function (includeMin) {
         const arr = htmlListToArray(view.get().models).filter(el => el.checked);
         if (arr.length) {
-            const url = `/api/price-list/?models=${arr.map(m => m.value).join(',')}`;
+            const url = `/api/price-list/?models=${arr.map(m => m.value).join(',')}&includeMin=${includeMin}`;
             window.open(url);
         }
     };

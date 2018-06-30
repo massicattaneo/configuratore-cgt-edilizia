@@ -29,7 +29,8 @@
     "missing-client-email": "Manca l'email del cliente",
     "missing-client-email-malformed": "L'email inserita non è in un fomato valido",
     "missingBudgetClientEmail": "Modifica l'offerta e inserisci i dati del cliente a cui vuoi inviarlo",
-    "missingOrderPrice": "Aggiungi il prezzo della vendita"
+    "missingOrderPrice": "Aggiungi il prezzo della vendita",
+    "missingDeliveryDate": "Aggiungi la data di prevista consegna della macchina/attrezzature"
   },
   "urls": {
     "homePage": {

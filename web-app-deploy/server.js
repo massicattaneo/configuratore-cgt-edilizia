@@ -140,9 +140,11 @@ function noCache(req, res, next) {
     app.get('/api/price-list/',
         requiresLogin,
         async function (req, res) {
+            const userAuth = Number(req.session.userAuth);
+            const includeMin = userAuth <=1 && req.query.includeMin === 'true';
             const models = (req.query.models || '').split(',');
             const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, {userAuth: 0}))[0];
-            createPdfPriceList(res, models, dropbox.getDb(), user);
+            createPdfPriceList(res, models, dropbox.getDb(), includeMin);
         });
 
     app.get('/api/email/:table/:id',
@@ -285,8 +287,7 @@ function noCache(req, res, next) {
             if (order.emailMe === 'on')
                 email.push(user.email);
             mailer.send(createTemplate('order', { table, order, budget, user, dbx, attachments, email }));
-            const date = '' + new Date().getFullYear() + (new Date().getMonth() + 1) + new Date().getDate();
-            dropbox.updload(`Dettaglio_ordine_${date}_${user.name}_${user.surname}.xlsx`, fs.readFileSync(xlsxPath), '/Ordini');
+            dropbox.updload(`Ordine_${order.created}_${user.name}_${user.surname}.xlsx`, fs.readFileSync(xlsxPath), '/Ordini');
             res.send(order);
         });
 
