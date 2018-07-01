@@ -33,6 +33,7 @@ export default async function ({ locale, system, thread }) {
         })
         .execute(view.clear)
         .filter(s => s && s.logged)
+        .debounce(300)
         .subscribe(function ({ logo, text }) {
             const variables = Object.assign({
                 showOrganization: Number(system.store.user.type) === 2 ? 'inline-block' : 'none',

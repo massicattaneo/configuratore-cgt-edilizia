@@ -83,17 +83,17 @@
     </fieldset>
     {{/each}}
     <hr/>
-    <div class="mdl-grid" style="padding: 0">
+    <table width="100%" class="alternate-table">
         {{#each items}}
-        <div style="margin: 5px; min-height: auto;"
-             class="mdl-card mdl-cell--4-col mdl-shadow--2dp">
-            <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+        <tr>
+        <td>
+            <div class="mdl-color--grey-800 mdl-color-text--white" style="padding: 4px;">
                 {{this.code}} - {{this.name}} ({{this.constructorId}})
             </div>
-            <div style="padding: 4px">
+            <div>
                 <img src="{{this.src}}?v={{system.version}}"  onerror="this.style.display='none'" style="width: 100%; padding: 0 10px 10px 10px" />
-                <div style="font-size: 12px; color: #b51700">ATTENZIONE: {{this.notes}}</div>
-                <div style="font-size: 12px;">INFORMAZIONE: {{this.info}}</div>
+                <div style="font-size: 12px; color: #b51700;">ATTENZIONE: {{this.notes}}</div>
+                <div style="font-size: 12px;"><em>INFORMAZIONE: {{this.info}}</em></div>
                 <div style="font-size: 12px;">TEMPI DI CONSEGNA: {{this.time}}</div>
                 <div>PREZZO LISTINO: {{toCurrency(this.priceReal)}}</div>
             </div>
@@ -101,9 +101,10 @@
                     onclick="this.form.addEquipment('{{this.id}}')"
                     class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">AGGIUNGI
             </button>
-        </div>
+        </td>
+        </tr>
         {{/each}}
-    </div>
+    </table>
     <div style="text-align: center">
         <button type="button"
                 onclick="this.form.step('summarys')"

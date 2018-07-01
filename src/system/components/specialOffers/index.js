@@ -13,7 +13,8 @@ export default async function ({ locale, system, thread }) {
             view.clear();
             if (logged) {
                 const params = Object.assign({
-                    specialOffers: system.db.specialOffers || []
+                    specialOffers: system.db.specialOffers
+                        .filter(o => o.userAuth.indexOf(system.store.userAuth) !== -1)
                 }, locale.get());
                 view.appendTo('', template, [], params);
             }

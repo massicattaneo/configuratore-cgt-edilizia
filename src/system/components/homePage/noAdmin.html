@@ -1,13 +1,79 @@
 <div #wrapper class="cgt-content" style="padding: 10px">
-    <h3>BENVENUTO NEL CONFIGURATORE CGT EDILIZIA:</h3>
-    <hr/>
-    <p>Con questa applicazione web potrai:</p>
-    <ul>
-        <li><a onclick="window.navigate(this,event)" href="{{urls.vehicles.href}}">CONFIGURARE IL TUO CATERPILLAR</a></li>
-        <li><a onclick="window.navigate(this,event)" href="{{urls.equipments.href}}">SCEGLIERE L’ATTREZZATURA</a></li>
-        <li><a onclick="window.navigate(this,event)" href="{{urls.specialOffers.href}}">VISUALIZZARE LE OFFERTE SPECIALI</a></li>
-        <li><a onclick="window.navigate(this,event)" href="{{urls.priceList.href}}">SCARICARE IL LISTINO PREZZI</a></li>
-        <li><a onclick="window.navigate(this,event)" href="{{urls.budgets.href}}">VISUALIZZARE LE OFFERTE SALVATE</a></li>
-        <li><a onclick="window.navigate(this,event)" href="{{urls.orders.href}}">VISUALIZZARE GLI ORDINI INVIATI</a></li>
+    <div style="width: 100%; text-align: center;">
+        <img src="/assets/images/caterpillar.png" style="width: 150px;" />
+    </div>
+    <ul style="list-style: none; padding: 0; margin: 0">
+        <li style="background-color: #eeeeee; border-radius: 38px; padding: 0 16px; margin: 10px 0;">
+            <a onclick="window.navigate(this,event)"
+               style="text-decoration: none;display: inline-block;width: 100%;margin: 10px 0;"
+               href="{{urls.vehicles.href}}" class="mdl-color-text--black">
+                <div style="display: inline-block; width: 50px; height: 50px;border-radius: 50%; vertical-align: middle"
+                     class="mdl-color--accent">
+                    <i class=" material-icons"
+                    style="font-size: 38px;padding: 6px;">settings</i>
+                </div>
+                     CONFIGURA IL TUO CATERPILLAR
+            </a>
+        </li>
+        <li style="background-color: #eeeeee; border-radius: 38px; padding: 0 16px; margin: 10px 0;">
+        <a onclick="window.navigate(this,event)"
+               style="text-decoration: none;display: inline-block;width: 100%;margin: 10px 0;"
+               href="{{urls.equipments.href}}" class="mdl-color-text--black">
+                <div style="display: inline-block; width: 50px; height: 50px;border-radius: 50%; vertical-align: middle"
+                     class="mdl-color--accent">
+                    <i class=" material-icons"
+                       style="font-size: 38px;padding: 6px;">settings</i>
+                </div>
+                SCEGLI L’ATTREZZATURA
+            </a>
+        </li>
+        <li style="background-color: #eeeeee; border-radius: 38px; padding: 0 16px; margin: 10px 0;">
+        <a onclick="window.navigate(this,event)"
+               style="text-decoration: none;display: inline-block;width: 100%;margin: 10px 0;"
+               href="{{urls.specialOffers.href}}" class="mdl-color-text--black">
+                <div style="display: inline-block; width: 50px; height: 50px;border-radius: 50%; vertical-align: middle"
+                     class="mdl-color--accent">
+                    <i class=" material-icons"
+                       style="font-size: 38px;padding: 6px;">bookmark</i>
+                </div>
+                VISUALIZZA LE OFFERTE
+            </a>
+        </li>
+        <li style="background-color: #eeeeee; border-radius: 38px; padding: 0 16px; margin: 10px 0;">
+        <a onclick="window.navigate(this,event)"
+               style="text-decoration: none;display: inline-block;width: 100%;margin: 10px 0;"
+               href="{{urls.priceList.href}}" class="mdl-color-text--black">
+                <div style="display: inline-block; width: 50px; height: 50px;border-radius: 50%; vertical-align: middle"
+                     class="mdl-color--accent">
+                    <i class=" material-icons"
+                       style="font-size: 38px;padding: 6px;">picture_as_pdf</i>
+                </div>
+                SCARICA IL LISTINO PREZZI
+            </a>
+        </li>
+        <li style="background-color: #eeeeee; border-radius: 38px; padding: 0 16px; margin: 10px 0;">
+        <a onclick="window.navigate(this,event)"
+               style="text-decoration: none;display: inline-block;width: 100%;margin: 10px 0;"
+               href="{{urls.budgets.href}}" class="mdl-color-text--black">
+                <div style="display: inline-block; width: 50px; height: 50px;border-radius: 50%; vertical-align: middle"
+                     class="mdl-color--accent">
+                    <i class=" material-icons"
+                       style="font-size: 38px;padding: 6px;">assignment</i>
+                </div>
+                LE OFFERTE SALVATE
+            </a>
+        </li>
+        <li style="background-color: #eeeeee; border-radius: 38px; padding: 0 16px; margin: 10px 0;">
+        <a onclick="window.navigate(this,event)"
+               style="text-decoration: none;display: inline-block;width: 100%;margin: 10px 0;"
+               href="{{urls.orders.href}}" class="mdl-color-text--black">
+                <div style="display: inline-block; width: 50px; height: 50px;border-radius: 50%; vertical-align: middle"
+                     class="mdl-color--accent">
+                    <i class=" material-icons"
+                       style="font-size: 38px;padding: 6px;">assignment_turned_in</i>
+                </div>
+                GLI ORDINI INVIATI
+            </a>
+        </li>
     </ul>
 </div>

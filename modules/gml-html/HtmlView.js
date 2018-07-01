@@ -1,6 +1,6 @@
 function addItem(node, items) {
 
-    for (let i=0; i<node.attributes.length; i++) {
+    for (let i = 0; i < node.attributes.length; i++) {
         if (node.attributes[i].name && node.attributes[i].name.indexOf('#') === 0) {
             items[node.attributes[i].name.substr(1)] = node;
             node.removeAttribute(node.attributes[i].name);
@@ -11,7 +11,7 @@ function addItem(node, items) {
 function exploreNode(node, before) {
     before(node);
     for (let i = 0; i < node.children.length; i++) {
-        exploreNode(node.children[i], before)
+        exploreNode(node.children[i], before);
     }
 }
 
@@ -36,7 +36,7 @@ function cssStyleValue(value, key) {
 }
 
 export function HtmlStyle(style) {
-    return Object.keys(style).map(key => `${cssStyleName(key)}: ${cssStyleValue(style[key], key)}`).join(';')
+    return Object.keys(style).map(key => `${cssStyleName(key)}: ${cssStyleValue(style[key], key)}`).join(';');
 }
 
 export function Node(markup) {
@@ -51,11 +51,11 @@ const myParsers = {
         const integer = string.split('.')[0].split('').reverse().reduce((array, item, index) => {
             const number = Math.floor(index / 3);
             array[number] = array[number] || [];
-            array[number].push(item)
+            array[number].push(item);
             return array;
         }, []).map(a => a.reverse()).reverse().join('.').replace(/,/g, '');
         const decimals = string.split('.')[1];
-        return `${integer},${decimals} €`
+        return `${integer},${decimals} €`;
     },
     formatLongDate: function (d) {
         const date = new Date(d);
@@ -76,7 +76,7 @@ export function HtmlView(markup, styles, variables = {}) {
     let matcher = /\{{#each [^}}]*}}.*{{\/each}}/;
     while (markup.match(matcher)) {
         let myMatch = markup.match(matcher);
-        let str = markup.substr(myMatch.index, markup.indexOf('{{/each}}') -myMatch.index + 9);
+        let str = markup.substr(myMatch.index, markup.indexOf('{{/each}}') - myMatch.index + 9);
         markup = markup.replace(str, variables[str.match(/{{#each ([^{{]*)}}/)[1]].map(item => {
             let ret = str.replace(/\{{#each [^}}]*}}/, '').replace('{{/each}}', '').trim();
             if (item instanceof Object) {
@@ -95,7 +95,7 @@ export function HtmlView(markup, styles, variables = {}) {
                     regEx = new RegExp(`{{${fnName}\\(this\\)}}`, 'g');
                     ret = ret.replace(regEx, item);
                 });
-                return ret.replace(/{{this}}/g, item)
+                return ret.replace(/{{this}}/g, item);
             }
         }).join(''));
     }
@@ -136,10 +136,10 @@ export function HtmlView(markup, styles, variables = {}) {
                 let item = items[name];
                 if (item) {
                     const st = HtmlStyle(Object.assign({}, styles[key](orientation), override[name] || {}));
-                    item.style.cssText = st
+                    item.style.cssText = st;
                 }
             }
-        })
+        });
     };
     view.content = function (o) {
         Object.keys(o).forEach(key => {
@@ -150,10 +150,10 @@ export function HtmlView(markup, styles, variables = {}) {
                     .map(an => node.attributes[an])
                     .forEach(item => {
                         if (item)
-                            item.value = item.value.replace(regEx, o[key])
-                    })
+                            item.value = item.value.replace(regEx, o[key]);
+                    });
             });
-        })
+        });
     };
     view.appendTo = function (item, childMarkup, childStyles, variables = {}) {
         const childView = HtmlView(childMarkup, childStyles, variables);

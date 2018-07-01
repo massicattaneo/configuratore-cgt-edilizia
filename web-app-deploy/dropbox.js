@@ -86,11 +86,20 @@ const equipementDataStructure = {
 };
 
 function getDropboxSpecialOffert(dbx) {
-    return dbx.filesListFolder({ path: `/APPS/configuratore-cgt-edilizia/Offerte speciali/Venditori` })
-        .then(function (response) {
-            return response.entries.map(({ name, id }) => {
-                return { name, id };
-            });
+    const paths = ['Venditori', 'CGT', 'Concessionari'];
+    return Promise.all([
+        dbx.filesListFolder({ path: `/APPS/configuratore-cgt-edilizia/Offerte speciali/${paths[0]}` }),
+        dbx.filesListFolder({ path: `/APPS/configuratore-cgt-edilizia/Offerte speciali/${paths[1]}` }),
+        dbx.filesListFolder({ path: `/APPS/configuratore-cgt-edilizia/Offerte speciali/${paths[2]}` })
+    ])
+        .then(function (responses) {
+            const userAuths = [[0, 1], [0, 2], [0, 3]];
+            return responses.reduce(function (arr, response, index) {
+                return arr.concat(...response.entries.map(({ name, id }) => {
+                    return { name: name.replace(/_/g, ' '), id,
+                        userAuth: userAuths[index], href: `${paths[index]}/${name}` };
+                }));
+            }, []);
         })
         .catch(function (error) {
             console.log(error);

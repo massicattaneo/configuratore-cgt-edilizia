@@ -1,7 +1,16 @@
 <div #wrapper>
-    <ul>
+    <table style="padding: 10px; width: 100%" class="alternate-table">
         {{#each specialOffers}}
-            <li><a href="/api/dropbox/Offerte Speciali/Venditori/{{this.name}}">{{this.name}}</a></li>
+        <tr>
+
+            <td style="margin: 10px 0">
+                <a target="_blank" style="color: black; display: block; width: 100%;"
+                    href="/api/dropbox/Offerte Speciali/{{this.href}}">
+                    <img src="/assets/images/pdf-ico.png" width="40px" />
+                    {{this.name}}
+                </a>
+            </td>
+        </tr>
         {{/each}}
-    </ul>
+    </table>
 </div>
