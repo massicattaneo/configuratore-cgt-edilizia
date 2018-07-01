@@ -44,6 +44,7 @@ export default async function ({ locale, system, thread }) {
                 .start()
                 .then(function (images) {
                     const params = Object.assign({
+                        minimumOn: Number(system.store.userAuth) <=1 ? 'inline-block' : 'none',
                         familys: system.db.familys.map(f => Object.assign({
                             checkboxes: system.db.models
                                 .filter(m => m.familyId === f.id)

@@ -1,18 +1,26 @@
 const createTemplate = require('./mailer/createTemplate');
-const { confirmRegistrationUrl, registerUrl, loginUrl, logoutUrl, logStatusUrl, recoverUrl, resetUrl, deleteAccountUrl } = require('./serverInfo');
+const { confirmRegistrationUrl, modifyUserUrl, registerUrl, loginUrl, logoutUrl, logStatusUrl, recoverUrl, resetUrl, deleteAccountUrl } = require('./serverInfo');
 const ObjectId = require('mongodb').ObjectID;
 
 module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
+
+    app.put(modifyUserUrl,
+        requiresLogin,
+        async function (req, res) {
+            const { name, surname, organization, tel } = req.body;
+            const data = await mongo.rest.update('users', req.session.userId, { name, surname, organization, tel }, {userAuth: 0});
+            res.send(data);
+        });
 
     app.get(logStatusUrl,
         requiresLogin,
         async function (req, res) {
             const userId = req.session.userId;
             const user = await mongo.getUser({ _id: new ObjectId(userId) });
-            const vehiclebudgets = await mongo.rest.get('vehiclebudgets', `userId=${userId}`, {userAuth: 0}) || [];
-            const equipmentbudgets = await mongo.rest.get('equipmentbudgets', `userId=${userId}`, {userAuth: 0}) || [];
-            const vehicleorders = await mongo.rest.get('vehicleorders', `userId=${userId}`, {userAuth: 0}) || [];
-            const equipmentorders = await mongo.rest.get('equipmentorders', `userId=${userId}`, {userAuth: 0}) || [];
+            const vehiclebudgets = await mongo.rest.get('vehiclebudgets', `userId=${userId}`, { userAuth: 0 }) || [];
+            const equipmentbudgets = await mongo.rest.get('equipmentbudgets', `userId=${userId}`, { userAuth: 0 }) || [];
+            const vehicleorders = await mongo.rest.get('vehicleorders', `userId=${userId}`, { userAuth: 0 }) || [];
+            const equipmentorders = await mongo.rest.get('equipmentorders', `userId=${userId}`, { userAuth: 0 }) || [];
             const data = {};
             delete user.activationCode;
             delete user.hash;

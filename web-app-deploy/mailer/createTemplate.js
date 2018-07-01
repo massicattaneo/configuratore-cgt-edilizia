@@ -5,6 +5,7 @@ const confirm = require('./templates/confirm');
 const active = require('./templates/active');
 const budget = require('./templates/budget');
 const order = require('./templates/order');
+const webmail = require('../private/webmail');
 
 module.exports = function (type, emailParams) {
     const email = emailParams.email;
@@ -34,7 +35,7 @@ module.exports = function (type, emailParams) {
             };
         case 'budget':
             return {
-                from: `"${emailParams.user.surname} ${emailParams.user.name}" <${emailParams.user.email}>`,
+                from: `"${emailParams.user.surname} ${emailParams.user.name}" <${webmail.email}>`,
                 to: email,
                 subject: emailParams.table === 'vehiclebudgets' ? 'OFFERTA MACCHINA NUOVA' : 'OFFERTA NUOVA ATTREZZATURA',
                 text: '', // plain text body

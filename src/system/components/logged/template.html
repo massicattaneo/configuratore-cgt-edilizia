@@ -9,42 +9,62 @@
                 <td>{{formatLongDate(user.created)}} - {{formatTime(user.created)}}</td>
             </tr>
             <tr>
-                <td>COGNOME:</td>
-                <td>{{user.surname}}</td>
-            </tr>
-            <tr>
-                <td>NOME:</td>
-                <td>{{user.name}}</td>
-            </tr>
-            <tr>
-                <td>EMAIL: </td>
+                <td>EMAIL:</td>
                 <td>{{user.email}}</td>
             </tr>
-            <tr>
-                <td>TELEFONO: </td>
-                <td>{{user.tel}}</td>
-            </tr>
         </table>
-    </div>
-    <div class="mdl-cell mdl-cell--6-col mdl-cell--12-col-tablet mdl-shadow--2dp mdl-card">
-        <div class="mdl-card__title mdl-color--primary mdl-color-text--white">
-            INTESTAZIONE E LOGO DEI PDF CREATI:
-        </div>
-        <div>
-            <div style="width: 40%; height: 120px; float: left;">
-                <input id="logged-upload-image" name="exchangeUpload" onchange="this.form.upload()" type="file" value="CARICA IL LOGO"/>
-                <img src="{{logo}}" onerror="this.style.display = 'none'"
-                     onload="document.getElementById('logged-upload-image').style.display = 'none'"  />
-            </div>
-            <div style="width: 60%; float: left; color: #999; font-size: 10px;" contenteditable="true">
-                LA MIA AZIENDA<br/>
-                VIA DEI COLLI 21 - 20100 LA PINETA(GR)<br/>
-                Tel. +39 000 000 000 - Fax +39 000 000 000
+        <div class="mdl-list__item">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input value="{{user.name}}" class="mdl-textfield__input" type="text" id="name">
+                <label class="mdl-textfield__label" for="name">{{register.name}}</label>
             </div>
         </div>
-        <button type="button" class="mdl-button mdl-color--accent mdl-color--black">
-            SALVA
-        </button>
+        <div class="mdl-list__item">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input value="{{user.surname}}" class="mdl-textfield__input" type="text" id="surname">
+                <label class="mdl-textfield__label" for="surname">{{register.surname}}</label>
+            </div>
+        </div>
+        <div class="mdl-list__item">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input value="{{user.tel}}" class="mdl-textfield__input" type="text" id="tel">
+                <label class="mdl-textfield__label" for="name">{{register.tel}}</label>
+            </div>
+        </div>
+        <div class="mdl-list__item" style="display: {{showOrganization}}">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input value="{{user.organization}}" class="mdl-textfield__input" type="text" id="organization">
+                <label class="mdl-textfield__label" for="organization">{{register.organization}}</label>
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <button type="button"
+                    style="margin-bottom: 10px"
+                    onclick="this.form.save()"
+                    class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+                SALVA
+            </button>
+        </div>
     </div>
+    <!--<div class="mdl-cell mdl-cell&#45;&#45;6-col mdl-cell&#45;&#45;12-col-tablet mdl-shadow&#45;&#45;2dp mdl-card">-->
+    <!--<div class="mdl-card__title mdl-color&#45;&#45;primary mdl-color-text&#45;&#45;white">-->
+    <!--INTESTAZIONE E LOGO DEI PDF CREATI:-->
+    <!--</div>-->
+    <!--<div>-->
+    <!--<div style="width: 40%; height: 120px; float: left;">-->
+    <!--<input id="logged-upload-image" name="exchangeUpload" onchange="this.form.upload()" type="file" value="CARICA IL LOGO"/>-->
+    <!--<img src="{{logo}}" onerror="this.style.display = 'none'"-->
+    <!--onload="document.getElementById('logged-upload-image').style.display = 'none'"  />-->
+    <!--</div>-->
+    <!--<div style="width: 60%; float: left; color: #999; font-size: 10px;" contenteditable="true">-->
+    <!--LA MIA AZIENDA<br/>-->
+    <!--VIA DEI COLLI 21 - 20100 LA PINETA(GR)<br/>-->
+    <!--Tel. +39 000 000 000 - Fax +39 000 000 000-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--<button type="button" class="mdl-button mdl-color&#45;&#45;accent mdl-color&#45;&#45;black">-->
+    <!--SALVA-->
+    <!--</button>-->
+    <!--</div>-->
 
 </div>

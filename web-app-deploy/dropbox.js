@@ -42,7 +42,12 @@ const versionDataStructure = {
     image: 'Nome immagine',
     notes: 'Note',
     attachment: 'Allegato offerta',
-    depliants: 'Depliants',
+    depliants: {
+        column: 'Depliants', convert: e => {
+            if (!e) return '';
+            return e.replace('Dropbox (CGTE)\\Apps\\configuratore-cgt-edilizia\\', '');
+        }
+    },
     priceReal: { column: 'Listino', convert: convertCurrency },
     priceMin: { column: 'Minimo', convert: convertCurrency },
     priceOutsource: { column: 'Prezzo concessionario', convert: convertCurrency },
@@ -132,6 +137,14 @@ module.exports = function () {
         const ret = [];
         if (table === 'vehiclebudgets') {
             const version = db.versions.find(v => v.id === budget.version);
+            if (version.depliants) {
+                const url = `/APPS/configuratore-cgt-edilizia/${version.depliants.replace(/\\/g, '/')}.pdf`;
+                if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
+                const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
+                const i = await dbx.filesDownload({ path: url });
+                fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
+                ret.push({ filename: 'Depliants.pdf', path: pdfSpecs });
+            }
             if (version.attachment) {
                 const url = `/APPS/configuratore-cgt-edilizia/${version.attachment.replace(/\\/g, '/')}.pdf`;
                 if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);

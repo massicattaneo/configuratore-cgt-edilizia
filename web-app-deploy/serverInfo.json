@@ -8,6 +8,7 @@
   "resetUrl": "/api/login/reset",
   "deleteAccountUrl": "/api/login/delete",
   "logStatusUrl": "/api/login/status",
+  "modifyUserUrl": "/api/login/modify",
   "primaryColor": "#ae0e0f",
   "secondaryColor": "#ffce12",
   "grayColor": "#757575",

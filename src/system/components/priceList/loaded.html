@@ -9,13 +9,15 @@
         </div>
         {{/each}}
     </div>
-    <div style="text-align: center; {{on}}">
+    <div style="text-align: center;">
         <button type="button"
+                style="margin-bottom: 10px"
                 onclick="this.form.download(false)"
                 class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
-            SCARICA
+            SCARICA LISTINO
         </button>
         <button type="button"
+                style="margin-bottom: 10px; display: {{minimumOn}}"
                 onclick="this.form.download(true)"
                 class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
             SCARICA CON MINIMI DI VENDITA

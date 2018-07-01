@@ -12,7 +12,7 @@ export function HttpRequest (url, options = {}) {
     let request;
 
     obj.send = function (method, data) {
-        const { isAsync = true, timeout = 2000, headers = {} } = options;
+        const { isAsync = true, timeout = 60000, headers = {} } = options;
         request = getHttpObject();
         aborted = false;
         request.open(method, url, isAsync);
