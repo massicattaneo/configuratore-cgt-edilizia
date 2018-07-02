@@ -36,11 +36,13 @@ export default async function ({ locale, system }) {
 
     rx.connect
         .partial({
-            a: () => system.store.userAuth
+            a: () => system.store.userAuth,
+            logged: () => system.store.hasLogged
         })
+        .execute(() => view.clear('filter'))
         .filter(({a}) => a !== undefined && a.toString() === '0')
         .subscribe(function () {
-            view.clear('filter').appendTo('filter', `<div>
+            view.appendTo('filter', `<div>
                 <label for="user-filter">FILTRA:</label>
                 <input autocomplete="off" type="text" onkeyup="this.form.filter(this)" id="user-filter" style="width: 200px"/>
             <hr/>
@@ -50,10 +52,10 @@ export default async function ({ locale, system }) {
     rx.connect
         .partial({
             userAuth: () => system.store.userAuth,
+            logged: () => system.store.hasLogged,
             filter: () => model.filter,
             order: () => model.order
         })
-        .debounce(300)
         .subscribe(redraw);
 
     let users;

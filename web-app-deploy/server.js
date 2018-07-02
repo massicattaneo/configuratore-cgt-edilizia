@@ -26,6 +26,7 @@ const fileUpload = require('express-fileupload');
 const createTemplate = require('./mailer/createTemplate');
 const privateInfo = require('./private/privateInfo.json');
 const {createVehicleXlsx, createEquipmentXlsx} = require('./xlsx/xlsx');
+const schedule = require('node-schedule');
 
 function noCache(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
@@ -287,7 +288,7 @@ function noCache(req, res, next) {
             if (order.emailMe === 'on')
                 email.push(user.email);
             mailer.send(createTemplate('order', { table, order, budget, user, dbx, attachments, email }));
-            dropbox.updload(`Ordine_${order.created}_${user.name}_${user.surname}.xlsx`, fs.readFileSync(xlsxPath), '/Ordini');
+            dropbox.updload(`Ordine_${order.created.substr(0, 16)}_${user.name}_${user.surname}.xlsx`, fs.readFileSync(xlsxPath), '/Ordini');
             res.send(order);
         });
 
@@ -308,7 +309,9 @@ function noCache(req, res, next) {
         };
     }
 
-
+    schedule.scheduleJob('0 3 * * *', function(){
+        dropbox.backUpMongoDb();
+    });
 
     app.get('*', callback);
 

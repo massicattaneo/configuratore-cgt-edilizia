@@ -8,7 +8,7 @@ export default async function ({ locale, system, thread }) {
 
     rx.connect
         .partial({
-            logged: () => system.store.logged,
+            logged: () => system.store.hasLogged,
             email: () => system.store.email
         })
         .subscribe(function ({logged, email}) {

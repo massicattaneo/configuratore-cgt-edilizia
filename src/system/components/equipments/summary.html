@@ -37,6 +37,14 @@
                 VALIDITA' OFFERTA (giorni)
             </label>
         </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%">
+            <textarea onkeyup="this.form.updateMainSummary('notes', this.value)"
+                      style="width: 100%;" class="mdl-textfield__input" rows="4"
+                      id="summary_notes">{{summary.notes}}</textarea>
+            <label class="mdl-textfield__label" for="summary_notes">
+                NOTE
+            </label>
+        </div>
     </div>
     <br/>
     <div style="text-align: center">

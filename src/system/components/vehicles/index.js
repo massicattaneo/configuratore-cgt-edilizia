@@ -48,7 +48,8 @@ export default async function ({ locale, system, thread }) {
         price: '',
         payment: 'da concordare',
         availability: 'da definire',
-        validity: '30'
+        validity: '30',
+        notes: ''
     }, system.getStorage('vehicle').summary);
     let client = Object.assign({
         name: '',

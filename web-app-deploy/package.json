@@ -28,7 +28,11 @@
     "qrcode": "^1.2.0",
     "socket.io": "^2.0.4",
     "sharp": "^0.18.4",
+    "hummus": "^1.0.87",
     "stripe": "^5.4.0",
-    "striptags": "^3.1.1"
+    "striptags": "^3.1.1",
+    "mongodb-backup": "^1.6.9",
+    "node-schedule": "^1.3.0",
+    "nodeJs-zip": "^1.0.4"
   }
 }

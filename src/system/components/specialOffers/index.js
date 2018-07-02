@@ -7,9 +7,8 @@ export default async function ({ locale, system, thread }) {
     view.style();
 
     rx.connect
-        .partial({ logged: () => system.store.logged })
-        .debounce(300)
-        .subscribe(function (logged) {
+        .partial({ logged: () => system.store.hasLogged })
+        .subscribe(function ({ logged }) {
             view.clear();
             if (logged) {
                 const params = Object.assign({

@@ -29,11 +29,10 @@ export default async function ({ locale, system, thread }) {
         .partial({
             logo: () => store.logo,
             text: () => store.text,
-            logged: () => system.store.logged
+            logged: () => system.store.hasLogged
         })
         .execute(view.clear)
         .filter(s => s && s.logged)
-        .debounce(300)
         .subscribe(function ({ logo, text }) {
             const variables = Object.assign({
                 showOrganization: Number(system.store.user.type) === 2 ? 'inline-block' : 'none',

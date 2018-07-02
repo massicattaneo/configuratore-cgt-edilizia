@@ -200,7 +200,8 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
     const summary = {
         payment: 'Pagamento',
         availability: 'Disponibilità',
-        validity: 'Validità'
+        validity: 'Validità',
+        notes: 'Note'
     };
     Object.keys(summary).forEach(function (key) {
         if (budget.summary[key])

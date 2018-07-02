@@ -59,7 +59,7 @@ const myParsers = {
     },
     formatLongDate: function (d) {
         const date = new Date(d);
-        return date.formatDay('dddd dd/mm/yyyy', ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica']);
+        return date.formatDay('dddd dd/mm/yyyy', ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato']);
     },
     formatShortDate: function (d) {
         const date = new Date(d);

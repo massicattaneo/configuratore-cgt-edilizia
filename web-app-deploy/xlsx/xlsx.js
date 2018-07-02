@@ -12,6 +12,7 @@ module.exports = {
             { CAMPO: 'Data prevista consegna macchina', VALORE: order.deliveryDate },
             { CAMPO: 'Prezzo vendita', VALORE: order.price },
             { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateTotal(budget, dbx, 'priceMin') },
+            { CAMPO: 'Note', VALORE: order.notes },
             { CAMPO: 'PERMUTA', VALORE: ''},
             { CAMPO: 'Valore permuta', VALORE: budget.exchange.value },
             { CAMPO: 'Supervalutazione permuta', VALORE: order.exchange.overvalue },
@@ -66,6 +67,7 @@ module.exports = {
             { CAMPO: 'Data prevista consegna attrezzature', VALORE: order.deliveryDate },
             { CAMPO: 'Prezzo vendita', VALORE: order.price },
             { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateTotal(budget, dbx, 'priceMin') },
+            { CAMPO: 'Note', VALORE: order.notes },
             {
                 CAMPO: 'Venditore',
                 VALORE: `${user.name} ${user.surname} ${user.organization ? ` - ${user.organization}` : ''}`

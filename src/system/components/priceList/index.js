@@ -30,10 +30,9 @@ export default async function ({ locale, system, thread }) {
     };
 
     rx.connect
-        .partial({ logged: () => system.store.logged })
+        .partial({ logged: () => system.store.hasLogged })
         .execute(view.clear)
         .filter(s => s.logged)
-        .debounce(300)
         .subscribe(function (logged) {
             view.appendTo('', '<div>CARICANDO LISTINO ...</div>', []);
             system

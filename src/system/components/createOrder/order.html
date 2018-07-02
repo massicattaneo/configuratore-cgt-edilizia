@@ -2,7 +2,9 @@
     <div #summary></div>
     <div style="display: {{showExchange}}" class="mdl-cell mdl-shadow--2dp mdl-cell--12-col">
         <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">
-            PERMUTA: {{exchange.name}} ({{exchange.builder}}) - ESTIMATO: {{toCurrency(exchange.value)}}
+            DATI AGGIUNTIVI ORDINE: <span style="display: {{showExchangeTitle}}">
+                {{exchange.name}} ({{exchange.builder}}) - ESTIMATO: {{toCurrency(exchange.value)}}
+            <span>
         </div>
 
         <div style="padding: 10px">
@@ -132,6 +134,14 @@
             <br/>
             (PREZZO OFFERTO: {{toCurrency(priceOffered)}} - PREZZO LISTINO: {{toCurrency(priceReal)}})
             <hr/>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%">
+                <textarea onkeyup="this.form.updateStore('notes', this.value)"
+                          style="width: 100%;" class="mdl-textfield__input" rows="4"
+                          id="summary_notes">{{summary.notes}}</textarea>
+                <label class="mdl-textfield__label" for="summary_notes">
+                    NOTE
+                </label>
+            </div>
             <fieldset>
                 <legend>INVIA L'ORDINE VIA MAIL A:</legend>
                 <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-1">

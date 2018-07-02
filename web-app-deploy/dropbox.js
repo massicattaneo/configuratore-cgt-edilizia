@@ -7,6 +7,11 @@ const fs = require('fs');
 const originalDb = {};
 const db = {};
 const path = require('path');
+const access = require('./private/mongo-db-access');
+const backup = require('mongodb-backup');
+const devUri = `mongodb://localhost:27017/cgt-edilizia`;
+const prodUri = `mongodb://${access.config.mongo.user}:${encodeURIComponent(access.password)}@${access.config.mongo.hostString}`;
+const nodeJsZip = require("nodeJs-zip");
 
 function convertCurrency(string) {
     return Number((string || '').replace(',', '').replace('€', '').trim());
@@ -85,8 +90,8 @@ const equipementDataStructure = {
     id: 'Identificatore'
 };
 
-function getDropboxSpecialOffert(dbx) {
-    const paths = ['Venditori', 'CGT', 'Concessionari'];
+function getDropboxSpecialOffers(dbx) {
+    const paths = ['Venditori CGT Edilizia', 'CGT', 'Concessionari'];
     return Promise.all([
         dbx.filesListFolder({ path: `/APPS/configuratore-cgt-edilizia/Offerte speciali/${paths[0]}` }),
         dbx.filesListFolder({ path: `/APPS/configuratore-cgt-edilizia/Offerte speciali/${paths[1]}` }),
@@ -134,7 +139,7 @@ module.exports = function () {
         console.log('/****** DOWNLOADING IMAGES FROM DROPBOX');
         await copyDropboxImages(dbx, db.models, db.versions, db.equipements);
         console.log('/****** CREATING SPECIAL OFFERS FROM DROPBOX');
-        db.specialOffers = await getDropboxSpecialOffert(dbx);
+        db.specialOffers = await getDropboxSpecialOffers(dbx);
         console.log(`/****** finished parsing DOWNLOADING IMAGES FROM DROPBOX in ${(Date.now() - start) / 1000}s`);
     };
 
@@ -187,15 +192,34 @@ module.exports = function () {
     obj.updload = function (fileName, file, subPath = '/Uploads') {
         dbx.filesUpload({ path: `/APPS/configuratore-cgt-edilizia${subPath}/${fileName}`, contents: file })
             .then(function (response) {
-                console.log(response);
+                console.log('UPLOAD OK: ', response);
             })
             .catch(function (error) {
-                console.error(error);
+                console.error('UPLOAD ERROR: ', error);
             });
     };
 
     obj.download = function (path) {
         return downloadFile(dbx, path);
+    };
+
+    obj.backUpMongoDb = function () {
+        if (!fs.existsSync(`${__dirname}/backup-db`)) fs.mkdirSync(`${__dirname}/backup-db`);
+        if (!fs.existsSync(`${__dirname}/backup-db-zip`)) fs.mkdirSync(`${__dirname}/backup-db-zip`);
+        backup({
+            uri: prodUri,
+            root: `${__dirname}/backup-db`,
+            callback: function(err) {
+                if (err) {
+                    console.error('ERROR DOING BACKUP', err);
+                } else {
+                    nodeJsZip.zip(`${__dirname}/backup-db`, {
+                        dir: `${__dirname}/backup-db-zip`
+                    });
+                    obj.updload(`backup.zip`, fs.readFileSync(`${__dirname}/backup-db-zip/out.zip`, 'binary'), '/MongoDb-backup')
+                }
+            }
+        });
     };
 
     return obj;

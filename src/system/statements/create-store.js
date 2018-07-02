@@ -12,7 +12,8 @@ export default async function ({ system, thread, gos }) {
         equipmentbudgets: status.equipmentbudgets,
         vehicleorders: status.vehicleorders,
         equipmentorders: status.equipmentorders,
-        loading: false
+        loading: false,
+        hasLogged: status.logged
     });
 
     system.initStorage({
@@ -68,5 +69,6 @@ export default async function ({ system, thread, gos }) {
             system.store.equipmentorders.push(...equipmentorders);
             gos.vehicles.updateDb();
             gos.equipments.updateDb();
+            system.store.hasLogged = logged;
         });
 }

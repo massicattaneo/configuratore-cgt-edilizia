@@ -50,7 +50,8 @@ export default async function ({ system, locale }) {
     let summary = Object.assign({
         payment: 'da concordare',
         availability: 'da definire',
-        validity: '30'
+        validity: '30',
+        notes: ''
     }, system.getStorage('equipement').summary);
 
     const view = HtmlView(template, style, store);

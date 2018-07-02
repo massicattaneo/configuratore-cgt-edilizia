@@ -17,6 +17,17 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
         async function (req, res) {
             const userId = req.session.userId;
             const user = await mongo.getUser({ _id: new ObjectId(userId) });
+            if (!user.active) {
+                req.session.destroy(function (err) {
+                    if (err) {
+                        res.status(500);
+                        return res.send('error');
+                    } else {
+                        return res.send('anonymous');
+                    }
+                });
+                return;
+            }
             const vehiclebudgets = await mongo.rest.get('vehiclebudgets', `userId=${userId}`, { userAuth: 0 }) || [];
             const equipmentbudgets = await mongo.rest.get('equipmentbudgets', `userId=${userId}`, { userAuth: 0 }) || [];
             const vehicleorders = await mongo.rest.get('vehicleorders', `userId=${userId}`, { userAuth: 0 }) || [];

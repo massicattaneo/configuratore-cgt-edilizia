@@ -34,7 +34,8 @@ export default async function ({ locale, system, thread }) {
         },
         price: '',
         deliveryDate: '',
-        emailMe: ''
+        emailMe: '',
+        notes: ''
     });
 
     function refresh() {
@@ -52,7 +53,8 @@ export default async function ({ locale, system, thread }) {
                 family: family,
                 model: system.db.models.find(i => i.id === budget.model),
                 showLeasing: (userAuth <= 1) ? 'block' : 'none',
-                showExchange: (userAuth <= 1 && isVehicle && budget.exchange.name) ? 'block' : 'none',
+                showExchangeTitle: (userAuth <= 1 && isVehicle && budget.exchange.name) ? 'inline-block' : 'none',
+                showExchange: (userAuth <= 1 && isVehicle) ? 'block' : 'none',
                 exchange: budget.exchange,
                 priceReal: isVehicle
                     ? calculateTotal(budget, system.db, 'priceReal')
