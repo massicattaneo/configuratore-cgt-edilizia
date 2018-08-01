@@ -89,8 +89,8 @@ export default async function ({ locale, system }) {
                 .map(u => Object.assign({
                     select: `<select onchange="this.form.save('${u._id}', this.value)">
                     <option value="0" ${u.userAuth.toString() === '0' ? 'selected' : ''}>DIREZIONE</option>
-                    <option value="2" ${u.userAuth.toString() === '1' ? 'selected' : ''}>CGT EDILIZIA</option>
-                    <option value="1" ${u.userAuth.toString() === '2' ? 'selected' : ''}>CGT</option>
+                    <option value="1" ${u.userAuth.toString() === '1' ? 'selected' : ''}>CGT EDILIZIA</option>
+                    <option value="2" ${u.userAuth.toString() === '2' ? 'selected' : ''}>CGT</option>
                     <option value="3" ${u.userAuth.toString() === '3' ? 'selected' : ''}>CONCESSIONARI</option>
                 </select>`,
                 activeSelect: `<select onchange="this.form.active('${u._id}', this.value)">

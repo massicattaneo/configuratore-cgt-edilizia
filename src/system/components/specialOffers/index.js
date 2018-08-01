@@ -13,7 +13,8 @@ export default async function ({ locale, system, thread }) {
             if (logged) {
                 const params = Object.assign({
                     specialOffers: system.db.specialOffers
-                        .filter(o => o.userAuth.indexOf(system.store.userAuth) !== -1)
+                        .filter(o => o.userAuth.map(e => Number(e))
+                            .indexOf(Number(system.store.userAuth)) !== -1)
                 }, locale.get());
                 view.appendTo('', template, [], params);
             }

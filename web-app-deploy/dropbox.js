@@ -11,7 +11,7 @@ const access = require('./private/mongo-db-access');
 const backup = require('mongodb-backup');
 const devUri = `mongodb://localhost:27017/cgt-edilizia`;
 const prodUri = `mongodb://${access.config.mongo.user}:${encodeURIComponent(access.password)}@${access.config.mongo.hostString}`;
-const nodeJsZip = require("nodeJs-zip");
+const nodeJsZip = require('nodeJs-zip');
 
 function convertCurrency(string) {
     return Number((string || '').replace(',', '').replace('€', '').trim());
@@ -101,8 +101,10 @@ function getDropboxSpecialOffers(dbx) {
             const userAuths = [[0, 1], [0, 2], [0, 3]];
             return responses.reduce(function (arr, response, index) {
                 return arr.concat(...response.entries.map(({ name, id }) => {
-                    return { name: name.replace(/_/g, ' '), id,
-                        userAuth: userAuths[index], href: `${paths[index]}/${name}` };
+                    return {
+                        name: name.replace(/_/g, ' '), id,
+                        userAuth: userAuths[index], href: `${paths[index]}/${name}`
+                    };
                 }));
             }, []);
         })
@@ -209,14 +211,14 @@ module.exports = function () {
         backup({
             uri: prodUri,
             root: `${__dirname}/backup-db`,
-            callback: function(err) {
+            callback: function (err) {
                 if (err) {
                     console.error('ERROR DOING BACKUP', err);
                 } else {
                     nodeJsZip.zip(`${__dirname}/backup-db`, {
                         dir: `${__dirname}/backup-db-zip`
                     });
-                    obj.updload(`backup.zip`, fs.readFileSync(`${__dirname}/backup-db-zip/out.zip`, 'binary'), '/MongoDb-backup')
+                    obj.updload(`backup.zip`, fs.readFileSync(`${__dirname}/backup-db-zip/out.zip`, 'binary'), '/MongoDb-backup');
                 }
             }
         });
@@ -258,14 +260,18 @@ async function copyDropboxImages(dbx, models, versions, equipements) {
         }));
 
     images.forEach(function (image, index) {
-        const fileName = `/dpx-photos/image_${index}.jpg`;
-        fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
+        if (image && image.fileBinary) {
+            const fileName = `/dpx-photos/image_${index}.jpg`;
+            fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
+        }
     });
 
     images2.forEach(function (image, index) {
-        const idx = index + images.length;
-        const fileName = `/dpx-photos/image_${idx}.jpg`;
-        fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
+        if (image && image.fileBinary) {
+            const idx = index + images.length;
+            const fileName = `/dpx-photos/image_${idx}.jpg`;
+            fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
+        }
     });
 
     versions.forEach(function (version) {
