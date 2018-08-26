@@ -14,7 +14,16 @@
         <br/><br/>
         <div>{{selEquipments}}</div>
         <div>{{selExchange}}</div>
-        PREZZO LISTINO <em>(Attrezzature comprese)</em>: {{toCurrency(price)}}<br/>
+        PREZZO LISTINO <em>(Attrezzature comprese)</em>: {{toCurrency(price)}}
+
+        <button type="button" onclick="this.form.showPriceList()"
+                class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+                data-upgraded=",MaterialButton,MaterialRipple"
+                style="display: {{displayPriceListButton}};">
+            <i class="material-icons">help</i> <span
+                class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
+
+        <br/>
         <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
             <input value="{{summary.price}}" class="mdl-currency-usd__input" type="text" id="v_summary_price"
                    onkeyup="this.form.updateSummary('price', this.value)">
@@ -46,7 +55,7 @@
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%">
             <textarea onkeyup="this.form.updateSummary('notes', this.value)"
                       style="width: 100%;" class="mdl-textfield__input" rows="4"
-                id="summary_notes">{{summary.notes}}</textarea>
+                      id="summary_notes">{{summary.notes}}</textarea>
             <label class="mdl-textfield__label" for="summary_notes">
                 NOTE
             </label>

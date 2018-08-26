@@ -6,7 +6,9 @@ web-app-deploy/google/
 web-app-deploy/order-qr-codes/*.png
 src/assets/dpx-photos/*.jpg
 web-app-deploy/db.json
-web-app-deploy/db.xlsx
+web-app-deploy/*.xlsx
 web-app-deploy/dpx-photos/
 web-app-deploy/temp
+web-app-deploy/backup-db
+web-app-deploy/backup-db-zip
 !web-app-deploy/.gitignore

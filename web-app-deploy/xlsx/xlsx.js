@@ -4,6 +4,7 @@ const shared = require('../shared');
 
 module.exports = {
     createVehicleXlsx: function (budget, dbx, order, user, xlsxPath) {
+        const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
         const orderDetails = XLSX.utils.json_to_sheet([
             { CAMPO: 'Cliente', VALORE: budget.client.name },
             { CAMPO: 'Modello macchina', VALORE: dbx.versions.find(v => v.id === budget.version).name },
@@ -20,7 +21,7 @@ module.exports = {
             { CAMPO: 'Disponibilità macchina', VALORE: order.exchange.availability },
             {
                 CAMPO: 'Venditore',
-                VALORE: `${user.name} ${user.surname} ${user.organization ? ` - ${user.organization}` : ''}`
+                VALORE: `${user.name} ${user.surname} ${retailer.name ? ` - ${retailer.name}` : ''}`
             },
             { CAMPO: 'Note permuta', VALORE: order.exchange.notes },
             { CAMPO: 'Documenti permuta', VALORE: order.exchange.documents },
@@ -70,7 +71,7 @@ module.exports = {
             { CAMPO: 'Note', VALORE: order.notes },
             {
                 CAMPO: 'Venditore',
-                VALORE: `${user.name} ${user.surname} ${user.organization ? ` - ${user.organization}` : ''}`
+                VALORE: `${user.name} ${user.surname} ${retailer.name ? ` - ${retailer.name}` : ''}`
             },
             { CAMPO: 'LEASING', VALORE: ''},
             { CAMPO: 'Leasing - documenti consegnati a società leasing', VALORE: order.leasing.documents },

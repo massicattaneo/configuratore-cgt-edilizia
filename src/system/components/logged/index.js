@@ -7,12 +7,6 @@ export default async function ({ locale, system, thread }) {
     const view = HtmlView('<form enctype="multipart/form-data"/>', []);
     view.style();
 
-    const store = rx.create({
-        logo: '',
-        text: ''
-    });
-
-
     view.get().save = async function () {
         system.store.loading = true;
         await RetryRequest('/api/login/modify', { headers: { 'Content-Type': 'application/json' } })
@@ -27,16 +21,15 @@ export default async function ({ locale, system, thread }) {
 
     rx.connect
         .partial({
-            logo: () => store.logo,
-            text: () => store.text,
             logged: () => system.store.hasLogged
         })
         .execute(view.clear)
         .filter(s => s && s.logged)
-        .subscribe(function ({ logo, text }) {
+        .subscribe(function () {
             const variables = Object.assign({
-                showOrganization: Number(system.store.user.type) === 2 ? 'inline-block' : 'none',
-                text, logo, user: system.store.user
+                showOrganization: Number(system.store.user.type) === 3 ? 'table-row' : 'none',
+                user: system.store.user,
+                retailer: system.db.retailers.find(r => r.id === system.store.user.organization) || {}
             }, locale.get());
             view.appendTo('', template, style, variables);
         });

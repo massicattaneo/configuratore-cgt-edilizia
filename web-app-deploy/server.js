@@ -25,7 +25,7 @@ const urlParse = require('url');
 const fileUpload = require('express-fileupload');
 const createTemplate = require('./mailer/createTemplate');
 const privateInfo = require('./private/privateInfo.json');
-const {createVehicleXlsx, createEquipmentXlsx} = require('./xlsx/xlsx');
+const { createVehicleXlsx, createEquipmentXlsx } = require('./xlsx/xlsx');
 const schedule = require('node-schedule');
 
 function noCache(req, res, next) {
@@ -68,8 +68,12 @@ function noCache(req, res, next) {
     /** INIT DROPBOX */
     await dropbox.init();
 
+    function isLogged(req) {
+        return req.session && req.session.userId;
+    }
+
     function requiresLogin(req, res, next) {
-        if (req.session && req.session.userId) {
+        if (isLogged(req)) {
             return next();
         } else {
             res.send('anonymous');
@@ -87,27 +91,27 @@ function noCache(req, res, next) {
                 if (table === 'users') return false;
             }
             next();
-        }
+        };
     }
 
     LoginServices({ app, mongo, mailer, bruteforce, requiresLogin });
 
     app.get('/dpx-photos/*',
-        function(req,res,next) {
+        function (req, res, next) {
             res.setHeader('Cache-Control', 'public, max-age=31557600');
             next();
         },
         function (req, res) {
-        const file = __dirname + decodeURI(urlParse.parse(req.url).pathname);
-        if (fs.existsSync(file)) {
-            const s = fs.createReadStream(file);
-            res.set('Content-Type', 'image/jpg');
-            s.pipe(res);
-        } else {
-            res.status(404);
-            res.send('');
-        }
-    });
+            const file = __dirname + decodeURI(urlParse.parse(req.url).pathname);
+            if (fs.existsSync(file)) {
+                const s = fs.createReadStream(file);
+                res.set('Content-Type', 'image/jpg');
+                s.pipe(res);
+            } else {
+                res.status(404);
+                res.send('');
+            }
+        });
 
     app.get('/api/dropbox/*',
         requiresLogin,
@@ -128,7 +132,7 @@ function noCache(req, res, next) {
             const table = req.params.table;
             const id = req.params.id;
             const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
-            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, {userAuth: 0}))[0];
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
             if (table === 'vehiclebudgets') {
                 createPdfVehicleBudget(res, budget, dropbox.getDb(), user);
             } else if (table === 'equipmentbudgets') {
@@ -142,10 +146,12 @@ function noCache(req, res, next) {
         requiresLogin,
         async function (req, res) {
             const userAuth = Number(req.session.userAuth);
-            const includeMin = userAuth <=1 && req.query.includeMin === 'true';
+            const includeType = req.query.includeType;
+            const includeMin = (userAuth === 0 && (['priceMin', 'priceOutsource', 'priceCGT'].indexOf(includeType) !== -1))
+                || (userAuth === 1 && (['priceMin'].indexOf(includeType) !== -1));
             const models = (req.query.models || '').split(',');
-            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, {userAuth: 0}))[0];
-            createPdfPriceList(res, models, dropbox.getDb(), includeMin);
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
+            createPdfPriceList(res, models, dropbox.getDb(), includeMin, includeType);
         });
 
     app.get('/api/email/:table/:id',
@@ -154,7 +160,7 @@ function noCache(req, res, next) {
             const table = req.params.table;
             const id = req.params.id;
             const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
-            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, {userAuth: 0}))[0];
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
             const email = [budget.client.email, user.email];
             if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
             const pdfBudget = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
@@ -169,16 +175,28 @@ function noCache(req, res, next) {
                 filename: 'Offerta.pdf',
                 path: pdfBudget
             }];
+            await dropbox.mergeBudgetAttachment(table, budget, attachments[0]);
             attachments.push(...(await dropbox.getAttachments(table, budget)));
-            mailer.send(createTemplate('budget', { table, budget, user, email, attachments }));
+            mailer.send(createTemplate('budget', { table, budget, user, email, attachments, dbx: dropbox.getDb() }));
             res.send('ok');
         });
 
     app.get('/api/db/all',
         noCache,
-        requiresLogin,
         function (req, res) {
-            res.send(dropbox.getDb());
+            if (isLogged(req))
+                res.send(dropbox.getDb(req.session.userAuth));
+            else
+                res.send({
+                    codes: [],
+                    equipements: [],
+                    familys: [],
+                    models: [],
+                    versions: [],
+                    retailers: dropbox.getDb().retailers.map(({ id, name }) => {
+                        return { id, name };
+                    })
+                });
         });
 
     app.post('/api/upload',
@@ -188,7 +206,7 @@ function noCache(req, res, next) {
             const ext = path.extname(name);
             const { _id } = await mongo.rest.insert('uploads', { name });
             const url = `${_id}${ext}`;
-            const file = await mongo.rest.update('uploads', _id, { url }, {userAuth: 0});
+            const file = await mongo.rest.update('uploads', _id, { url }, { userAuth: 0 });
             dropbox.updload(url, req.files.exchangeUpload.data);
             res.send(file);
         });
@@ -197,7 +215,7 @@ function noCache(req, res, next) {
         requiresLogin,
         async function (req, res) {
             const id = req.params.id;
-            await mongo.rest.delete('uploads', id, {userAuth: 0});
+            await mongo.rest.delete('uploads', id, { userAuth: 0 });
             res.send('ok');
         });
 
@@ -273,7 +291,7 @@ function noCache(req, res, next) {
             const order = await mongo.rest.insert(table, Object.assign({ userId: req.session.userId }, req.body));
             const budget = await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, { ordered: true }, req.session);
             const dbx = dropbox.getDb();
-            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, {userAuth: 0}))[0];
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
             const xlsxPath = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.xlsx`;
             const attachments = [];
             if (table === 'vehicleorders') {
@@ -309,7 +327,7 @@ function noCache(req, res, next) {
         };
     }
 
-    schedule.scheduleJob('0 3 * * *', function(){
+    schedule.scheduleJob('0 3 * * *', function () {
         dropbox.backUpMongoDb();
     });
 

@@ -6,6 +6,8 @@ const { addHeader, getLongDate, toCurrency } = require('./addHeader');
 
 module.exports = function createPdfOrder(res, budget, dbx, user) {
     const doc = new PdfDoc();
+    const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
+
     doc.pipe(res);
 
     const docWidth = 612;
@@ -20,7 +22,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
     const marginLeft = 30;
     const bodyLineHeight = 14;
     const spettMarginLeft = 300;
-    let pos = addHeader(user, doc);
+    let pos = addHeader(user, doc, dbx);
 
     /** SPETT.LE */
     doc
@@ -67,7 +69,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
 
     doc.addPage();
 
-    pos = addHeader(user, doc);
+    pos = addHeader(user, doc, dbx);
 
     doc
         .rect(marginLeft, (pos += 40), (docWidth - (marginLeft * 2)), 24)
@@ -105,7 +107,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         }
 
         if (eq.src)
-            doc.image(path.resolve(`${__dirname}/..${eq.src}`), marginLeft, (pos), { width: 60 });
+            doc.image(path.resolve(`${__dirname}/..${eq.src}`), marginLeft, (pos), { height: 50 });
 
         doc
             .font('Helvetica-Bold')
@@ -215,7 +217,9 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
 
     doc.text(`${user.name} ${user.surname || ''}`, 200, (pos += 30), { align: 'center' });
     doc.text(`${user.email} - ${user.tel}`, 200, (pos += 13), { align: 'center' });
-    doc.font('Helvetica-Bold').text((user.type == 3) ? (user.organization || '') : 'CGT Edilizia Spa', 200, (pos += 13), { align: 'center' });
+    if (user.type == 1) doc.font('Helvetica-Bold').text('CGT Edilizia Spa', 200, (pos += 13), { align: 'center' });
+    if (user.type == 2) doc.font('Helvetica-Bold').text('Compagnia Generale Trattori S.p.A.', 200, (pos += 13), { align: 'center' });
+    if (user.type == 3) doc.font('Helvetica-Bold').text(retailer.name || '', 200, (pos += 13), { align: 'center' });
 
     doc.end();
 };

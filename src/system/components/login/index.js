@@ -11,7 +11,7 @@ export default async function ({ system, locale, thread }) {
         system.store.loading = true;
         const data = {
             password: form.password.value,
-            email: form.email.value,
+            email: form.email.value.toLowerCase(),
             lang: system.info().lang,
         };
         await thread.execute('user/login', data);

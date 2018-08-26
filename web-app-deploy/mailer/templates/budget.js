@@ -1,5 +1,6 @@
 
-module.exports = function({grayColor, primaryColor, host, footer, table, budget, user}) {
+module.exports = function({grayColor, primaryColor, host, footer, table, budget, user, dbx}) {
+    const retailer = dbx.retailers.find(r => r.id === user.organization);
     return `
     <div style="font-family: Arial; color: ${grayColor}">
         <p>
@@ -12,7 +13,13 @@ module.exports = function({grayColor, primaryColor, host, footer, table, budget,
         <p>
             Cordiali Saluti
         </p>
-        ${footer}
+        ${user.type == '3' ? `<br/><hr/><br/>
+            <img width="600px" src="${host}${retailer.src}"/>
+            <br/><strong>${retailer.name}</strong>` : ""}
+        ${user.type == '2' ? `<br/><hr/><br/>
+            <img width="200px" src="${host}/assets/images/logo-cgt.png"/>
+            <br/><strong>Compagnia Generale Trattori S.p.A.</strong>` : ""}
+        ${user.type == '1' ? footer : ""}
     </div>
 `
 };

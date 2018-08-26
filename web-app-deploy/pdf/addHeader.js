@@ -3,7 +3,7 @@ const loc = require('../static/localization/system/it.json');
 const globalize = require('../static/localization/globalize/it.json');
 
 module.exports = {
-    addHeader: function (user, doc) {
+    addHeader: function (user, doc, dbx) {
         const headerFontSize = 9;
         const headerLineHeight = 10;
         const headerMarginLeft = 190;
@@ -11,9 +11,36 @@ module.exports = {
 
         let pos = 0;
         if (user.type == 3) {
+            const retailer = dbx.retailers.find(r => r.id === user.organization);
+            doc
+                .image(path.resolve(`${__dirname}/..${retailer.src}`), marginLeft, 20, { height: 60 });
             pos = 60;
             return pos;
         }
+        if (user.type == 2) {
+            pos = 40;
+            doc
+                .image(path.resolve(__dirname, '../static/assets/images/logo-cgt.png'), marginLeft, 20, { width: 150 });
+            doc
+                .image(path.resolve(__dirname, '../static/assets/images/qualityCertificationCgt.png'), 420, 20, { width: 160 });
+
+            doc
+                .font('Helvetica-Bold')
+                .fontSize(headerFontSize)
+                .text('Compagnia Generale Trattori S.p.A.', headerMarginLeft, 22);
+            doc
+                .font('Helvetica')
+                .fillColor('grey')
+                .fontSize(headerFontSize)
+                .text('Direzione Generale - Milano - 20090 Vimodrone', headerMarginLeft, pos)
+                .text('Strada Statale Padana Superiore, 19', headerMarginLeft, (pos += headerLineHeight))
+                .text(`Tel. +39 02 27427.1 - Fax. +39 02 27427.554`, headerMarginLeft, (pos += headerLineHeight))
+                .text(`www.cgt.it`, headerMarginLeft, (pos += headerLineHeight))
+
+            pos = 60;
+            return pos;
+        }
+
         pos = 40;
         doc
             .image(path.resolve(__dirname, '../static/assets/images/cgt.png'), marginLeft, 20, { width: 150 });

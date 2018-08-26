@@ -49,13 +49,7 @@ export default async function ({ system, thread, gos }) {
         })
         .subscribe(async function ({ logged }) {
             const { user, vehiclebudgets, equipmentbudgets, vehicleorders, equipmentorders } = await getStatus();
-            system.db = logged ? await thread.execute('db-get', { url: '/all' }) : {
-                codes: [],
-                equipements: [],
-                familys: [],
-                models: [],
-                versions: []
-            };
+            system.db = await thread.execute('db-get', { url: '/all' });
             system.store.email = user.email;
             system.store.userAuth = user.userAuth;
             system.store.user = user;

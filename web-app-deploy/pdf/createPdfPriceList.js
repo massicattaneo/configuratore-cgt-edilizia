@@ -7,10 +7,14 @@ const docWidth = 612;
 const docHeight = 740;
 const primaryBackColor = '#AE0E0E';
 const marginLeft = 30;
-
+const labels = {
+    priceMin: 'mv',
+    priceOutsource: 'conc',
+    priceCGT: 'cgt'
+};
 //305.5E2CR, 308E2CR
 
-module.exports = function createPdfOrder(res, models, dbx, includeMin) {
+module.exports = function createPdfOrder(res, models, dbx, includeMin, includeType = 'priceMin') {
 
     function printTableLine(doc, version, y) {
         let maxY = y;
@@ -19,7 +23,7 @@ module.exports = function createPdfOrder(res, models, dbx, includeMin) {
         maxY = Math.max(doc.y, maxY);
         if (includeMin) {
             doc.text(`${toCurrency(version.priceReal, '€')}`, marginLeft + 145, y, { width: 60, continued: true });
-            doc.fontSize(7).text(`\nmv: ${toCurrency(version.priceMin, '€')}`, marginLeft + 145, y, { width: 60 });
+            doc.fontSize(7).text(`\n${labels[includeType]}: ${toCurrency(version[includeType], '€')}`, marginLeft + 145, y, { width: 60 });
             doc.fontSize(9);
         } else {
             doc.text(toCurrency(version.priceReal, '€'), marginLeft + 145, y, { width: 60 });
@@ -61,7 +65,7 @@ module.exports = function createPdfOrder(res, models, dbx, includeMin) {
                 const format = col.format || (e => e);
                 if (col.field === 'priceReal' && includeMin) {
                     doc.text(format(version[col.field], index, version), posX, y + 6, { width: col.width, height: 100, continued:true });
-                    doc.fontSize(7).text(`\nmv: ${toCurrency(version.priceMin, '€')}`, posX);
+                    doc.fontSize(7).text(`\n${labels[includeType]}: ${toCurrency(version[includeType], '€')}`, posX);
                     doc.fontSize(9);
                 } else {
                     doc.text(format(version[col.field], index, version), posX, y + 6, { width: col.width, height: 100 });

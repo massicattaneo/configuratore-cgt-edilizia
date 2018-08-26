@@ -12,6 +12,10 @@
                 <td>EMAIL:</td>
                 <td>{{user.email}}</td>
             </tr>
+            <tr style="display: {{showOrganization}};">
+                <td>CONCESSIONARIO:</td>
+                <td>{{retailer.name}}</td>
+            </tr>
         </table>
         <div class="mdl-list__item">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
@@ -31,12 +35,7 @@
                 <label class="mdl-textfield__label" for="name">{{register.tel}}</label>
             </div>
         </div>
-        <div class="mdl-list__item" style="display: {{showOrganization}}">
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input value="{{user.organization}}" class="mdl-textfield__input" type="text" id="organization">
-                <label class="mdl-textfield__label" for="organization">{{register.organization}}</label>
-            </div>
-        </div>
+        <hr/>
         <div style="text-align: center;">
             <button type="button"
                     style="margin-bottom: 10px"

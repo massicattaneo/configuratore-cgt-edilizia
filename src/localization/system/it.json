@@ -12,7 +12,7 @@
     "missingTel": "Aggiungi il numero di telefono",
     "missingPassword": "Aggiungi la password",
     "missingOrganizationType": "Seleziona il tipo di organizzazione a cui appartieni",
-    "missingOrganizationName": "Inserisci il nome dle tuo concessionario",
+    "missingOrganizationName": "Seleziona il nome del concessionario a cui appartieni",
     "malformedEmail": "L'indirizzo email non é in un formato valido",
     "malformedTel": "Il numero di telefono non é in un formato valido",
     "missingUser": "L'indirizzo email non corrisponde a nessuna utenza.",
@@ -130,7 +130,7 @@
       {"label": "CGT", "value": 2},
       {"label": "CONCESSIONARIO", "value": 3}
     ],
-    "organization": "NOME ORGANIZZAZIONE",
+    "organization": "NOME CONCESSIONARIO",
     "infoTitle": "I TUOI DATI:",
     "name": "NOME",
     "surname": "COGNOME",

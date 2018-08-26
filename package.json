@@ -1,6 +1,6 @@
 {
     "name": "configuratore-cgt-edilizia",
-    "version": "1.0.27",
+    "version": "1.0.30",
     "description": "CONFIGURATORE CGT EDILIZIA",
     "main": "./src/index.hbs",
     "private": true,
@@ -30,6 +30,7 @@
         "connect-mongo": "^2.0.0",
         "copy-webpack-plugin": "^4.0.1",
         "dropbox": "^4.0.2",
+        "easy-pdf-merge": "^0.1.3",
         "express": "^4.16.2",
         "express-brute": "^1.0.1",
         "express-brute-mongo": "^1.0.0",

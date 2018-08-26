@@ -25,7 +25,8 @@
                             class="mdl-color-text--grey-700"
                             style="display: block;"
                             onclick="this.form.email('vehiclebudgets', '{{this._id}}')">INVIA PER EMAIL</fieldset></li>
-                    <li class="mdl-menu__item"><fieldset
+                    <li style="display: {{this.showCreateOrder}};"
+                            class="mdl-menu__item"><fieldset
                             class="mdl-color-text--grey-700"
                             style="display: block;"
                             onclick="this.form.order('vehiclebudgets', '{{this._id}}')">CREA ORDINE</fieldset></li>

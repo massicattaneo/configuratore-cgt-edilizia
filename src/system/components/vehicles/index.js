@@ -8,6 +8,7 @@ import equipementsTemplate from './equipement.html';
 import exchangesTemplate from './exchange.html';
 import summarysTemplate from './summary.html';
 import clientsTemplate from './client.html';
+import priceSummaryTpl from './priceSummary.html';
 import { RetryRequest } from '../../../../modules/gml-http-request';
 
 const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -17,6 +18,7 @@ function sDisplay(id) {
 }
 
 import { calculateTotal, getPriceType } from '../../../../web-app-deploy/shared';
+import { createModal } from '../../utils';
 
 export default async function ({ locale, system, thread }) {
     const view = HtmlView(template, style, locale.get());
@@ -188,6 +190,28 @@ export default async function ({ locale, system, thread }) {
         store.equipment.push(id);
     };
 
+    form.showPriceList = function (id) {
+        window.event.stopPropagation();
+        const version = system.db.versions
+            .find(v => v.id === store.version);
+        const eq = store.equipment.map(id => system.db.equipements.find(e => e.id === id));
+        createModal(priceSummaryTpl, {
+            vehicle: {
+                priceReal: system.toCurrency(version.priceReal),
+                priceMin: system.toCurrency(version.priceMin)
+            },
+            equipments: eq.map(e => Object.assign({
+                name: e.name,
+                priceReal: system.toCurrency(e.priceReal),
+                priceMin: system.toCurrency(e.priceMin)
+            })),
+            total: {
+                priceReal: system.toCurrency(calculateTotal(store, system.db, 'priceReal')),
+                priceMin: system.toCurrency(calculateTotal(store, system.db, 'priceMin'))
+            }
+        })
+    };
+
     form.uploadExchange = async function () {
         system.store.loading = true;
         const file = await RetryRequest('/api/upload', { timeout: 30000 }).post(new FormData(this))
@@ -307,6 +331,7 @@ export default async function ({ locale, system, thread }) {
             version: versions.find(f => f.id === version),
             equipment,
             summary,
+            displayPriceListButton: Number(system.store.userAuth) <= 1 ? 'inline-block' : 'none',
             price: calculateTotal({version, equipment}, system.db),
             selExchange: exchange.name
                 ? `<div>PERMUTA: ${exchange.name} (${exchange.builder}) - ${system.toCurrency(exchange.value)}</div><br/>`

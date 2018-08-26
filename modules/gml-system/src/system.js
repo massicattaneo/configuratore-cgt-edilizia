@@ -435,7 +435,7 @@ function System({ ua, config = {} }) {
             return array;
         }, []).map(a => a.reverse()).reverse().join('.').replace(/,/g, '');
         const decimals = string.split('.')[1];
-        return `${integer},${decimals} €`
+        return `${integer},${decimals}€`
     };
     // *************************************************************************** PLUGINS
     const installed = {};

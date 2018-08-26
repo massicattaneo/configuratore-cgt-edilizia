@@ -36,8 +36,14 @@ export default async function ({ system, gos, locale }) {
                     disabled: b.client.name ? '' : 'disabled="disabled"'
                 }, b);
             });
-        view.clear('vehiclebudgets').appendTo('vehiclebudgets', vehiclebudgetsTpl, [], { vehiclebudgets: vb });
-        view.clear('equipmentbudgets').appendTo('equipmentbudgets', equipmentbudgetsTpl, [], { equipmentbudgets: eb });
+        view.clear('vehiclebudgets').appendTo('vehiclebudgets', vehiclebudgetsTpl, [], {
+            vehiclebudgets: vb.map(e => Object.assign(e,
+                { showCreateOrder: Number(system.store.userAuth) > 1 ? 'none' : 'block' })),
+        });
+        view.clear('equipmentbudgets').appendTo('equipmentbudgets', equipmentbudgetsTpl, [], {
+            equipmentbudgets: eb.map(e => Object.assign(e,
+                { showCreateOrder: Number(system.store.userAuth) > 1 ? 'none' : 'block' })),
+        });
         componentHandler.upgradeDom();
     });
 
@@ -80,7 +86,7 @@ export default async function ({ system, gos, locale }) {
         const budget = system.store[table].find(i => i._id === id);
         if (budget.client.email === '') system.throw('missingBudgetClientEmail');
         gos.createOrder.init(table, id);
-        system.navigateTo(`${locale.get('urls.createOrder.href')}?table=${table}&id=${id}`)
+        system.navigateTo(`${locale.get('urls.createOrder.href')}?table=${table}&id=${id}`);
     };
 
     form.email = async function (table, id) {
@@ -88,11 +94,12 @@ export default async function ({ system, gos, locale }) {
         if (budget.client.email === '') system.throw('missingBudgetClientEmail');
         if (confirm(`INVIARE UNA COPIA DELL'OFFERTA A TE ED ALL'EMAIL DEL CLIENTE "${budget.client.email}" ?`)) {
             await RetryRequest(`/api/email/${table}/${id}`, {}).get();
+            system.throw('custom', { message: 'EMAIL INVIATA!' });
         }
     };
 
-    form.preview = async function(table, id) {
-        window.open(`/api/pdf/${table}/${id}`)
+    form.preview = async function (table, id) {
+        window.open(`/api/pdf/${table}/${id}`);
     };
 
     view.destroy = function () {

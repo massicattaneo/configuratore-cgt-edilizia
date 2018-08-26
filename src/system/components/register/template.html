@@ -38,11 +38,16 @@
                            onclick="this.form.changeOrg()"/>
                 </span>
             </div>
-            <div #organization class="mdl-list__item">
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="mdl-textfield__input" type="text" id="organization">
-                    <label class="mdl-textfield__label" for="organization">{{register.organization}}</label>
-                </div>
+
+            <div #organization class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <select class="mdl-textfield__input"
+                        id="organization" name="organization">
+                    <option value=""></option>
+                    {{#each organizations}}
+                        <option value="{{this.id}}">{{this.name}}</option>
+                    {{/each}}
+                </select>
+                <label class="mdl-textfield__label" for="organization">{{register.organization}}</label>
             </div>
         </div>
 
@@ -87,8 +92,8 @@
     </div>
     <input #register type="button"
            value="{{register.button}}"
-            onclick="this.form.register()"
-            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" />
+           onclick="this.form.register()"
+           class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"/>
 
 
 </form>

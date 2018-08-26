@@ -3,6 +3,7 @@
         {{#each familys}}
         <div class="mdl-cell mdl-cell--4-col mdl-card">
             <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">{{this.name}}</div>
+            <div style="text-align: center;">{{this.downloadAttachment}}</div>
             <div style="padding: 10px">
                 {{this.checkboxes}}
             </div>
@@ -12,15 +13,27 @@
     <div style="text-align: center;">
         <button type="button"
                 style="margin-bottom: 10px"
-                onclick="this.form.download(false)"
+                onclick="this.form.download('')"
                 class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
             SCARICA LISTINO
         </button>
         <button type="button"
                 style="margin-bottom: 10px; display: {{minimumOn}}"
-                onclick="this.form.download(true)"
+                onclick="this.form.download('priceMin')"
                 class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
             SCARICA CON MINIMI DI VENDITA
+        </button>
+        <button type="button"
+                style="margin-bottom: 10px; display: {{displaySuperAdmin}}"
+                onclick="this.form.download('priceOutsource')"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+            SCARICA CON PREZZO CONCESSIONARI
+        </button>
+        <button type="button"
+                style="margin-bottom: 10px; display: {{displaySuperAdmin}}"
+                onclick="this.form.download('priceCGT')"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+            SCARICA CON PREZZO CGT
         </button>
     </div>
     <br/>

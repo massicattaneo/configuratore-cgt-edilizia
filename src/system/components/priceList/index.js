@@ -17,12 +17,18 @@ export default async function ({ locale, system, thread }) {
     const view = HtmlView(template, style, {});
     view.style();
 
-    view.get().download = async function (includeMin) {
+    view.get().download = async function (includeType) {
         const arr = htmlListToArray(view.get().models).filter(el => el.checked);
         if (arr.length) {
-            const url = `/api/price-list/?models=${arr.map(m => m.value).join(',')}&includeMin=${includeMin}`;
+            const url = `/api/price-list/?models=${arr.map(m => m.value).join(',')}&includeType=${includeType}`;
             window.open(url);
         }
+    };
+
+    view.get().downloadAttachment = async function (familyId) {
+        const model = system.db.models.find(v => v.familyId === familyId);
+        const version = system.db.versions.find(v => v.modelId === model.id);
+        window.open(`/api/dropbox/${version.priceListAttachment}.pdf`);
     };
 
     view.destroy = function () {
@@ -43,7 +49,8 @@ export default async function ({ locale, system, thread }) {
                 .start()
                 .then(function (images) {
                     const params = Object.assign({
-                        minimumOn: Number(system.store.userAuth) <=1 ? 'inline-block' : 'none',
+                        minimumOn: Number(system.store.userAuth) <= 1 ? 'inline-block' : 'none',
+                        displaySuperAdmin: Number(system.store.userAuth) === 0 ? 'inline-block' : 'none',
                         familys: system.db.familys.map(f => Object.assign({
                             checkboxes: system.db.models
                                 .filter(m => m.familyId === f.id)
@@ -55,7 +62,14 @@ export default async function ({ locale, system, thread }) {
                                         ${m.name}
                                     </span>
                                 </label>
-                                `).join('')
+                                `).join(''),
+                            downloadAttachment: `
+                                <button type="button"
+                                        style="margin-bottom: 10px"
+                                        onclick="this.form.downloadAttachment('${f.id}')"
+                                        class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+                                    SCARICA ALLEGATO
+                                </button>`
                         }, f))
                     }, locale.get());
                     view.clear().appendTo('', loadedTpl, [], params);

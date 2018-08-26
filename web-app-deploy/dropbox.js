@@ -6,12 +6,16 @@ const XLSX = require('xlsx');
 const fs = require('fs');
 const originalDb = {};
 const db = {};
+const dbUA1 = {};
+const dbUA2 = {};
+const dbUA3 = {};
 const path = require('path');
 const access = require('./private/mongo-db-access');
 const backup = require('mongodb-backup');
 const devUri = `mongodb://localhost:27017/cgt-edilizia`;
 const prodUri = `mongodb://${access.config.mongo.user}:${encodeURIComponent(access.password)}@${access.config.mongo.hostString}`;
 const nodeJsZip = require('nodeJs-zip');
+const mergePdf = require('easy-pdf-merge');
 
 function convertCurrency(string) {
     return Number((string || '').replace(',', '').replace('€', '').trim());
@@ -24,6 +28,13 @@ function mapCompatibility(codice, item, row, db) {
         return code ? { id, code } : null;
     }).filter(i => i);
 }
+
+const retailersDataStructure = {
+    id: 'IDENTIFICATORE',
+    name: 'NOME',
+    address: 'INDIRIZZO',
+    image: 'IMMAGINE'
+};
 
 const familyDataStructure = {
     id: 'Famiglia macchine',
@@ -47,6 +58,12 @@ const versionDataStructure = {
     image: 'Nome immagine',
     notes: 'Note',
     attachment: 'Allegato offerta',
+    priceListAttachment: {
+        column: 'Allegato listino', convert: e => {
+            if (!e) return '';
+            return e.replace('Dropbox (CGTE)\\Apps\\configuratore-cgt-edilizia\\', '');
+        }
+    },
     depliants: {
         column: 'Depliants', convert: e => {
             if (!e) return '';
@@ -113,6 +130,19 @@ function getDropboxSpecialOffers(dbx) {
         });
 }
 
+function removeReference(obj, array) {
+    obj.versions.forEach(function (i) {
+        array.forEach(function (key) {
+            delete i[key];
+        });
+    });
+    obj.equipements.forEach(function (i) {
+        array.forEach(function (key) {
+            delete i[key];
+        });
+    });
+}
+
 module.exports = function () {
     const obj = {};
     const dbx = new Dropbox({ accessToken: privateInfo.accessToken });
@@ -120,14 +150,14 @@ module.exports = function () {
 
         console.log('/****** downloading CGT EDILIZIA DROPBOX DATABASE');
         let start = Date.now();
-        Object.assign(originalDb, await getFromDropBox(dbx));
         console.log(`/****** finished downloading CGT EDILIZIA DROPBOX DATABASE in ${(Date.now() - start) / 1000}s`);
-
+        Object.assign(originalDb, await getDbFromDropBox(dbx));
+        Object.assign(originalDb, await getRetailersListFromDropBox(dbx));
         start = Date.now();
-        console.log('/****** parsing CGT EDILIZIA DROPBOX DATABASE');
         // Object.assign(originalDb, await getFromXlsxFile());
         // Object.assign(originalDb, await getFromJSON());
         // fs.writeFileSync('./db.json', JSON.stringify(originalDb));
+        console.log('/****** parsing CGT EDILIZIA DROPBOX DATABASE');
         db.familys = parse('Famiglia Macchine', familyDataStructure).filter(({ id }) => id.indexOf('-') === -1);
         db.models = parse('Modelli', modeldataStructure);
         db.versions = parse('Listino macchine', versionDataStructure);
@@ -136,17 +166,47 @@ module.exports = function () {
         db.equipements.push(...parse('Listino attrezzature BHL', equipementDataStructure));
         db.equipements = db.equipements.filter(i => i.code !== 'T').filter(i => i.code !== 'F');
         db.codes = codes;
+        db.retailers = parse('Concessionari', retailersDataStructure);
         console.log(`/****** finished parsing CGT EDILIZIA DROPBOX DATABASE in ${(Date.now() - start) / 1000}s`);
         start = Date.now();
         console.log('/****** DOWNLOADING IMAGES FROM DROPBOX');
-        await copyDropboxImages(dbx, db.models, db.versions, db.equipements);
+        await copyDropboxImages(dbx, db.models, db.versions, db.equipements, db.retailers);
         console.log('/****** CREATING SPECIAL OFFERS FROM DROPBOX');
         db.specialOffers = await getDropboxSpecialOffers(dbx);
         console.log(`/****** finished parsing DOWNLOADING IMAGES FROM DROPBOX in ${(Date.now() - start) / 1000}s`);
+        Object.assign(dbUA1, JSON.parse(JSON.stringify(db)));
+        Object.assign(dbUA2, JSON.parse(JSON.stringify(db)));
+        Object.assign(dbUA3, JSON.parse(JSON.stringify(db)));
+        removeReference(dbUA1, ['priceOutsource', 'priceCGT']);
+        removeReference(dbUA2, ['priceMin', 'priceCGT']);
+        removeReference(dbUA3, ['priceOutsource', 'priceMin']);
     };
 
-    obj.getDb = function () {
-        return db;
+    obj.getDb = function (userAuth = 0) {
+        const ua = Number(userAuth);
+        switch (ua) {
+        case 0: return db;
+        case 1: return dbUA1;
+        case 2: return dbUA2;
+        case 3: return dbUA3;
+        }
+    };
+
+    obj.mergeBudgetAttachment = function (table, budget, attachment) {
+        if (table === 'vehiclebudgets') {
+            const version = db.versions.find(v => v.id === budget.version);
+            if (version.attachment) {
+                return new Promise(async function (res, rej) {
+                    const url = `/APPS/configuratore-cgt-edilizia/${version.attachment.replace(/\\/g, '/')}.pdf`;
+                    if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
+                    const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
+                    const i = await dbx.filesDownload({ path: url });
+                    fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
+                    mergePdf([attachment.path, pdfSpecs], attachment.path, err => err ? rej() : res());
+                });
+            }
+        }
+        return Promise.resolve();
     };
 
     obj.getAttachments = async function (table, budget, order) {
@@ -160,14 +220,6 @@ module.exports = function () {
                 const i = await dbx.filesDownload({ path: url });
                 fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
                 ret.push({ filename: 'Depliants.pdf', path: pdfSpecs });
-            }
-            if (version.attachment) {
-                const url = `/APPS/configuratore-cgt-edilizia/${version.attachment.replace(/\\/g, '/')}.pdf`;
-                if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
-                const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
-                const i = await dbx.filesDownload({ path: url });
-                fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
-                ret.push({ filename: 'Scheda Tecnica.pdf', path: pdfSpecs });
             }
         }
         if (budget.files) {
@@ -215,10 +267,11 @@ module.exports = function () {
                 if (err) {
                     console.error('ERROR DOING BACKUP', err);
                 } else {
+
                     nodeJsZip.zip(`${__dirname}/backup-db`, {
                         dir: `${__dirname}/backup-db-zip`
                     });
-                    obj.updload(`backup.zip`, fs.readFileSync(`${__dirname}/backup-db-zip/out.zip`, 'binary'), '/MongoDb-backup');
+                    obj.updload(`${Date.now()}backup.zip`, fs.readFileSync(`${__dirname}/backup-db-zip/out.zip`, 'binary'), '/MongoDb-backup');
                 }
             }
         });
@@ -227,12 +280,17 @@ module.exports = function () {
     return obj;
 };
 
-async function copyDropboxImages(dbx, models, versions, equipements) {
+async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
     const filter = versions
         .map(v => v.image)
         .filter((img, i, a) => a.indexOf(img) === i);
 
-    const filter2 = equipements
+    const filter2 = equipments
+        .filter(i => i.image)
+        .map(v => v.image)
+        .filter((img, i, a) => a.indexOf(img) === i);
+
+    const filter3 = retailers
         .filter(i => i.image)
         .map(v => v.image)
         .filter((img, i, a) => a.indexOf(img) === i);
@@ -259,6 +317,15 @@ async function copyDropboxImages(dbx, models, versions, equipements) {
                 });
         }));
 
+    const images3 = await Promise.all(filter3
+        .map(function (image) {
+            const url = `/APPS/configuratore-cgt-edilizia/${image.replace(/\\/g, '/')}.jpg`;
+            return dbx.filesDownload({ path: url })
+                .catch(function (e) {
+                    console.log(url);
+                });
+        }));
+
     images.forEach(function (image, index) {
         if (image && image.fileBinary) {
             const fileName = `/dpx-photos/image_${index}.jpg`;
@@ -274,14 +341,28 @@ async function copyDropboxImages(dbx, models, versions, equipements) {
         }
     });
 
+    images3.forEach(function (image, index) {
+        if (image && image.fileBinary) {
+            const idx = index + images2.length + images.length;
+            const fileName = `/dpx-photos/image_${idx}.jpg`;
+            fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
+        }
+    });
+
     versions.forEach(function (version) {
         version.src = `/dpx-photos/image_${filter.indexOf(version.image)}.jpg`;
     });
 
-    equipements
+    equipments
         .filter(i => i.image)
         .forEach(function (eq) {
             eq.src = `/dpx-photos/image_${filter2.indexOf(eq.image) + filter.length}.jpg`;
+        });
+
+    retailers
+        .filter(i => i.image)
+        .forEach(function (eq) {
+            eq.src = `/dpx-photos/image_${filter3.indexOf(eq.image) + filter2.length + filter.length}.jpg`;
         });
 
     models.forEach(function (model) {
@@ -311,7 +392,7 @@ function parse(sheetName, data) {
     });
 }
 
-async function getFromDropBox(dbx) {
+async function getDbFromDropBox(dbx) {
     const ret = {};
     const fileData = await dbx.filesDownload({ path: '/APPS/configuratore-cgt-edilizia/db.xlsx' });
     const read_opts = {
@@ -325,6 +406,21 @@ async function getFromDropBox(dbx) {
         ret[name] = XLSX.utils.sheet_to_json(workSheet);
     });
     return ret;
+}
+
+async function getRetailersListFromDropBox(dbx) {
+    const fileData = await dbx.filesDownload({ path: '/APPS/configuratore-cgt-edilizia/ElencoConcessionari.xlsx' });
+    const read_opts = {
+        type: '', //base64, binary, string, buffer, array, file
+        raw: false, //If true, plain text parsing will not parse values **
+        sheetRows: 0, //If >0, read the first sheetRows rows **
+    };
+    const workbook = XLSX.read(fileData.fileBinary, read_opts);
+    const name = workbook.SheetNames[0];
+    const workSheet = workbook.Sheets[name];
+    return {
+        Concessionari: XLSX.utils.sheet_to_json(workSheet)
+    };
 }
 
 async function getFromXlsxFile() {

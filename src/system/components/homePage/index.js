@@ -33,6 +33,13 @@ export default async function ({ locale, system }) {
         system.throw('custom', {message: 'Utenza aggiornata'});
         system.store.loading = false;
     };
+    view.get().updateRetailer = async function (id, value) {
+        system.store.loading = true;
+        await RetryRequest(`/api/rest/users/${id}`, { headers: { 'Content-Type': 'application/json' } })
+            .send('PUT', JSON.stringify({organization: value}));
+        system.throw('custom', {message: 'Utenza aggiornata'});
+        system.store.loading = false;
+    };
 
     rx.connect
         .partial({
@@ -71,7 +78,6 @@ export default async function ({ locale, system }) {
         if (user.name.toLowerCase().indexOf(model.filter.toLowerCase()) !== -1) return true;
         if (user.surname.toLowerCase().indexOf(model.filter.toLowerCase()) !== -1) return true;
         if (user.email.toLowerCase().indexOf(model.filter.toLowerCase()) !== -1) return true;
-        if (user.organization.toLowerCase().indexOf(model.filter.toLowerCase()) !== -1) return true;
         return false;
     }
 
@@ -96,6 +102,13 @@ export default async function ({ locale, system }) {
                 activeSelect: `<select onchange="this.form.active('${u._id}', this.value)">
                     <option value="0" ${u.active === false ? 'selected' : ''}>DISATTIVO</option>
                     <option value="1" ${u.active === true ? 'selected' : ''}>ATTIVO</option>
+                </select>`,
+                organizationSelect: `<select onchange="this.form.updateRetailer('${u._id}', this.value)"
+                        ${u.type.toString() === '3' ? '' : 'disabled'}>
+                    <option value=""></option>
+                    ${system.db.retailers.map(r => 
+                    `<option ${r.id === u.organization ? 'selected' : ''} 
+                            value="${r.id}">${r.name}</option>`).join('')}
                 </select>`
                 }, u));
             view.clear('list').appendTo('list', adminTpl, style, { users: us });
