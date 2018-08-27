@@ -104,7 +104,7 @@ export default async function ({ locale, system }) {
                     <option value="1" ${u.active === true ? 'selected' : ''}>ATTIVO</option>
                 </select>`,
                 organizationSelect: `<select onchange="this.form.updateRetailer('${u._id}', this.value)"
-                        ${u.type.toString() === '3' ? '' : 'disabled'}>
+                        ${(u.type || '').toString() === '3' ? '' : 'disabled'}>
                     <option value=""></option>
                     ${system.db.retailers.map(r => 
                     `<option ${r.id === u.organization ? 'selected' : ''} 
