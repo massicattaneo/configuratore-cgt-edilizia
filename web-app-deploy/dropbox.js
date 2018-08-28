@@ -15,7 +15,6 @@ const backup = require('mongodb-backup');
 const devUri = `mongodb://localhost:27017/cgt-edilizia`;
 const prodUri = `mongodb://${access.config.mongo.user}:${encodeURIComponent(access.password)}@${access.config.mongo.hostString}`;
 const nodeJsZip = require('nodeJs-zip');
-const mergePdf = require('easy-pdf-merge');
 
 function convertCurrency(string) {
     return Number((string || '').replace(',', '').replace('€', '').trim());
@@ -198,23 +197,6 @@ module.exports = function () {
         }
     };
 
-    obj.mergeBudgetAttachment = function (table, budget, attachment) {
-        if (table === 'vehiclebudgets') {
-            const version = db.versions.find(v => v.id === budget.version);
-            if (version.attachment) {
-                return new Promise(async function (res, rej) {
-                    const url = `/APPS/configuratore-cgt-edilizia/${version.attachment.replace(/\\/g, '/')}.pdf`;
-                    if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
-                    const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
-                    const i = await dbx.filesDownload({ path: url });
-                    fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
-                    mergePdf([attachment.path, pdfSpecs], attachment.path, err => err ? rej() : res());
-                });
-            }
-        }
-        return Promise.resolve();
-    };
-
     obj.getAttachments = async function (table, budget, order) {
         const ret = [];
         if (table === 'vehiclebudgets') {
@@ -226,6 +208,14 @@ module.exports = function () {
                 const i = await dbx.filesDownload({ path: url });
                 fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
                 ret.push({ filename: 'Depliants.pdf', path: pdfSpecs });
+            }
+            if (version.attachment) {
+                const url = `/APPS/configuratore-cgt-edilizia/${version.attachment.replace(/\\/g, '/')}.pdf`;
+                if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
+                const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
+                const i = await dbx.filesDownload({ path: url });
+                fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
+                ret.push({ filename: 'Scheda Tecnica.pdf', path: pdfSpecs });
             }
         }
         if (budget.files) {

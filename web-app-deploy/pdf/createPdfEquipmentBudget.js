@@ -81,22 +81,6 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         pos = 40;
     }
 
-    doc
-        .rect(marginLeft, pos, docWidth - (marginLeft * 2), 24)
-        .stroke('black')
-        .font('Helvetica-Bold')
-        .text('PREZZO DI LISTINO', marginLeft + 20, (pos += 8))
-        .text(toCurrency(calculateEqTotal(budget, dbx)), marginLeft + 250, pos, { align: 'right', width: 200 });
-
-    pos+=20;
-    doc
-        .rect(marginLeft, pos, docWidth - (marginLeft * 2), 24)
-        .stroke('black')
-        .font('Helvetica-Bold')
-        .text('PREZZO NETTO A VOI RISERVATO', marginLeft + 20, (pos += 8))
-        .text(toCurrency(calculateEqOfferedTotal(budget, dbx)), marginLeft + 250, pos, { align: 'right', width: 200 });
-
-    pos +=20;
     doc.fontSize(9);
     const summary = {
         payment: 'Pagamento',
@@ -111,6 +95,22 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
                 .text(`${summary[key]}:`, marginLeft, (pos += 11))
                 .text(budget.summary[key] + (key === 'validity' ? 'gg': ''), marginLeft + 100, pos);
     });
+
+    pos +=20;
+    doc
+        .rect(marginLeft, pos, docWidth - (marginLeft * 2), 24)
+        .stroke('black')
+        .font('Helvetica-Bold')
+        .text('PREZZO DI LISTINO', marginLeft + 20, (pos += 8))
+        .text(toCurrency(calculateEqTotal(budget, dbx)), marginLeft + 250, pos, { align: 'right', width: 200 });
+
+    pos+=20;
+    doc
+        .rect(marginLeft, pos, docWidth - (marginLeft * 2), 24)
+        .stroke('black')
+        .font('Helvetica-Bold')
+        .text('PREZZO NETTO A VOI RISERVATO', marginLeft + 20, (pos += 8))
+        .text(toCurrency(calculateEqOfferedTotal(budget, dbx)), marginLeft + 250, pos, { align: 'right', width: 200 });
 
     doc.text('Restiamo a disposizione per ogni chiarimento e con l’occasione Vi inviamo i ns più Cordiali Saluti.', marginLeft, (pos +=20));
 

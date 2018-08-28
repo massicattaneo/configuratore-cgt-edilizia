@@ -171,7 +171,6 @@ function noCache(req, res, next) {
                 filename: 'Offerta.pdf',
                 path: pdfBudget
             }];
-            await dropbox.mergeBudgetAttachment(table, budget, attachments[0]);
             attachments.push(...(await dropbox.getAttachments(table, budget)));
             mailer.send(createTemplate('budget', { table, budget, user, email, attachments, dbx: dropbox.getDb() }));
             res.send('ok');
