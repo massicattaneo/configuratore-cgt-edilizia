@@ -21,7 +21,7 @@ module.exports = {
     getPriceType: function (userAuth) {
         const ua = Number(userAuth);
         if (ua <=1) return 'priceReal';
-        if (ua ===2) return 'priceCGT';
-        if (ua ===3) return 'priceOutsource';
+        if (ua === 2) return 'priceCGT';
+        if (ua === 3) return 'priceOutsource';
     }
 };

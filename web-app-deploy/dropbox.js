@@ -95,6 +95,12 @@ const equipementDataStructure = {
     info: {column: 'Informazioni', convert: e => e ? e : '' },
     notes: {column: 'Note', convert: e => e ? e : '' },
     image: 'Nome immagine',
+    depliants: {
+        column: 'Depliant', convert: e => {
+            if (!e) return '';
+            return e.replace('Dropbox (CGTE)\\Apps\\configuratore-cgt-edilizia\\', '');
+        }
+    },
     priceReal: { column: 'Listino', convert: convertCurrency },
     priceMin: { column: 'Minimo', convert: convertCurrency },
     priceOutsource: { column: 'Prezzo concessionario', convert: convertCurrency },
@@ -178,8 +184,8 @@ module.exports = function () {
         Object.assign(dbUA2, JSON.parse(JSON.stringify(db)));
         Object.assign(dbUA3, JSON.parse(JSON.stringify(db)));
         removeReference(dbUA1, ['priceOutsource', 'priceCGT']);
-        removeReference(dbUA2, ['priceMin', 'priceCGT']);
-        removeReference(dbUA3, ['priceOutsource', 'priceMin']);
+        removeReference(dbUA2, ['priceMin', 'priceOutsource']);
+        removeReference(dbUA3, ['priceCGT', 'priceMin']);
     };
 
     obj.getDb = function (userAuth = 0) {

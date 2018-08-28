@@ -80,7 +80,7 @@ module.exports = function (isDeveloping) {
                 .collection('users')
                 .findOneAndUpdate(
                     { activationCode },
-                    { $set: { active: true, userAuth } },
+                    { $set: { active: true, userAuth, type: Math.max(Number(userAuth), 1) } },
                     { returnOriginal: false },
                     function (err, r) {
                         if (err) return rej(new Error('generic'));

@@ -7,6 +7,7 @@ import { RetryRequest } from '../../../../modules/gml-http-request';
 
 export default async function ({ locale, system }) {
     const view = HtmlView(template);
+    let users;
 
     const model = rx.create({
         filter: '',
@@ -21,22 +22,34 @@ export default async function ({ locale, system }) {
     };
     view.get().save = async function (id, value) {
         system.store.loading = true;
+        const newValues = {
+            userAuth: Number(value),
+            type: Math.max(Number(value), 1)
+        };
         await RetryRequest(`/api/rest/users/${id}`, { headers: { 'Content-Type': 'application/json' } })
-            .send('PUT', JSON.stringify({userAuth: Number(value)}));
+            .send('PUT', JSON.stringify(newValues));
+        Object.assign(users.find(u => u._id === id), newValues);
+        await redraw();
         system.throw('custom', {message: 'Utenza aggiornata'});
         system.store.loading = false;
     };
     view.get().active = async function (id, value) {
         system.store.loading = true;
+        const newValues = {active: value === '1'};
         await RetryRequest(`/api/rest/users/${id}`, { headers: { 'Content-Type': 'application/json' } })
-            .send('PUT', JSON.stringify({active: value === '1'}));
+            .send('PUT', JSON.stringify(newValues));
+        Object.assign(users.find(u => u._id === id), newValues);
+        await redraw();
         system.throw('custom', {message: 'Utenza aggiornata'});
         system.store.loading = false;
     };
     view.get().updateRetailer = async function (id, value) {
         system.store.loading = true;
+        const newValues = {organization: value};
         await RetryRequest(`/api/rest/users/${id}`, { headers: { 'Content-Type': 'application/json' } })
-            .send('PUT', JSON.stringify({organization: value}));
+            .send('PUT', JSON.stringify(newValues));
+        Object.assign(users.find(u => u._id === id), newValues);
+        await redraw();
         system.throw('custom', {message: 'Utenza aggiornata'});
         system.store.loading = false;
     };
@@ -65,8 +78,6 @@ export default async function ({ locale, system }) {
         })
         .subscribe(redraw);
 
-    let users;
-
     async function getUsers() {
         if (users) return users;
         const res = await RetryRequest(`/api/rest/users`, {}).get();
@@ -85,7 +96,8 @@ export default async function ({ locale, system }) {
         return a[model.order].localeCompare(b[model.order]);
     }
 
-    async function redraw({ userAuth, filter, order }) {
+    async function redraw() {
+        const userAuth = system.store.userAuth;
         view.clear('list');
         if (userAuth !== undefined && userAuth.toString() === '0') {
             view.appendTo('list', '<h5>CARICANDO LISTA UTENTI ...</h5>', style);
