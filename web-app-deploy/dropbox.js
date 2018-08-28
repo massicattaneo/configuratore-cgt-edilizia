@@ -15,6 +15,15 @@ const backup = require('mongodb-backup');
 const devUri = `mongodb://localhost:27017/cgt-edilizia`;
 const prodUri = `mongodb://${access.config.mongo.user}:${encodeURIComponent(access.password)}@${access.config.mongo.hostString}`;
 const nodeJsZip = require('nodeJs-zip');
+const rimraf = require('rimraf');
+
+function uniqueTempFile(ext = 'pdf') {
+    let fileName;
+    do {
+        fileName = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.${ext}`;
+    } while (fs.existsSync(fileName));
+    return fileName;
+}
 
 function convertCurrency(string) {
     return Number((string || '').replace(',', '').replace('€', '').trim());
@@ -91,8 +100,8 @@ const codes = {
 const equipementDataStructure = {
     code: 'Codice',
     name: 'Macchina/ Attrezzatura',
-    info: {column: 'Informazioni', convert: e => e ? e : '' },
-    notes: {column: 'Note', convert: e => e ? e : '' },
+    info: { column: 'Informazioni', convert: e => e ? e : '' },
+    notes: { column: 'Note', convert: e => e ? e : '' },
     image: 'Nome immagine',
     depliants: {
         column: 'Depliant', convert: e => {
@@ -153,6 +162,10 @@ module.exports = function () {
     const dbx = new Dropbox({ accessToken: privateInfo.accessToken });
     obj.init = async function () {
 
+        /** create directories */
+        if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
+        if (!fs.existsSync(`${__dirname}/dpx-photos`)) fs.mkdirSync(`${__dirname}/dpx-photos`);
+
         console.log('/****** downloading CGT EDILIZIA DROPBOX DATABASE');
         let start = Date.now();
         console.log(`/****** finished downloading CGT EDILIZIA DROPBOX DATABASE in ${(Date.now() - start) / 1000}s`);
@@ -203,25 +216,37 @@ module.exports = function () {
             const version = db.versions.find(v => v.id === budget.version);
             if (version.depliants) {
                 const url = `/APPS/configuratore-cgt-edilizia/${version.depliants.replace(/\\/g, '/')}.pdf`;
-                if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
-                const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
+                const pdfSpecs = uniqueTempFile();
                 const i = await dbx.filesDownload({ path: url });
                 fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
-                ret.push({ filename: 'Depliants.pdf', path: pdfSpecs });
+                ret.push({ filename: `Depliant - ${i.name}`, path: pdfSpecs });
             }
             if (version.attachment) {
                 const url = `/APPS/configuratore-cgt-edilizia/${version.attachment.replace(/\\/g, '/')}.pdf`;
-                if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
-                const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
+                const pdfSpecs = uniqueTempFile();
                 const i = await dbx.filesDownload({ path: url });
                 fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
                 ret.push({ filename: 'Scheda Tecnica.pdf', path: pdfSpecs });
             }
         }
+        if (table === 'vehiclebudgets' || table === 'equipmentbudgets') {
+            const eqDepliants = budget.equipment
+                .map(e => db.equipements.find(i => i.id === e))
+                .filter(e => e.depliants);
+            if (eqDepliants.length) {
+                await Promise.all(eqDepliants.map(async function (eq) {
+                    const url = `/APPS/configuratore-cgt-edilizia/${eq.depliants.replace(/\\/g, '/')}.pdf`;
+                    const pdfSpecs = uniqueTempFile();
+                    const i = await dbx.filesDownload({ path: url });
+                    fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
+                    ret.push({ filename: `Depliant - ${i.name}`, path: pdfSpecs });
+                }));
+            }
+        }
         if (budget.files) {
             await Promise.all(budget.files.map(async function (file) {
                 const url = `/APPS/configuratore-cgt-edilizia/Uploads/${file.url}`;
-                const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
+                const pdfSpecs = uniqueTempFile();
                 const i = await dbx.filesDownload({ path: url });
                 fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
                 ret.push({ filename: file.name, path: pdfSpecs });
@@ -230,7 +255,7 @@ module.exports = function () {
         if (order && order.files) {
             await Promise.all(order.files.map(async function (file) {
                 const url = `/APPS/configuratore-cgt-edilizia/Uploads/${file.url}`;
-                const pdfSpecs = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
+                const pdfSpecs = uniqueTempFile();
                 const i = await dbx.filesDownload({ path: url });
                 fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
                 ret.push({ filename: file.name, path: pdfSpecs });
@@ -240,7 +265,7 @@ module.exports = function () {
     };
 
     obj.updload = function (fileName, file, subPath = '/Uploads') {
-        dbx.filesUpload({ path: `/APPS/configuratore-cgt-edilizia${subPath}/${fileName}`, contents: file })
+        return dbx.filesUpload({ path: `/APPS/configuratore-cgt-edilizia${subPath}/${fileName}`, contents: file })
             .then(function (response) {
                 console.log('UPLOAD OK: ', response);
             })
@@ -259,7 +284,7 @@ module.exports = function () {
         backup({
             uri: prodUri,
             root: `${__dirname}/backup-db`,
-            callback: function (err) {
+            callback: async function (err) {
                 if (err) {
                     console.error('ERROR DOING BACKUP', err);
                 } else {
@@ -267,11 +292,15 @@ module.exports = function () {
                     nodeJsZip.zip(`${__dirname}/backup-db`, {
                         dir: `${__dirname}/backup-db-zip`
                     });
-                    obj.updload(`${Date.now()}backup.zip`, fs.readFileSync(`${__dirname}/backup-db-zip/out.zip`, 'binary'), '/MongoDb-backup');
+                    await obj.updload(`${Date.now()}backup.zip`, fs.readFileSync(`${__dirname}/backup-db-zip/out.zip`, 'binary'), '/MongoDb-backup');
+                    rimraf(`${__dirname}/backup-db/`, console.log);
+                    rimraf(`${__dirname}/backup-db-zip/`, console.log);
                 }
             }
         });
     };
+
+    obj.uniqueTempFile = uniqueTempFile;
 
     return obj;
 };
@@ -290,10 +319,6 @@ async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
         .filter(i => i.image)
         .map(v => v.image)
         .filter((img, i, a) => a.indexOf(img) === i);
-
-    if (!fs.existsSync(`${__dirname}/dpx-photos`)) {
-        fs.mkdirSync(`${__dirname}/dpx-photos`);
-    }
 
     const images = await Promise.all(filter
         .map(function (image) {

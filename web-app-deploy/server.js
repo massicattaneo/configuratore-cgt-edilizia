@@ -27,6 +27,7 @@ const createTemplate = require('./mailer/createTemplate');
 const privateInfo = require('./private/privateInfo.json');
 const { createVehicleXlsx, createEquipmentXlsx } = require('./xlsx/xlsx');
 const schedule = require('node-schedule');
+const rimraf = require('rimraf');
 
 function noCache(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
@@ -158,8 +159,7 @@ function noCache(req, res, next) {
             const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
             const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
             const email = [budget.client.email, user.email];
-            if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
-            const pdfBudget = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.pdf`;
+            const pdfBudget = dropbox.uniqueTempFile();
             const file = fs.createWriteStream(pdfBudget);
             if (table === 'vehiclebudgets') {
                 createPdfVehicleBudget(file, budget, dropbox.getDb(), user);
@@ -287,7 +287,7 @@ function noCache(req, res, next) {
             const budget = await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, { ordered: true }, req.session);
             const dbx = dropbox.getDb();
             const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
-            const xlsxPath = `${__dirname}/temp/${Math.round(Math.random() * 1e16).toString()}.xlsx`;
+            const xlsxPath = dropbox.uniqueTempFile('xlsx');
             const attachments = [];
             if (table === 'vehicleorders') {
                 attachments.push(...createVehicleXlsx(budget, dbx, order, user, xlsxPath));
@@ -324,6 +324,9 @@ function noCache(req, res, next) {
 
     schedule.scheduleJob('0 3 * * *', function () {
         dropbox.backUpMongoDb();
+        rimraf(`${__dirname}/temp`, function () {
+            if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
+        });
     });
 
     app.get('*', callback);
