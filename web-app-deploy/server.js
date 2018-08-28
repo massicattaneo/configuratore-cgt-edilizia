@@ -118,12 +118,8 @@ function noCache(req, res, next) {
         async function (req, res) {
             const path = decodeURIComponent(req.url.replace('/api/dropbox/', ''));
             const file = await dropbox.download(path);
-            res.writeHead(200, {
-                'Content-Type': 'application/pdf',
-                'Content-disposition': 'attachment;filename=' + file.name,
-                'Content-Length': file.size
-            });
-            res.end(new Buffer(file.fileBinary, 'binary'));
+            res.type('pdf');
+            res.end(file.fileBinary, 'binary');
         });
 
     app.get('/api/pdf/:table/:id',

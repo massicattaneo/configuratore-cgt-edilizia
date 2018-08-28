@@ -68,6 +68,11 @@ const myParsers = {
     formatTime: function (d) {
         const date = new Date(d);
         return date.formatTime('hh:mm');
+    },
+    displayBlock: function (d) {
+        if (!d) return 'display: none;';
+        if (d.toString().replace(/\s/g, '') === '') return 'display: none;';
+        return 'display: block;';
     }
 };
 
@@ -82,10 +87,11 @@ export function HtmlView(markup, styles, variables = {}) {
             if (item instanceof Object) {
                 Object.keys(item).forEach(key => {
                     let regEx = new RegExp(`{{this.${key}}}`, 'g');
-                    ret = ret.replace(regEx, item[key]);
+                    const itemElement = item[key];
+                    ret = ret.replace(regEx, itemElement);
                     Object.keys(myParsers).forEach(function (fnName) {
                         regEx = new RegExp(`{{${fnName}\\(this.${key}\\)}}`, 'g');
-                        ret = ret.replace(regEx, myParsers[fnName](item[key]));
+                        if (ret.match(regEx)) ret = ret.replace(regEx, myParsers[fnName](itemElement));
                     });
                 });
                 return ret;

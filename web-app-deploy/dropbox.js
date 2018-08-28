@@ -92,8 +92,8 @@ const codes = {
 const equipementDataStructure = {
     code: 'Codice',
     name: 'Macchina/ Attrezzatura',
-    info: 'Informazioni',
-    notes: 'Note',
+    info: {column: 'Informazioni', convert: e => e ? e : '' },
+    notes: {column: 'Note', convert: e => e ? e : '' },
     image: 'Nome immagine',
     priceReal: { column: 'Listino', convert: convertCurrency },
     priceMin: { column: 'Minimo', convert: convertCurrency },

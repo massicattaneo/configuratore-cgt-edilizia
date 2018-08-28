@@ -23,49 +23,55 @@
                 <td colspan="2"><em style="font-size: 12px;">TEMPI DI CONSEGNA: {{this.time}}</em></td>
             </tr>
             <tr>
-                <td colspan="2"><em style="font-size: 12px; color: #b51700">ATTENZIONE:  {{this.notes}}</em></td>
+                <td colspan="2"><em style="font-size: 12px; color: #b51700; {{displayBlock(this.notes)}}">ATTENZIONE: {{this.notes}}</em></td>
             </tr>
             <tr>
-                <td colspan="2"><em style="font-size: 12px;">INFORMAZIONE: {{this.info}}</em></td>
+                <td colspan="2"><em style="font-size: 12px; {{displayBlock(this.info)}}">INFORMAZIONE: {{this.info}}</em></td>
             </tr>
             {{/each}}
         </table>
     </div>
     <hr/>
-    <button type="button" id="equipementFamilysFilter"
-            class="mdl-button mdl-js-button mdl-button--icon">
-        <i class="material-icons">add_box</i>
-    </button>
+    <div style="display: inline-block">
+        <button type="button" id="equipementFamilysFilter"
+                class="mdl-button mdl-js-button mdl-button--icon">
+            <i class="material-icons">add_box</i>
+        </button>
 
-    <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
-        style="overflow: scroll;height: 200px;"
-        for="equipementFamilysFilter">
-        {{#each equipementFamilys}}
-        <li class="mdl-menu__item">
-            <fieldset style="display: block;" onclick="this.form.addFilter('equipmentFamily', '{{this.equipmentFamily}}')">
-                {{this.equipmentFamily}}
-            </fieldset>
-        </li>
-        {{/each}}
-    </ul>
-    <span class="mdl-color-text--grey-300">FAMIGLIA ATTREZZATURE ...</span>
+        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+            style="overflow: scroll;height: 200px;"
+            for="equipementFamilysFilter">
+            {{#each equipementFamilys}}
+            <li class="mdl-menu__item">
+                <fieldset style="display: block;"
+                          onclick="this.form.addFilter('equipmentFamily', '{{this.equipmentFamily}}')">
+                    {{this.equipmentFamily}}
+                </fieldset>
+            </li>
+            {{/each}}
+        </ul>
+        <span class="mdl-color-text--grey-300">FAMIGLIA ATTREZZATURE ...</span>
+    </div>
 
-    <button type="button" id="buildersFilter"
-            class="mdl-button mdl-js-button mdl-button--icon">
-        <i class="material-icons">add_box</i>
-    </button>
-    <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
-        style="overflow: scroll;height: 200px;"
-        for="buildersFilter">
-        {{#each builders}}
-        <li class="mdl-menu__item">
-            <fieldset style="display: block;" onclick="this.form.addFilter('constructorId', '{{this.constructorId}}')">
-                {{this.constructorId}}
-            </fieldset>
-        </li>
-        {{/each}}
-    </ul>
-    <span class="mdl-color-text--grey-300">COSTRUTTORE ...</span>
+    <div style="display: inline-block">
+        <button type="button" id="buildersFilter"
+                class="mdl-button mdl-js-button mdl-button--icon">
+            <i class="material-icons">add_box</i>
+        </button>
+        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+            style="overflow: scroll;height: 200px;"
+            for="buildersFilter">
+            {{#each builders}}
+            <li class="mdl-menu__item">
+                <fieldset style="display: block;"
+                          onclick="this.form.addFilter('constructorId', '{{this.constructorId}}')">
+                    {{this.constructorId}}
+                </fieldset>
+            </li>
+            {{/each}}
+        </ul>
+        <span class="mdl-color-text--grey-300">COSTRUTTORE ...</span>
+    </div>
 
     <button onclick="this.form.selectVehicle()"
             type="button" class="mdl-button mdl-js-button mdl-button--icon">
@@ -86,23 +92,23 @@
     <table width="100%" class="alternate-table">
         {{#each items}}
         <tr>
-        <td>
-            <div class="mdl-color--grey-800 mdl-color-text--white" style="padding: 4px;">
-                {{this.code}} - {{this.name}} ({{this.constructorId}})
-            </div>
-            <div>
-                <img src="{{this.src}}?v={{system.version}}"  onerror="this.style.display='none'"
-                     style="width: 100%;padding: 10px 10px 10px 10px;max-width: 100px;float: left;" />
-                <div style="font-size: 12px; color: #b51700;">ATTENZIONE: {{this.notes}}</div>
-                <div style="font-size: 12px;"><em>INFORMAZIONE: {{this.info}}</em></div>
-                <div style="font-size: 12px;">TEMPI DI CONSEGNA: {{this.time}}</div>
-                <div>PREZZO LISTINO: {{toCurrency(this.priceReal)}}</div>
-            </div>
-            <button type="button"
-                    onclick="this.form.addEquipment('{{this.id}}')"
-                    class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">AGGIUNGI
-            </button>
-        </td>
+            <td>
+                <div class="mdl-color--grey-800 mdl-color-text--white" style="padding: 4px;">
+                    {{this.code}} - {{this.name}} ({{this.constructorId}})
+                </div>
+                <div>
+                    <img src="{{this.src}}?v={{system.version}}" onerror="this.style.display='none'"
+                         style="width: 100%;padding: 10px 10px 10px 10px;max-width: 100px;float: left;"/>
+                    <div style="font-size: 12px; color: #b51700; {{displayBlock(this.notes)}}">ATTENZIONE: {{this.notes}}</div>
+                    <div style="font-size: 12px; {{displayBlock(this.info)}}"><em>INFORMAZIONE: {{this.info}}</em></div>
+                    <div style="font-size: 12px;">TEMPI DI CONSEGNA: {{this.time}}</div>
+                    <div>PREZZO LISTINO: {{toCurrency(this.priceReal)}}</div>
+                </div>
+                <button type="button"
+                        onclick="this.form.addEquipment('{{this.id}}')"
+                        class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">AGGIUNGI
+                </button>
+            </td>
         </tr>
         {{/each}}
     </table>
