@@ -255,7 +255,8 @@ export default async function ({ locale, system, thread }) {
             system.store.loading = true;
             const body = Object.assign({}, store, { client, summary, exchange });
             if (id) {
-                system.store.vehiclebudgets.splice(system.store.vehiclebudgets.find(i => i._id === id), 1);
+                const item = system.store.vehiclebudgets.find(i => i._id === id);
+                system.store.vehiclebudgets.splice(system.store.vehiclebudgets.indexOf(item), 1);
                 const res = await RetryRequest(`/api/rest/vehiclebudgets/${id}`, { headers: { 'Content-Type': 'application/json' } })
                     .send('PUT', JSON.stringify(body));
                 system.store.vehiclebudgets.push(JSON.parse(res.responseText));

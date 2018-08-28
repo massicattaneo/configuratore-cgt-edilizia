@@ -249,7 +249,8 @@ export default async function ({ system, locale }) {
             system.store.loading = true;
             const body = Object.assign({}, store, { client, summary, offeredPrices });
             if (id) {
-                system.store.equipmentbudgets.splice(system.store.equipmentbudgets.find(i => i._id === id), 1);
+                const item = system.store.equipmentbudgets.find(i => i._id === id);
+                system.store.equipmentbudgets.splice(system.store.equipmentbudgets.indexOf(item), 1);
                 const res = await RetryRequest(`/api/rest/equipmentbudgets/${id}`, { headers: { 'Content-Type': 'application/json' } })
                     .send('PUT', JSON.stringify(body));
                 system.store.equipmentbudgets.push(JSON.parse(res.responseText));

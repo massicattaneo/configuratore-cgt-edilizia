@@ -181,10 +181,10 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
 
     doc.fontSize(9);
     const summary = {
+        notes: 'Note',
         payment: 'Pagamento',
         availability: 'Disponibilità',
-        validity: 'Validità',
-        notes: 'Note'
+        validity: 'Validità'
     };
     Object.keys(summary).forEach(function (key) {
         if (budget.summary[key])
@@ -213,6 +213,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             width: 200
         });
 
+    pos+=20;
     doc.text('Restiamo a disposizione per ogni chiarimento e con l’occasione Vi inviamo i ns più Cordiali Saluti.', marginLeft, (pos += 20));
 
     doc.text(`${user.name} ${user.surname || ''}`, 200, (pos += 30), { align: 'center' });
