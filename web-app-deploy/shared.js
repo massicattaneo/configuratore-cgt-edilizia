@@ -7,21 +7,27 @@ module.exports = {
     calculateEqTotal: function (budget, db, priceType = 'priceReal') {
         return budget.equipment
             .map(id => db.equipements.find(i => i.id === id))
-            .reduce((tot, i) => tot + i[priceType], 0)
+            .reduce((tot, i) => tot + i[priceType], 0);
     },
     calculateEqOfferedTotal: function (budget, db, priceType = 'priceReal') {
         return budget.equipment
             .map(function (id) {
                 const find = budget.offeredPrices.find(i => i.id === id);
                 if (find) return Number(find.value);
-                return db.equipements.find(i => i.id === id)[priceType]
+                return db.equipements.find(i => i.id === id)[priceType];
             })
-            .reduce((tot, v) => tot + v, 0)
+            .reduce((tot, v) => tot + v, 0);
     },
     getPriceType: function (userAuth) {
         const ua = Number(userAuth);
-        if (ua <=1) return 'priceReal';
+        if (ua <= 1) return 'priceReal';
         if (ua === 2) return 'priceCGT';
         if (ua === 3) return 'priceOutsource';
+    },
+    canCreateOrder: function canCreateOrder(userAuth) {
+        const ua = Number(userAuth);
+        if (ua <= 1) return true;
+        if (ua === 3) return true;
+        return false;
     }
 };

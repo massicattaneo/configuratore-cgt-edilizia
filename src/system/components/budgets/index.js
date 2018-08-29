@@ -3,7 +3,10 @@ import template from './template.html';
 import vehiclebudgetsTpl from './vehiclebudgets.html';
 import equipmentbudgetsTpl from './equipmentbudgets.html';
 import * as style from './style.scss';
-import { RetryRequest } from '../../../../modules/gml-http-request';
+import { RetryRequest } from 'gml-http-request';
+import { canCreateOrder } from '../../../../web-app-deploy/shared';
+
+
 
 export default async function ({ system, gos, locale }) {
     const view = HtmlView(template, style);
@@ -38,11 +41,11 @@ export default async function ({ system, gos, locale }) {
             });
         view.clear('vehiclebudgets').appendTo('vehiclebudgets', vehiclebudgetsTpl, [], {
             vehiclebudgets: vb.map(e => Object.assign(e,
-                { showCreateOrder: Number(system.store.userAuth) > 1 ? 'none' : 'block' })),
+                { showCreateOrder: canCreateOrder(system.store.userAuth) ? 'block' : 'none' })),
         });
         view.clear('equipmentbudgets').appendTo('equipmentbudgets', equipmentbudgetsTpl, [], {
             equipmentbudgets: eb.map(e => Object.assign(e,
-                { showCreateOrder: Number(system.store.userAuth) > 1 ? 'none' : 'block' })),
+                { showCreateOrder: canCreateOrder(system.store.userAuth) ? 'block' : 'none' })),
         });
         componentHandler.upgradeDom();
     });
