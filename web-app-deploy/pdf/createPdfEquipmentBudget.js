@@ -61,8 +61,17 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             pos = 40;
         }
 
-        if (eq.src)
-            doc.image(path.resolve(`${__dirname}/..${eq.src}`), marginLeft, (pos), { width: 60 });
+        if (eq.src) {
+            const imagePath = path.resolve(`${__dirname}/..${eq.src}`);
+            const dimensions = sizeOf(imagePath);
+            const maxHeight = 50, maxWidth = 90;
+            const ratio = maxWidth / maxHeight;
+            if (ratio < (dimensions.width / dimensions.height)) {
+                doc.image(imagePath, marginLeft, (pos), { width: maxWidth });
+            } else {
+                doc.image(imagePath, marginLeft, (pos), { height: maxHeight });
+            }
+        }
 
         doc
             .font('Helvetica-Bold')
@@ -88,12 +97,15 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         availability: 'Disponibilità',
         validity: 'Validità'
     };
+
     Object.keys(summary).forEach(function (key) {
-        if (budget.summary[key])
+        if (budget.summary[key]) {
+            pos = doc.y + 4;
             doc
                 .font('Helvetica')
-                .text(`${summary[key]}:`, marginLeft, (pos += 11))
-                .text(budget.summary[key] + (key === 'validity' ? 'gg': ''), marginLeft + 100, pos);
+                .text(`${summary[key]}:`, marginLeft, pos)
+                .text(budget.summary[key] + (key === 'validity' ? 'gg' : ''), marginLeft + 100, pos);
+        }
     });
 
     pos +=20;

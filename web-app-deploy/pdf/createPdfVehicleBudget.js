@@ -1,5 +1,6 @@
 const PdfDoc = require('pdfkit');
 const path = require('path');
+const sizeOf = require('image-size');
 const loc = require('../static/localization/system/it.json');
 const { calculateTotal } = require('../shared');
 const { addHeader, getLongDate, toCurrency } = require('./addHeader');
@@ -61,7 +62,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .stroke('red');
 
     doc
-        .image(path.resolve(`${__dirname}/..${dbx.versions.find(v => v.id === budget.version).src}`), (docWidth - 400) / 2, (pos +=10), { width: 300 });
+        .image(path.resolve(`${__dirname}/..${dbx.versions.find(v => v.id === budget.version).src}`), (docWidth - 400) / 2, (pos += 10), { width: 300 });
 
     doc
         .fontSize(8)
@@ -106,8 +107,17 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             pos = 40;
         }
 
-        if (eq.src)
-            doc.image(path.resolve(`${__dirname}/..${eq.src}`), marginLeft, (pos), { height: 50 });
+        if (eq.src) {
+            const imagePath = path.resolve(`${__dirname}/..${eq.src}`);
+            const dimensions = sizeOf(imagePath);
+            const maxHeight = 50, maxWidth = 90;
+            const ratio = maxWidth / maxHeight;
+            if (ratio < (dimensions.width / dimensions.height)) {
+                doc.image(imagePath, marginLeft, (pos), { width: maxWidth });
+            } else {
+                doc.image(imagePath, marginLeft, (pos), { height: maxHeight });
+            }
+        }
 
         doc
             .font('Helvetica-Bold')
@@ -186,12 +196,15 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         availability: 'Disponibilità',
         validity: 'Validità'
     };
+
     Object.keys(summary).forEach(function (key) {
-        if (budget.summary[key])
+        if (budget.summary[key]) {
+            pos = doc.y + 4;
             doc
                 .font('Helvetica')
-                .text(`${summary[key]}:`, marginLeft, (pos += 11))
+                .text(`${summary[key]}:`, marginLeft, pos)
                 .text(budget.summary[key] + (key === 'validity' ? 'gg' : ''), marginLeft + 100, pos);
+        }
     });
 
     pos += 20;
@@ -213,7 +226,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             width: 200
         });
 
-    pos+=20;
+    pos += 20;
     doc.text('Restiamo a disposizione per ogni chiarimento e con l’occasione Vi inviamo i ns più Cordiali Saluti.', marginLeft, (pos += 20));
 
     doc.text(`${user.name} ${user.surname || ''}`, 200, (pos += 30), { align: 'center' });
