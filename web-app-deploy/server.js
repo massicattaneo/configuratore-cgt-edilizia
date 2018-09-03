@@ -301,8 +301,10 @@ function noCache(req, res, next) {
             }
             attachments.push(...(await dropbox.getAttachments(table, budget, order)));
             const email = [];
-            if (!isDeveloping)
-                email.push('giovanna.pittelli@cgtedilizia.it', 'barbara.rizzuti@cgtedilizia.it', 'Vanessa.Aprigliano@cgtedilizia.it');
+            if (!isDeveloping && Number(req.session.userAuth) <= 1)
+                email.push('amministrazionevendite@cgtedilizia.it');
+            else if (!isDeveloping && Number(req.session.userAuth) === 3)
+                email.push('ordiniconcessionari@cgtedilizia.it');
             if (order.emailMe === 'on')
                 email.push(user.email);
             mailer.send(createTemplate('order', { table, order, budget, user, dbx, attachments, email }));
