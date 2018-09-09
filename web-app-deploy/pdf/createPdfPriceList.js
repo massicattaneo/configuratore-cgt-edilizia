@@ -1,8 +1,6 @@
 const PdfDoc = require('pdfkit');
 const path = require('path');
-const loc = require('../static/localization/system/it.json');
-const { calculateTotal } = require('../shared');
-const { addHeader, getLongDate, toCurrency } = require('./addHeader');
+const { toCurrency } = require('./addHeader');
 const docWidth = 612;
 const docHeight = 740;
 const primaryBackColor = '#AE0E0E';

@@ -1,0 +1,15 @@
+<tr>
+    <td style="display: none;" data-label="CODICE: ">{{code}}&nbsp;</td>
+    <td data-label="DESCRIZIONE: ">{{name}}&nbsp;</td>
+    <td style="display: none;" data-label="COSTRUTTORE: ">{{constructorId}}&nbsp;</td>
+    <td data-label="FAMIGLIA: ">{{equipmentFamily}}&nbsp;</td>
+    <td style="display: none;" data-label="TEMPI DI CONSEGNA: ">{{time}}&nbsp;</td>
+    <td style="display: none;" data-label="NOTE: ">{{notes}}&nbsp;</td>
+    <td style="display: none;" data-label="INFO: ">{{info}}&nbsp;</td>
+    <td data-label="PREZZO DI LISTINO: ">{{toCurrency(priceReal)}}&nbsp;</td>
+    <td data-label="MODIFICA: ">
+        <fieldset onclick="this.form.add('block', '{{id}}')" style="cursor: pointer; display: {{showEdit}}">
+            <i class="mdl-color-text--blue-grey-400 material-icons">edit</i>
+        </fieldset>&nbsp;
+    </td>
+</tr>

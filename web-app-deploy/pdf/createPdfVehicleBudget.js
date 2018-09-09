@@ -2,7 +2,7 @@ const PdfDoc = require('pdfkit');
 const path = require('path');
 const sizeOf = require('image-size');
 const loc = require('../static/localization/system/it.json');
-const { calculateTotal } = require('../shared');
+const { calculateTotal, isOutsource } = require('../shared');
 const { addHeader, getLongDate, toCurrency } = require('./addHeader');
 
 module.exports = function createPdfOrder(res, budget, dbx, user) {
@@ -62,7 +62,8 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .stroke('red');
 
     doc
-        .image(path.resolve(`${__dirname}/..${dbx.versions.find(v => v.id === budget.version).src}`), (docWidth - 400) / 2, (pos += 10), { width: 300 });
+        .image(path.resolve(`${__dirname}/..${dbx.versions.find(v => v.id === budget.version).src}`),
+            (docWidth - 400) / 2, (pos += 10), { width: 300 });
 
     doc
         .fontSize(8)
@@ -130,60 +131,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             .text(`${eq.name}`, marginLeft + 180, pos + 30);
     });
 
-    pos += 40;
-    if (doc.y > 500) {
-        doc.addPage();
-        pos = 40;
-    }
-
-    doc
-        .rect(marginLeft, (pos += 40), (docWidth - (marginLeft * 2)), 24)
-        .fillAndStroke('#dddddd');
-    doc
-        .font('Helvetica-Bold')
-        .fill('black')
-        .text('PERMUTA', marginLeft, (pos += 8), { align: 'center' });
-
-    pos += 20;
-
-    if (!budget.exchange.name && !budget.files.length) {
-        doc
-            .font('Helvetica')
-            .fontSize(15)
-            .fillColor('gray')
-            .text('NESSUNA', marginLeft, pos + 15, { align: 'center' })
-            .fillColor('black')
-            .fontSize(10);
-    }
-
-    const exchange = {
-        name: 'MACCHINA',
-        builder: 'COSTRUTTORE',
-        model: 'MODELLO',
-        serial: 'MATRICOLA',
-        year: 'ANNO',
-        hours: 'ORE',
-        notes: 'NOTE'
-    };
-    Object.keys(exchange).forEach(function (key) {
-        if (budget.exchange[key])
-            doc
-                .font('Helvetica-Bold')
-                .text(`${exchange[key]}:`, marginLeft, (pos += 13))
-                .font('Helvetica')
-                .text(budget.exchange[key], marginLeft + 100, pos);
-    });
-
-    if (budget.files.length) {
-        doc
-            .font('Helvetica-Bold')
-            .text(`ALLEGATI:`, marginLeft, (pos += 13))
-            .font('Helvetica')
-            .text(budget.files.map(f => f.name).join(','), marginLeft + 100, pos);
-    }
-
-    pos += 60;
-
+    pos += 70;
     if (doc.y > 500) {
         doc.addPage();
         pos = 40;
@@ -191,29 +139,30 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
 
     doc.fontSize(9);
     const summary = {
-        notes: 'Note',
         payment: 'Pagamento',
         availability: 'Disponibilità',
         validity: 'Validità'
     };
 
-    Object.keys(summary).forEach(function (key) {
-        if (budget.summary[key]) {
-            pos = doc.y + 4;
+    Object.keys(summary)
+        .filter(key => budget.summary[key])
+        .forEach(function (key, index) {
+            pos = index === 0 ? pos : doc.y + 4;
             doc
                 .font('Helvetica')
                 .text(`${summary[key]}:`, marginLeft, pos)
                 .text(budget.summary[key] + (key === 'validity' ? 'gg' : ''), marginLeft + 100, pos);
-        }
-    });
+        });
 
-    pos += 20;
-    doc
-        .rect(marginLeft, pos, docWidth - (marginLeft * 2), 24)
-        .stroke('black')
-        .font('Helvetica-Bold')
-        .text('PREZZO DI LISTINO', marginLeft + 20, (pos += 8))
-        .text(toCurrency(calculateTotal(budget, dbx)), marginLeft + 250, pos, { align: 'right', width: 200 });
+    if (budget.client.showPriceReal) {
+        pos += 20;
+        doc
+            .rect(marginLeft, pos, docWidth - (marginLeft * 2), 24)
+            .stroke('black')
+            .font('Helvetica-Bold')
+            .text('PREZZO DI LISTINO', marginLeft + 20, (pos += 8))
+            .text(toCurrency(calculateTotal(budget, dbx)), marginLeft + 250, pos, { align: 'right', width: 200 });
+    }
 
     pos += 20;
     doc
@@ -226,6 +175,69 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             width: 200
         });
 
+    if (budget.summary.notes) {
+        pos += 40;
+        doc
+            .fontSize(9)
+            .font('Helvetica')
+            .text(`Note:`, marginLeft, pos)
+            .text(budget.summary.notes, marginLeft + 100, pos);
+        pos = doc.y;
+    }
+
+    if (budget.exchange.name) {
+        pos += 20;
+        if (doc.y > 500) {
+            doc.addPage();
+            pos = 40;
+        }
+
+        doc
+            .rect(marginLeft, pos, (docWidth - (marginLeft * 2)), 24)
+            .fillAndStroke('#dddddd');
+        doc
+            .fontSize(10)
+            .font('Helvetica-Bold')
+            .fill('black')
+            .text('MACCHINA DI VOSTRA PROPRIETA’', marginLeft, (pos += 8), { align: 'center' });
+
+        doc.fontSize(9);
+
+        pos += 20;
+
+        const exchange = {
+            name: 'Macchina',
+            builder: 'Costruttore',
+            model: 'Modella',
+            serial: 'Matricola',
+            year: 'Anno',
+            cost: 'Valore di acquisto permuta',
+            notes: 'NOTE'
+        };
+
+        Object.keys(exchange).forEach(function (key) {
+            if (budget.exchange[key])
+                doc
+                    .font('Helvetica-Bold')
+                    .text(`${exchange[key]}:`, marginLeft, (pos += 13))
+                    .font('Helvetica')
+                    .text(key === 'cost' ? toCurrency(budget.exchange[key]) : budget.exchange[key], marginLeft + 150, pos);
+        });
+
+        if (budget.files.length) {
+            doc
+                .font('Helvetica-Bold')
+                .text(`ALLEGATI:`, marginLeft, (pos += 13))
+                .font('Helvetica')
+                .text(budget.files.map(f => f.name).join(','), marginLeft + 150, pos);
+        }
+
+        pos += 20;
+        doc.text('A fronte dell’acquisto della macchina sopra riportata, la societa\' e\' disposta a ritirare in permuta ' +
+            'la Vostra macchina nelle condizioni da Noi vista priva di vizi occulti e libera da privilegi.', marginLeft, pos);
+        pos = doc.y;
+    }
+
     pos += 20;
     doc.text('Restiamo a disposizione per ogni chiarimento e con l’occasione Vi inviamo i ns più Cordiali Saluti.', marginLeft, (pos += 20));
 
@@ -233,7 +245,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
     doc.text(`${user.email} - ${user.tel}`, 200, (pos += 13), { align: 'center' });
     if (user.type == 1) doc.font('Helvetica-Bold').text('CGT Edilizia Spa', 200, (pos += 13), { align: 'center' });
     if (user.type == 2) doc.font('Helvetica-Bold').text('Compagnia Generale Trattori S.p.A.', 200, (pos += 13), { align: 'center' });
-    if (user.type == 3) doc.font('Helvetica-Bold').text(retailer.name || '', 200, (pos += 13), { align: 'center' });
+    if (isOutsource(user.type)) doc.font('Helvetica-Bold').text(retailer.name || '', 200, (pos += 13), { align: 'center' });
 
     doc.end();
 };

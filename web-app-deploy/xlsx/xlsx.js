@@ -5,14 +5,16 @@ const shared = require('../shared');
 module.exports = {
     createVehicleXlsx: function (budget, dbx, order, user, xlsxPath) {
         const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
+        const orderNumber = shared.formatOrderNumber(order);
         const orderDetails = XLSX.utils.json_to_sheet([
+            { CAMPO: 'Number ordine', VALORE: orderNumber },
             { CAMPO: 'Cliente', VALORE: budget.client.name },
             { CAMPO: 'Modello macchina', VALORE: dbx.versions.find(v => v.id === budget.version).name },
             { CAMPO: 'Stato macchina', VALORE: 'Nuova' },
             { CAMPO: 'Data vendita', VALORE: order.created.substr(0, 10) },
             { CAMPO: 'Data prevista consegna macchina', VALORE: order.deliveryDate },
             { CAMPO: 'Prezzo vendita', VALORE: order.price },
-            { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateTotal(budget, dbx, 'priceMin') },
+            { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateTotal(budget, dbx, shared.getPriceType(user.userAuth)) },
             { CAMPO: 'Note', VALORE: order.notes },
             { CAMPO: 'PERMUTA', VALORE: ''},
             { CAMPO: 'Valore permuta', VALORE: budget.exchange.value },
@@ -61,13 +63,15 @@ module.exports = {
         return attachments;
     },
     createEquipmentXlsx: function (budget, dbx, order, user, xlsxPath) {
+        const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
+        const orderNumber = shared.formatOrderNumber(order);
         const orderDetails = XLSX.utils.json_to_sheet([
-
+            { CAMPO: 'Number ordine', VALORE: orderNumber },
             { CAMPO: 'Cliente', VALORE: budget.client.name },
             { CAMPO: 'Data vendita', VALORE: order.created.substr(0, 10) },
             { CAMPO: 'Data prevista consegna attrezzature', VALORE: order.deliveryDate },
             { CAMPO: 'Prezzo vendita', VALORE: order.price },
-            { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateTotal(budget, dbx, 'priceMin') },
+            { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateTotal(budget, dbx, shared.getPriceType(user.userAuth)) },
             { CAMPO: 'Note', VALORE: order.notes },
             {
                 CAMPO: 'Venditore',

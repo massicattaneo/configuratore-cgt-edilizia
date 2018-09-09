@@ -38,6 +38,17 @@
                            onclick="this.form.changeOrg()"/>
                 </span>
             </div>
+            <div class="mdl-list__item">
+                <label class="mdl-list__item-primary-content" for="list-option-3">
+                    <i class="material-icons mdl-list__item-avatar">person</i>
+                    {{register.types.3.label}}
+                </label>
+                <span class="mdl-list__item-secondary-action">
+                    <input type="radio" id="list-option-3" class="mdl-radio__button"
+                           name="type" value="{{register.types.3.value}}"
+                           onclick="this.form.changeOrg()"/>
+                </span>
+            </div>
 
             <div #organization class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <select class="mdl-textfield__input"

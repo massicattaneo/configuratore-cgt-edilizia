@@ -23,14 +23,25 @@
     "missing-exchange-vehicle-model": "Manca il Modello",
     "missing-exchange-vehicle-serial": "Manca la Matricola",
     "missing-exchange-vehicle-year": "Manca l'anno",
-    "missing-exchange-vehicle-value": "Manca il valore della permuta",
+    "missing-exchange-vehicle-value": "Manca la valutazione della permuta",
+    "missing-exchange-vehicle-cost": "Manca la valutazione di acquisto della permuta",
     "missing-client-name": "Manca il nome del cliente",
     "missing-client-address": "Manca l'indirizzo del cliente",
     "missing-client-email": "Manca l'email del cliente",
     "missing-client-email-malformed": "L'email inserita non è in un fomato valido",
     "missingBudgetClientEmail": "Modifica l'offerta e inserisci i dati del cliente a cui vuoi inviarlo",
+    "missingBudgetLeasing": "Modifica l'offerta e inserisci i dati del leasing",
     "missingOrderPrice": "Aggiungi il prezzo della vendita",
-    "missingDeliveryDate": "Aggiungi la data di prevista consegna della macchina/attrezzature"
+    "missingDeliveryDate": "Aggiungi la data di prevista consegna della macchina/attrezzature",
+    "missing-leasing-emitter": "Aggiungi la societa' erogatrice",
+    "missing-leasing-loanPrice": "aggiungi l'importo del finanziamento",
+    "missing-leasing-rate": "Aggingi il tasso",
+    "missing-leasing-prePayment": "Aggiungi la percentuale dell'anticipo",
+    "missing-leasing-installments": "Aggiungi il numero di rate",
+    "missing-leasing-finalPayment": "Aggiungi il riscatto finale",
+    "missing-leasing-factor": "Aggiungi il coeficiente",
+    "missing-leasing-contractualExpenses": "Aggiungi le spese contrattuali",
+    "missing-leasing-insurance": "Aggiungi il costo dell'assicurazione obbligatoria"
   },
   "urls": {
     "homePage": {
@@ -117,7 +128,16 @@
       "href": "/it/il-mio-profilo",
       "title": "IL MIO PROFILO",
       "menu": "IL MIO PROFILO"
+    },
+    "explore": {
+      "href": "/it/esplora",
+      "title": "ESPLORA",
+      "menu": "ESPLORA"
     }
+  },
+  "tables": {
+    "macchine": "versions",
+    "attrezzature": "equipements"
   },
   "menuHeader": {
     "userNotLogged": "UTENTE...",
@@ -128,11 +148,13 @@
     "types": [
       {"label": "CGT EDILIZIA", "value": 1},
       {"label": "CGT", "value": 2},
-      {"label": "CONCESSIONARIO", "value": 3}
+      {"label": "CONCESSIONARIO - DIREZIONE", "value": 3},
+      {"label": "CONCESSIONARIO - COMMERCIALE", "value": 4}
     ],
     "organization": "NOME CONCESSIONARIO",
     "infoTitle": "I TUOI DATI:",
     "name": "NOME",
+    "percentage": "SCONTO su LISTINO",
     "surname": "COGNOME",
     "email": "EMAIL",
     "tel": "TELEFONO",
@@ -175,6 +197,10 @@
       "title": "RIEPILOGO ATTREZZATURE:",
       "titleSelected": "PREZZO OFFERTO: {0}"
     },
+    "leasings": {
+      "title": "PROSPETTO LEASING:",
+      "titleSelected": "{0}"
+    },
     "clients": {
       "title": "SALVA e/o AGGIORNA OFFERTA:",
       "titleSelected": "COMPLETATO"
@@ -204,6 +230,10 @@
     "summarys": {
       "title": "RIEPILOGO MACCHINA:",
       "titleSelected": "PREZZO OFFERTO: {0}"
+    },
+    "leasings": {
+      "title": "PROSPETTO LEASING:",
+      "titleSelected": "{0}"
     },
     "clients": {
       "title": "SALVA e/o AGGIORNA OFFERTA:",

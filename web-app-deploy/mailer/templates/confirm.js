@@ -2,7 +2,8 @@ const { confirmRegistrationUrl } = require('../../serverInfo');
 const types = {
     1: 'CGT EDILIZIA',
     2: 'CGT',
-    3: 'CONCESSIONARIO'
+    3: 'CONCESSIONARIO DIREZIONE',
+    4: 'CONCESSIONARIO COMMERCIALE'
 };
 module.exports = function({grayColor, type, tel, email, organization, name, primaryColor, host, activationCode, footer}) {
     return `
@@ -52,17 +53,22 @@ module.exports = function({grayColor, type, tel, email, organization, name, prim
                 </li>
                 <li>
                     <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=1&activationCode=${activationCode}">
-                        funzionario vendite CGT edilizia
+                        Funzionario vendite CGT edilizia
                     </a>
                 </li>
                 <li>
                     <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=2&activationCode=${activationCode}">
-                        funzionario vendite CGT
+                        Funzionario vendite CGT
                     </a>
                 </li>
                 <li>
                     <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=3&activationCode=${activationCode}">
-                        concessionario
+                        Concessionario Direzione
+                    </a>
+                </li>
+                <li>
+                    <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=4&activationCode=${activationCode}">
+                        Concessionario Commerciale
                     </a>
                 </li>
             </ul>

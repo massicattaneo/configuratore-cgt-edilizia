@@ -12,6 +12,11 @@
                 <div class="mdl-currency-usd__symbol">€</div>
                 <span class="mdl-currency-usd__error">#.##</span>
             </div>
+            <button type="button" onclick="this.form.showPriceList()"
+                    class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+                    data-upgraded=",MaterialButton,MaterialRipple">
+                <i class="material-icons">help</i> <span
+                    class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
             <br/>
         </div>
     {{/each}}
@@ -49,7 +54,7 @@
     <br/>
     <div style="text-align: center">
         <button type="button"
-                onclick="this.form.step('clients')"
+                onclick="this.form.step('leasings')"
                 class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
             PROSEGUI
         </button>

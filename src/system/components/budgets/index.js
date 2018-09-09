@@ -93,6 +93,7 @@ export default async function ({ system, gos, locale }) {
     };
 
     form.email = async function (table, id) {
+        system.store.loading = true;
         const budget = system.store[table].find(i => i._id === id);
         if (budget.client.email === '') system.throw('missingBudgetClientEmail');
         if (confirm(`INVIARE UNA COPIA DELL'OFFERTA A TE ED ALL'EMAIL DEL CLIENTE "${budget.client.email}" ?`)) {
@@ -102,7 +103,13 @@ export default async function ({ system, gos, locale }) {
     };
 
     form.preview = async function (table, id) {
-        window.open(`/api/pdf/${table}/${id}`);
+        window.open(`/api/pdf/budget/${table}/${id}`);
+    };
+
+    form.previewLeasing = async function (table, id) {
+        const budget = system.store[table].find(i => i._id === id);
+        if (budget.leasing.emitter === '') system.throw('missingBudgetLeasing');
+        window.open(`/api/pdf/leasing/${table}/${id}`);
     };
 
     view.destroy = function () {

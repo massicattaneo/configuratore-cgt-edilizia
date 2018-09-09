@@ -40,9 +40,10 @@ export function HtmlStyle(style) {
 }
 
 export function Node(markup) {
-    const div = document.createElement('div');
+    const isTable = markup.startsWith('<tr>');
+    const div = document.createElement(isTable ? 'table' : 'div');
     div.innerHTML = markup;
-    return div.children[0];
+    return isTable ? div.children[0].children[0] : div.children[0];
 }
 
 const myParsers = {
@@ -73,6 +74,9 @@ const myParsers = {
         if (!d) return 'display: none;';
         if (d.toString().replace(/\s/g, '') === '') return 'display: none;';
         return 'display: block;';
+    },
+    checked: function (d) {
+        return d ? 'checked' : ''
     }
 };
 

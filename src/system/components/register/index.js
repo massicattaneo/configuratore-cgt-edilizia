@@ -2,6 +2,7 @@ import { HtmlView } from 'gml-html';
 import template from './template.html';
 import * as style from './style.scss';
 import registerDone from './register-done.html';
+import { isOutsource } from '../../../../web-app-deploy/shared';
 
 const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const telRegEx = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
@@ -14,7 +15,7 @@ export default async function ({ locale, system, thread }) {
     let form = view.get('wrapper');
     form.register = async function () {
         if (this.type.value === '') error({ text: 'missingOrganizationType', focus: '' });
-        if (this.type.value === '3' && this.organization.value === '')
+        if (isOutsource(this.type.value) && this.organization.value === '')
             error({ text: 'missingOrganizationName', focus: 'organization' });
         if (this.name.value === '') error({ text: 'missingName', focus: 'name' });
         if (this.surname.value === '') error({ text: 'missingSurname', focus: 'surname' });
@@ -27,7 +28,7 @@ export default async function ({ locale, system, thread }) {
     };
 
     form.changeOrg = function () {
-        view.get('organization').style.display = form.type.value === '3' ? 'block' : 'none';
+        view.get('organization').style.display = isOutsource(form.type.value) ? 'block' : 'none';
     };
 
     view.destroy = function () {
@@ -49,7 +50,8 @@ export default async function ({ locale, system, thread }) {
             tel: form.tel.value,
             lang: system.info().lang,
             type: form.type.value,
-            organization: form.type.value === '3' ? form.organization.value : ''
+            discount: 0,
+            organization: isOutsource(form.type.value) ? form.organization.value : ''
         });
         system.store.loading = false;
         view.clear().appendTo('', registerDone, [], locale.get());

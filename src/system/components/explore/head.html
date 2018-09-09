@@ -1,0 +1,22 @@
+<div style="    padding: 0 10px; text-align: right">
+    <input type="search" placeholder="CERCA..."
+           style="width: 150px;font-size: 16px;"
+           oninput="this.form.search(this.value)"
+           onsearch="this.form.search(this.value)"/>
+    <span>&nbsp;</span>
+    <fieldset class="mdl-color-text--blue-grey-400 material-icons"
+            onclick="this.form.block(true)"
+            style="font-size: 38px; cursor: pointer;vertical-align: middle;" role="presentation">view_module
+    </fieldset>
+    <span>&nbsp;</span>
+    <fieldset class="mdl-color-text--blue-grey-400 material-icons"
+            onclick="this.form.block(false)"
+            style="font-size: 38px; cursor: pointer;vertical-align: middle;" role="presentation">view_list
+    </fieldset>
+    <span>&nbsp;</span>
+    <fieldset class="mdl-color-text--blue-grey-400 material-icons"
+            onclick="this.form.add('none')"
+            style="font-size: 38px; cursor: pointer;vertical-align: middle;" role="presentation">add_circle
+    </fieldset>
+    <span>&nbsp;</span>
+</div>

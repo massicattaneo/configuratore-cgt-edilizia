@@ -7,6 +7,7 @@ import versionsTemplate from './version.html';
 import equipementsTemplate from './equipement.html';
 import exchangesTemplate from './exchange.html';
 import summarysTemplate from './summary.html';
+import leasingsTemplate from './leasing.html';
 import clientsTemplate from './client.html';
 import priceSummaryTpl from './priceSummary.html';
 import { RetryRequest } from '../../../../modules/gml-http-request';
@@ -17,12 +18,12 @@ function sDisplay(id) {
     return id ? 'display: block;' : 'display: none;'
 }
 
-import { calculateTotal, getPriceType } from '../../../../web-app-deploy/shared';
+import { calculateTotal, getPriceType, emptyLeasing } from '../../../../web-app-deploy/shared';
 import { createModal } from '../../utils';
 
 export default async function ({ locale, system, thread }) {
     const view = HtmlView(template, style, locale.get());
-    const steps = ['familys', 'models', 'versions', 'equipements', 'exchanges', 'summarys', 'clients'];
+    const steps = ['familys', 'models', 'versions', 'equipements', 'exchanges', 'summarys', 'leasings', 'clients'];
     const form = view.get('wrapper');
     const templates = {
         familysTemplate,
@@ -31,6 +32,7 @@ export default async function ({ locale, system, thread }) {
         equipementsTemplate,
         exchangesTemplate,
         summarysTemplate,
+        leasingsTemplate,
         clientsTemplate
     };
     let { familys, models, versions, equipements } = system.db;
@@ -53,11 +55,13 @@ export default async function ({ locale, system, thread }) {
         validity: '30',
         notes: ''
     }, system.getStorage('vehicle').summary);
+    let leasing = Object.assign(emptyLeasing(), system.getStorage('vehicle').leasing);
     let client = Object.assign({
         name: '',
         address: '',
         email: '',
-        pa: ''
+        pa: '',
+        showPriceReal: false
     }, system.getStorage('vehicle').client);
 
     function checkPrice() {
@@ -102,12 +106,13 @@ export default async function ({ locale, system, thread }) {
     const updateEquipmentsFamilys = update.partial('equipements');
     const updateExchanges = update.partial('exchanges');
     const updateSummarys = update.partial('summarys');
+    const updateLeasings = update.partial('leasings');
     const updateClients = update.partial('clients');
     const remove = rx.connect(store, refresh);
 
     const checks = {
         exchange: function () {
-            const items = ['name', 'builder', 'model', 'serial', 'year', 'value'];
+            const items = ['name', 'builder', 'model', 'serial', 'year', 'value', 'cost'];
             const filled = items.filter(i => exchange[i]);
             if (filled.length !== 0 && filled.length !== items.length) {
                 const key = items.filter(i => !exchange[i])[0];
@@ -129,6 +134,16 @@ export default async function ({ locale, system, thread }) {
                 return false;
             }
             return true;
+        },
+        leasing: function () {
+            const items = ['emitter', 'factor', 'loanPrice', 'rate', 'prePayment', 'installments', 'finalPayment', 'contractualExpenses', 'insurance'];
+            const filled = items.filter(i => leasing[i]);
+            if (filled.length !== 0 && filled.length !== items.length) {
+                const key = items.filter(i => !leasing[i])[0];
+                system.throw('missing-leasing-' + key);
+                return false;
+            }
+            return true;
         }
     };
 
@@ -140,14 +155,17 @@ export default async function ({ locale, system, thread }) {
         exchange = {};
 
         summary = { price: '', payment: 'da concordare', availability: 'da definire', validity: '30' };
-        client = { name: '', address: '', email: '', pa: '' };
-        store.id = '';
-        store.model = '';
-        store.version = '';
-        store.equipment.splice(0, store.equipment.length);
-        store.selectedCategories.splice(0, store.selectedCategories.length);
-        store.files.splice(0, store.files.length);
-        store.step = 'familys';
+        leasing = emptyLeasing();
+        client = { name: '', address: '', email: '', pa: '', showPriceReal: false };
+        rx.update(store, {
+            id: '',
+            model: '',
+            version: '',
+            step: 'familys',
+            equipment: [],
+            selectedCategories: [],
+            files: []
+        });
     }
 
     form.step = function (name, check) {
@@ -195,19 +213,30 @@ export default async function ({ locale, system, thread }) {
         const version = system.db.versions
             .find(v => v.id === store.version);
         const eq = store.equipment.map(id => system.db.equipements.find(e => e.id === id));
+        const priceReal = calculateTotal(store, system.db, 'priceReal');
+        const priceMin = calculateTotal(store, system.db, getPriceType(system.store.userAuth));
         createModal(priceSummaryTpl, {
             vehicle: {
                 priceReal: system.toCurrency(version.priceReal),
-                priceMin: system.toCurrency(version.priceMin)
+                priceMin: system.toCurrency(version[getPriceType(system.store.userAuth)])
             },
             equipments: eq.map(e => Object.assign({
                 name: e.name,
                 priceReal: system.toCurrency(e.priceReal),
-                priceMin: system.toCurrency(e.priceMin)
+                priceMin: system.toCurrency(e[getPriceType(system.store.userAuth)])
             })),
             total: {
-                priceReal: system.toCurrency(calculateTotal(store, system.db, 'priceReal')),
-                priceMin: system.toCurrency(calculateTotal(store, system.db, 'priceMin'))
+                priceReal: system.toCurrency(priceReal),
+                priceMin: system.toCurrency(priceMin)
+            },
+            showExchange: exchange.cost ? '' : 'none',
+            exchange: {
+                priceReal: system.toCurrency(exchange.cost),
+                priceMin: system.toCurrency(exchange.cost)
+            },
+            newTotal: {
+                priceReal: system.toCurrency(priceReal - exchange.cost),
+                priceMin: system.toCurrency(priceMin - exchange.cost)
             }
         })
     };
@@ -244,6 +273,10 @@ export default async function ({ locale, system, thread }) {
         if (name === 'price') checkPrice();
     };
 
+    form.updateLeasing = function (name, value) {
+        leasing[name] = value;
+    };
+
     form.updateClient = function (name, value) {
         client[name] = value;
         const temp = system.getStorage('vehicle');
@@ -253,7 +286,7 @@ export default async function ({ locale, system, thread }) {
     form.save = (new Function()).debouncePromise().subscribe(async function (id) {
         if (checks.client()) {
             system.store.loading = true;
-            const body = Object.assign({}, store, { client, summary, exchange });
+            const body = Object.assign({}, store, { client, summary, leasing, exchange });
             if (id) {
                 const item = system.store.vehiclebudgets.find(i => i._id === id);
                 system.store.vehiclebudgets.splice(system.store.vehiclebudgets.indexOf(item), 1);
@@ -273,13 +306,14 @@ export default async function ({ locale, system, thread }) {
 
     form.reset = function() {
         if (confirm('TUTTI I DATI INSERITI IN QUESTA PAGINA VERRANNO ELIMINATI. CONTINUARE?')) {
-            reset()
+            reset();
+            system.removeStorage('vehicle');
         }
     };
 
-    function getCatregories(model, remove) {
+    function getCategories(model, remove) {
         return equipements
-            .filter(i => i.compatibility.filter(o => o.id === model).length)
+            .filter(i => i.compatibility.filter(o => o.id === model).length || i.equipmentFamily === 'FUORI LISTINO')
             .map(i => i.equipmentFamily)
             .filter((item, pos, a) => a.indexOf(item) === pos)
             .filter(item => remove.indexOf(item) === -1)
@@ -288,7 +322,7 @@ export default async function ({ locale, system, thread }) {
 
     function getSelectedEquipments(model, array) {
         return equipements
-            .filter(i => i.compatibility.filter(o => o.id === model).length)
+            .filter(i => i.compatibility.filter(o => o.id === model).length || i.equipmentFamily === 'FUORI LISTINO')
             .filter(i => array.indexOf(i.equipmentFamily) !== -1);
     }
 
@@ -305,6 +339,7 @@ export default async function ({ locale, system, thread }) {
                 files,
                 exchange,
                 summary,
+                leasing,
                 client,
                 id
             }
@@ -312,15 +347,15 @@ export default async function ({ locale, system, thread }) {
         updateFamilies(familys, family, step);
         updateModels(models.filter(i => i.familyId === family), model, step);
         updateVersions(versions.filter(i => i.modelId === model), version, step);
-        const categories = getCatregories(model, selectedCategories);
+        const categories = getCategories(model, selectedCategories);
         const selectedEquipments = getSelectedEquipments(model, selectedCategories);
         updateEquipmentsFamilys([{
             categories, selectedCategories, selectedEquipments, id: '',
             equipment: equipements
-                .filter(e => equipment.indexOf(e.id) !== -1 && e.compatibility.filter(o => o.id === model).length)
+                .filter(e => equipment.indexOf(e.id) !== -1 && (e.compatibility.filter(o => o.id === model).length || e.equipmentFamily === 'FUORI LISTINO'))
                 .map(i => Object.assign({}, i, { count: equipment.filter(id => id === i.id).length }))
         }], equipment, step, equipment.length.toString());
-        let exchangeTitle = exchange.value ? `${exchange.name} - ${system.toCurrency(exchange.value)}` : 'NESSUNA PERMUTA';
+        let exchangeTitle = exchange.value ? `${exchange.name} - ${system.toCurrency(exchange.cost)}` : 'NESSUNA PERMUTA';
         updateExchanges([{ id: 0, files, exchange }], true, step, exchangeTitle);
         if (!summary.price && step === 'summarys') {
             summary.price = calculateTotal({version, equipment}, system.db, getPriceType(system.store.userAuth))
@@ -332,7 +367,6 @@ export default async function ({ locale, system, thread }) {
             version: versions.find(f => f.id === version),
             equipment,
             summary,
-            displayPriceListButton: Number(system.store.userAuth) <= 1 ? 'inline-block' : 'none',
             price: calculateTotal({version, equipment}, system.db),
             selExchange: exchange.name
                 ? `<div>PERMUTA: ${exchange.name} (${exchange.builder}) - ${system.toCurrency(exchange.value)}</div><br/>`
@@ -346,6 +380,8 @@ export default async function ({ locale, system, thread }) {
                     .join('</li><li>')}</li></ul>`
                 : 'NESSUNA ATTREZZATURA SELEZIONATA'
         }], true, step, system.toCurrency(summary.price || calculateTotal({version, equipment}, system.db)));
+        const leasingTitle = leasing.loanPrice ? `IMPORTO FINANZIAMENTO: ${system.toCurrency(leasing.loanPrice)}` : 'NESSUN LEASING';
+        updateLeasings([{ id: 0, leasing}], true, step, leasingTitle);
         const updateButton = id && system.store.vehiclebudgets.find(i => !i.ordered && i._id === id);
         updateClients([{ id: 0, client, budgetId: id, on: sDisplay(updateButton), off:  sDisplay(!updateButton)}], true, step, summary.price);
         location.href = `#${step}`;
@@ -370,6 +406,7 @@ export default async function ({ locale, system, thread }) {
         rx.update(store, item);
         exchange = item.exchange;
         summary = item.summary;
+        leasing = item.leasing || emptyLeasing();
         client = item.client;
         refresh(item);
     };

@@ -4,10 +4,11 @@ export function createModal(template, params, saveForm) {
     const modalView = HtmlView(template, {}, params);
     const modal = modalView.get();
     document.getElementById('modal').innerHTML = '';
+    dialogPolyfill.registerDialog(modal);
     document.getElementById('modal').appendChild(modal);
     modal.showModal();
-    modalView.get('form').save = async function() {
-        saveForm.call(this, close);
+    modalView.get('form').save = async function(...args) {
+        saveForm.call(this, close, ...args);
     };
     modalView.get('form').close = close;
 

@@ -17,7 +17,7 @@ export default async function ({ system, gos }) {
         const { title } = urls[goName];
         document.title = context.locale.get('documentWindowTitle', title);
         if (document.getElementById('main').children[0]) {
-            document.getElementById('main').removeChild(document.getElementById('main').children[0])
+            document.getElementById('main').removeChild(document.getElementById('main').children[0]);
         }
         document.getElementById('main').appendChild(gos[goName].get());
         gos.header.setTitle(title);
@@ -25,14 +25,14 @@ export default async function ({ system, gos }) {
         let querySelector = document.querySelector('.mdl-layout__obfuscator');
         if (querySelector)
             querySelector.removeStyle('is-visible');
-        componentHandler.upgradeDom()
+        componentHandler.upgradeDom();
     }
 
     /** START an APP */
     system
         .onNavigate()
         .filter(e => e.match(/\//g).length > 1 && e.substr(0, 4) !== '/api')
-        .subscribe(async (event) => {
+        .subscribe(async(event) => {
             const old = activeUrl;
             activeUrl = event;
             if (old !== event) {
@@ -42,7 +42,17 @@ export default async function ({ system, gos }) {
                 }
                 if (!compare(old, event, 1)) {
                     /** change page */
-                    setPageInfo(event, context, gos);
+                    setPageInfo(event.split('/').splice(0, 3).join('/'), context, gos);
+                }
+                if (!compare(old, event, 2)) {
+                    const url = event.split('/').splice(0, 3).join('/');
+                    const urls = context.locale.get('urls');
+                    const goName = Object.keys(urls).find(key => urls[key].href === url);
+                    const tableName = event.split('/').splice(3, 1).join('');
+                    if (gos[goName].navigate && tableName)
+                        {
+                            gos[goName].navigate(tableName, context.locale.get('tables')[tableName]);
+                        }
                 }
             }
         });
@@ -61,7 +71,7 @@ export default async function ({ system, gos }) {
     system
         .onNavigate()
         .filter(e => e === '/api/login/confirm')
-        .subscribe(async () => {
+        .subscribe(async() => {
             system.navigateTo(activeUrl = context.locale.get(`urls.homePage.url`));
         });
 

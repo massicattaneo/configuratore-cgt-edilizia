@@ -17,6 +17,13 @@
                 <td>{{retailer.name}}</td>
             </tr>
         </table>
+        <div class="mdl-list__item" style="display: {{showDiscount}};">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 190px;">
+                <input value="{{user.discount}}" class="mdl-textfield__input" type="number" id="discount">
+                <label class="mdl-textfield__label" for="discount">{{register.percentage}}</label>
+            </div>
+            %
+        </div>
         <div class="mdl-list__item">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input value="{{user.name}}" class="mdl-textfield__input" type="text" id="name">

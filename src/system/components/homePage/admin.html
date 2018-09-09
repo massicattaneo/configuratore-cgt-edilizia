@@ -1,26 +1,28 @@
-<div #wrapper style="padding: 10px">
+<div #wrapper>
     <table width="100%" class="alternate-table">
         <tr>
             <th><fieldset onclick="this.form.sort('created')" style="cursor: pointer;">CREAZIONE</fieldset></th>
             <th><fieldset onclick="this.form.sort('surname')" style="cursor: pointer;">COGNOME</fieldset></th>
             <th><fieldset onclick="this.form.sort('name')" style="cursor: pointer;">NOME</fieldset></th>
             <th><fieldset onclick="this.form.sort('organization')" style="cursor: pointer;">ORGANIZZAZIONE</fieldset></th>
+            <th>SCONTO</th>
             <th>EMAIL</th>
             <th>STATO</th>
             <th>AUTORIZZAZIONE</th>
         </tr>
         {{#each users}}
         <tr>
-            <td>{{formatShortDate(this.created)}}</td>
-            <td>{{this.surname}}</td>
-            <td>{{this.name}}</td>
-            <td>{{this.organizationSelect}}</td>
-            <td><a class="mdl-color-text--primary" href="mailto:{{this.email}}">{{this.email}}</a></td>
-            <td>
-                {{this.activeSelect}}
+            <td data-label="CREAZIONE: ">{{formatShortDate(this.created)}}&nbsp;</td>
+            <td data-label="COGNOME: ">{{this.surname}}&nbsp;</td>
+            <td data-label="NOME: ">{{this.name}}&nbsp;</td>
+            <td data-label="ORGANIZZAZIONE: ">{{this.organizationSelect}}&nbsp;</td>
+            <td data-label="SCONTO: ">{{this.discount}}&nbsp;</td>
+            <td data-label="EMAIL: "><a class="mdl-color-text--primary" href="mailto:{{this.email}}">{{this.email}}</a>&nbsp;</td>
+            <td data-label="STATO: ">
+                {{this.activeSelect}}&nbsp;
             </td>
-            <td>
-                {{this.select}}
+            <td data-label="AUTORIZZAZIONE: ">
+                {{this.select}}&nbsp;
             </td>
         </tr>
         {{/each}}

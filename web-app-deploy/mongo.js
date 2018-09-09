@@ -21,7 +21,9 @@ function clean(o) {
         if (typeof ret[key] === 'string') {
             ret[key] = o[key].trim();
         }
-        if (key.indexOf('Id') !== -1 && o[key] !== '' && o[key] && o[key].toString().length <= 40) {
+        if (key.indexOf('Id') !== -1 && o[key] !== ''
+            && key !== 'constructorId'
+            && o[key] && o[key].toString().length <= 40) {
             try {
                 ret[key] = getObjectId(o[key]);
             } catch (e) {
@@ -53,7 +55,7 @@ module.exports = function (isDeveloping) {
         });
     };
 
-    obj.insertUser = function ({ email, password, tel = '', surname, type, organization, name, lang }) {
+    obj.insertUser = function ({ email, password, tel = '', surname, type, organization, name, lang, discount = 0 }) {
         return new Promise(function (resolve, rej) {
             db.collection('users').find({ email }).toArray(function (err, result) {
                 if (err) return rej(new Error('generic'));
@@ -61,7 +63,21 @@ module.exports = function (isDeveloping) {
                 const activationCode = bcrypt.hashSync(password, 4);
                 const hash = bcrypt.hashSync(password, 10);
                 const created = (new Date()).toISOString();
-                const insert = { created, userAuth: 4, hash, activationCode, type, organization, surname, name, tel, email, active: false, lang };
+                const insert = {
+                    created,
+                    userAuth: 4,
+                    hash,
+                    activationCode,
+                    type,
+                    organization,
+                    surname,
+                    name,
+                    tel,
+                    email,
+                    active: false,
+                    lang,
+                    discount
+                };
                 db.collection('users').insertOne(insert, function (err, res) {
                     if (err)
                         rej(new Error('dbError'));
@@ -156,6 +172,41 @@ module.exports = function (isDeveloping) {
         });
     };
 
+    obj.getOrderProgressive = async function (userAuth, organization) {
+        const year = (new Date()).getFullYear();
+        const ua = Number(userAuth);
+        const thisYearStart = ObjectID.createFromTime(new Date(`${year}-01-01 00:00:01`).getTime() / 1000);
+        const sort = { sort: { $natural: -1 } };
+        if (ua === 3 || ua === 4) {
+            const vOrder = await db.collection('vehicleorders')
+                .findOne({ organization, userAuth: { $in: [3, 4] }, _id: { '$gte': thisYearStart } }, sort)
+                .progressive || { number: 0, year, code: organization };
+            const eOrder = await db.collection('equipmentorders')
+                .findOne({ organization, userAuth: { $in: [3, 4] }, _id: { '$gte': thisYearStart } }, sort)
+                .progressive || { number: 0, year, code: organization };
+            if (vOrder.number >= eOrder.number) return Object.assign(vOrder, { number: vOrder.number + 1 });
+            return Object.assign(eOrder, { number: eOrder.number + 1 });
+        } else if (ua === 2) {
+            const vOrder = await db.collection('vehicleorders')
+                .findOne({ userAuth: { $in: [2] }, _id: { '$gte': thisYearStart } }, sort)
+                .progressive || { number: 0, year, code: 'CGT' };
+            const eOrder = await db.collection('equipmentorders')
+                .findOne({ userAuth: { $in: [2] }, _id: { '$gte': thisYearStart } }, sort)
+                .progressive || { number: 0, year, code: 'CGT' };
+            if (vOrder.number >= eOrder.number) return Object.assign(vOrder, { number: vOrder.number + 1 });
+            return Object.assign(eOrder, { number: eOrder.number + 1 });
+        } else {
+            const vOrder = await db.collection('vehicleorders')
+                .findOne({ userAuth: { $in: [0, 1] }, _id: { '$gte': thisYearStart } }, sort)
+                .progressive || { number: 0, year, code: 'CGTE' };
+            const eOrder = await db.collection('equipmentorders')
+                .findOne({ userAuth: { $in: [0, 1] }, _id: { '$gte': thisYearStart } }, sort)
+                .progressive || { number: 0, year, code: 'CGTE' };
+            if (vOrder.number >= eOrder.number) return Object.assign(vOrder, { number: vOrder.number + 1 });
+            return Object.assign(eOrder, { number: eOrder.number + 1 });
+        }
+    };
+
     obj.loginUser = function ({ email, password }) {
         return new Promise(function (resolve, rej) {
             db
@@ -182,7 +233,7 @@ module.exports = function (isDeveloping) {
     };
 
     obj.rest = {
-        get: function (table, filter = '', {userId, userAuth}) {
+        get: function (table, filter = '', { userId, userAuth }) {
             const find = {};
             const filters = filter.split('&');
             filters.forEach(f => {
@@ -221,7 +272,7 @@ module.exports = function (isDeveloping) {
         },
         insert: function (table, body) {
             return new Promise(async function (resolve, rej) {
-                const o = Object.assign({created: (new Date()).toISOString()}, body);
+                const o = Object.assign({ created: (new Date()).toISOString() }, body);
                 db.collection(table).insertOne(clean(o), function (err, res) {
                     if (err)
                         rej(new Error('dbError'));
@@ -232,13 +283,14 @@ module.exports = function (isDeveloping) {
                 });
             });
         },
-        update: function (table, id, body, {userId, userAuth}) {
+        update: function (table, id, body, { userId, userAuth }) {
             return new Promise(async function (resolve, rej) {
-                const o = Object.assign({modified: (new Date()).toISOString()}, body);
+                const o = Object.assign({ modified: (new Date()).toISOString() }, body);
                 const find = { _id: getObjectId(id) };
                 if (userAuth.toString() !== '0') {
                     find.userId = getObjectId(userId);
                 }
+                console.log(find, clean(o));
                 db
                     .collection(table)
                     .findOneAndUpdate(
@@ -251,6 +303,14 @@ module.exports = function (isDeveloping) {
                             resolve(r.value);
                         });
             });
+        },
+        updateMany: function (table, filter, set) {
+            if (!filter) return Promise.reject(new Error('missing filter'));
+            if (!set) return Promise.reject(new Error('missing set'));
+            return db.collection(table).updateMany(
+                filter,
+                { $set: set }
+            );
         },
         delete: function (table, id, session) {
             return new Promise(async function (resolve, rej) {

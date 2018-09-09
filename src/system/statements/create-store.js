@@ -1,6 +1,5 @@
 export default async function ({ system, thread, gos }) {
     let status = await getStatus();
-
     system.db = await thread.execute('db-get', { url: '/all' });
 
     system.store = rx.create({
@@ -65,4 +64,9 @@ export default async function ({ system, thread, gos }) {
             gos.equipments.updateDb();
             system.store.hasLogged = logged;
         });
+
+    system.updateDb = function () {
+        gos.vehicles.updateDb();
+        gos.equipments.updateDb();
+    }
 }

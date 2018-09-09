@@ -3,6 +3,18 @@
     <ul class="demo-list-three mdl-list">
         {{#each vehicleorders}}
         <li style="clear: both; min-height: 115px;padding: 8px;" class="mdl-shadow--2dp">
+            <div  style="float: right; margin: 0 5px">
+                <button type="button"
+                        class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="vo_{{this._id}}">
+                    <i class="material-icons">more_vert</i>
+                </button>
+                <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="vo_{{this._id}}">
+                    <li class="mdl-menu__item"><fieldset
+                            class="mdl-color-text--grey-700"
+                            style="display: block;"
+                            onclick="this.form.delete('vehicleorders', '{{this._id}}')">ELIMINA</fieldset></li>
+                </ul>
+            </div>
           <img src="{{this.photo}}" class="mdl-list__item-avatar" style="height: 100px;width: auto;    float: left;"/>
           <span>{{this.version}}<br/>
             CREATO: {{formatLongDate(this.created)}} - h.{{formatTime(this.created)}}<br/>

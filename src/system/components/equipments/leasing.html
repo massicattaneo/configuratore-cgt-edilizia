@@ -1,0 +1,74 @@
+<div style="padding: 6px;">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{leasing.emitter}}" onkeyup="this.form.updateLeasing('emitter', this.value)"
+               class="mdl-textfield__input" type="text" id="leasing_emitter">
+        <label class="mdl-textfield__label" for="leasing_emitter">
+            SOCIETA’ EROGATRICE
+        </label>
+    </div>
+    <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+        <input value="{{leasing.loanPrice}}" class="mdl-currency-usd__input" type="text" id="leasing_loanPrice"
+               onkeyup="this.form.updateLeasing('loanPrice', this.value)">
+        <label class="mdl-currency-usd__label" for="leasing_loanPrice">IMPORTO FINANZIAMENTO</label>
+        <div class="mdl-currency-usd__symbol">€</div>
+        <span class="mdl-currency-usd__error">#.##</span>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{leasing.rate}}" onkeyup="this.form.updateLeasing('rate', this.value)"
+               class="mdl-textfield__input" type="text" id="leasing_rate">
+        <label class="mdl-textfield__label" for="leasing_rate">
+            TASSO (%)
+        </label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{leasing.factor}}" onkeyup="this.form.updateLeasing('factor', this.value)"
+               class="mdl-textfield__input" type="text" id="leasing_factor">
+        <label class="mdl-textfield__label" for="leasing_factor">
+            COEFFICIENTE LEASING
+        </label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{leasing.prePayment}}" onkeyup="this.form.updateLeasing('prePayment', this.value)"
+               class="mdl-textfield__input" type="text" id="leasing_prePayment">
+        <label class="mdl-textfield__label" for="leasing_prePayment">
+            ANTICIPO (%)
+        </label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{leasing.installments}}" onkeyup="this.form.updateLeasing('installments', this.value)"
+               class="mdl-textfield__input" type="text" id="leasing_installments">
+        <label class="mdl-textfield__label" for="leasing_installments">
+            NUMERO MESI
+        </label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{leasing.finalPayment}}" onkeyup="this.form.updateLeasing('finalPayment', this.value)"
+               class="mdl-textfield__input" type="text" id="leasing_finalPayment">
+        <label class="mdl-textfield__label" for="leasing_finalPayment">
+            RISCATTO FINALE (%)
+        </label>
+    </div>
+    <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+        <input value="{{leasing.contractualExpenses}}" class="mdl-currency-usd__input" type="text" id="leasing_contractualExpenses"
+               onkeyup="this.form.updateLeasing('contractualExpenses', this.value)">
+        <label class="mdl-currency-usd__label" for="leasing_contractualExpenses">SPESE CONTRATTUALI</label>
+        <div class="mdl-currency-usd__symbol">€</div>
+        <span class="mdl-currency-usd__error">#.##</span>
+    </div>
+    <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+        <input value="{{leasing.insurance}}" class="mdl-currency-usd__input" type="text" id="leasing_insurance"
+               onkeyup="this.form.updateLeasing('insurance', this.value)">
+        <label class="mdl-currency-usd__label" for="leasing_insurance">ASSICURAZIONE OBBLIGATORIA</label>
+        <div class="mdl-currency-usd__symbol">€</div>
+        <span class="mdl-currency-usd__error">#.##</span>
+    </div>
+
+    <hr/>
+    <div style="text-align: center">
+        <button type="button"
+                onclick="this.form.step('clients', 'leasing')"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">
+            PROSEGUI
+        </button>
+    </div>
+</div>

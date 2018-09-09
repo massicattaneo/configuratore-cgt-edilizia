@@ -157,7 +157,19 @@ function removeReference(obj, array) {
     });
 }
 
-module.exports = function () {
+async function appendEquipments(db, mongo, userFamily) {
+    return Object.assign({}, db, {
+        equipements: db.equipements.concat(
+            (await mongo.rest.get('equipments', `userFamily=${userFamily}`, { userAuth: 0 }))
+                .filter(item => !item.isDeleted)
+                .map(item => {
+                    return Object.assign(item, { id: item._id.toString() });
+                })
+        )
+    });
+}
+
+module.exports = function (mongo) {
     const obj = {};
     const dbx = new Dropbox({ accessToken: privateInfo.accessToken });
     obj.init = async function () {
@@ -200,13 +212,29 @@ module.exports = function () {
         removeReference(dbUA3, ['priceCGT', 'priceMin']);
     };
 
-    obj.getDb = function (userAuth = 0) {
+    function changeDiscounts(obj, user) {
+        obj.versions.forEach(function (i) {
+            i.priceOutsource = (i.priceReal / 100) * (100 - user.discount);
+        });
+        obj.equipements.forEach(function (i) {
+            i.priceOutsource = (i.priceReal / 100) * (100 - user.discount);
+        });
+        return obj;
+    }
+
+    obj.getDb = async function (userAuth = 0, user = { discount: 0 }) {
         const ua = Number(userAuth);
         switch (ua) {
-        case 0: return db;
-        case 1: return dbUA1;
-        case 2: return dbUA2;
-        case 3: return dbUA3;
+        case 0:
+            return await appendEquipments(db, mongo, 'CGTE');
+        case 1:
+            return await appendEquipments(dbUA1, mongo, 'CGTE');
+        case 2:
+            return await appendEquipments(dbUA2, mongo, 'CGT');
+        case 3:
+            return changeDiscounts(await appendEquipments(dbUA3, mongo, user.organization), user);
+        case 4:
+            return changeDiscounts(await appendEquipments(dbUA3, mongo, user.organization), user);
         }
     };
 
@@ -271,6 +299,16 @@ module.exports = function () {
             })
             .catch(function (error) {
                 console.error('UPLOAD ERROR: ', error);
+            });
+    };
+
+    obj.delete = function (fileName, subPath = '/Uploads') {
+        return dbx.filesDelete({ path: `/APPS/configuratore-cgt-edilizia${subPath}/${fileName}` })
+            .then(function (response) {
+                console.log('DELETE OK: ', response);
+            })
+            .catch(function (error) {
+                console.error('DELETE ERROR: ', error);
             });
     };
 

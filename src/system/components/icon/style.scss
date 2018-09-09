@@ -1,0 +1,19 @@
+#wrapper {
+  position: relative;
+  display: inline-block;
+  color: black;
+  text-decoration: none;
+  margin: 20px;
+  width: 120px;
+  text-align: center;
+  cursor: pointer;
+}
+
+#icon {
+  font-size: 80px;
+  display: inline-block;
+}
+
+#label {
+  position: relative;
+}

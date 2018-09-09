@@ -14,9 +14,10 @@ const fs = require('fs');
 const compression = require('compression');
 const createPdfVehicleBudget = require('./pdf/createPdfVehicleBudget');
 const createPdfEquipmentBudget = require('./pdf/createPdfEquipmentBudget');
+const createPdfLeasingBudget = require('./pdf/createPdfLeasingBudget');
 const createPdfPriceList = require('./pdf/createPdfPriceList');
 const https = require('https');
-const dropbox = require('./dropbox')();
+const dropbox = require('./dropbox')(mongo);
 const httpsOptions = {
     key: fs.readFileSync(path.resolve(__dirname + '/private/key.pem')),
     cert: fs.readFileSync(path.resolve(__dirname + '/private/cert.pem'))
@@ -28,12 +29,23 @@ const privateInfo = require('./private/privateInfo.json');
 const { createVehicleXlsx, createEquipmentXlsx } = require('./xlsx/xlsx');
 const schedule = require('node-schedule');
 const rimraf = require('rimraf');
+const { isOutsource, createOrderXlsName } = require('./shared');
 
 function noCache(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
     next();
 }
 
+function getOrderEmail(userAuth) {
+    const email = [];
+    if (!isDeveloping && Number(userAuth) <= 1)
+        email.push('amministrazionevendite@cgtedilizia.it');
+    else if (!isDeveloping && isOutsource(userAuth))
+        email.push('ordiniconcessionari@cgtedilizia.it');
+    else if (isDeveloping)
+        email.push('massi.cattaneo.it@gmail.com');
+    return email;
+}
 
 (async function () {
     const { store, db } = await mongo.connect();
@@ -128,7 +140,7 @@ function noCache(req, res, next) {
             res.end(file.fileBinary, 'binary');
         });
 
-    app.get('/api/pdf/:table/:id',
+    app.get('/api/pdf/budget/:table/:id',
         requiresLogin,
         async function (req, res) {
             const table = req.params.table;
@@ -136,12 +148,20 @@ function noCache(req, res, next) {
             const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
             const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
             if (table === 'vehiclebudgets') {
-                createPdfVehicleBudget(res, budget, dropbox.getDb(), user);
+                createPdfVehicleBudget(res, budget, await dropbox.getDb(null, user), user);
             } else if (table === 'equipmentbudgets') {
-                createPdfEquipmentBudget(res, budget, dropbox.getDb(), user);
-            } else {
-                res.send('');
+                createPdfEquipmentBudget(res, budget, await dropbox.getDb(null, user), user);
             }
+        });
+
+    app.get('/api/pdf/leasing/:table/:id',
+        requiresLogin,
+        async function (req, res) {
+            const table = req.params.table;
+            const id = req.params.id;
+            const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
+            createPdfLeasingBudget(res, Object.assign({ leasing: {} }, budget), await dropbox.getDb(null, user), user);
         });
 
     app.get('/api/price-list/',
@@ -153,7 +173,7 @@ function noCache(req, res, next) {
                 || (userAuth === 1 && (['priceMin'].indexOf(includeType) !== -1));
             const models = (req.query.models || '').split(',');
             const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
-            createPdfPriceList(res, models, dropbox.getDb(), includeMin, includeType);
+            createPdfPriceList(res, models, await dropbox.getDb(null, user), includeMin, includeType);
         });
 
     app.get('/api/email/:table/:id',
@@ -166,34 +186,53 @@ function noCache(req, res, next) {
             const email = [budget.client.email, user.email];
             const pdfBudget = dropbox.uniqueTempFile();
             const file = fs.createWriteStream(pdfBudget);
+            const db1 = await dropbox.getDb(null, user);
             if (table === 'vehiclebudgets') {
-                createPdfVehicleBudget(file, budget, dropbox.getDb(), user);
+                createPdfVehicleBudget(file, budget, db1, user);
             } else {
-                createPdfEquipmentBudget(file, budget, dropbox.getDb(), user);
+                createPdfEquipmentBudget(file, budget, db1, user);
+            }
+            const attachments = [{ filename: 'Offerta.pdf', path: pdfBudget }];
+            await (new Promise(r => setTimeout(r, 1000)));
+            if (budget.leasing && budget.leasing.loanPrice) {
+                const pdfLeasing = dropbox.uniqueTempFile();
+                const fileLeasing = fs.createWriteStream(pdfLeasing);
+                createPdfLeasingBudget(fileLeasing,
+                    Object.assign({ leasing: {} }, budget), await dropbox.getDb(null, user), user);
+                attachments.push({
+                    filename: 'Offerta Finanziamento Leasing.pdf',
+                    path: pdfLeasing
+                });
             }
             await (new Promise(r => setTimeout(r, 1000)));
-            const attachments = [{
-                filename: 'Offerta.pdf',
-                path: pdfBudget
-            }];
             attachments.push(...(await dropbox.getAttachments(table, budget)));
-            mailer.send(createTemplate('budget', { table, budget, user, email, attachments, dbx: dropbox.getDb() }));
+            mailer.send(createTemplate('budget', { table, budget, user, email, attachments, dbx: db1 }));
             res.send('ok');
         });
 
+    app.post('/api/mail/:type', function (req, res) {
+        const type = req.params.type;
+        switch (type) {
+        case 'order-delete':
+            mailer.send(createTemplate(type, { email: getOrderEmail(req.session.userAuth), order: req.body.order }));
+        }
+        res.send('ok');
+    });
+
     app.get('/api/db/all',
         noCache,
-        function (req, res) {
-            if (isLogged(req))
-                res.send(dropbox.getDb(req.session.userAuth));
-            else
+        async function (req, res) {
+            if (isLogged(req)) {
+                const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
+                res.send(await dropbox.getDb(req.session.userAuth, user));
+            } else
                 res.send({
                     codes: [],
                     equipements: [],
                     familys: [],
                     models: [],
                     versions: [],
-                    retailers: dropbox.getDb().retailers.map(({ id, name }) => {
+                    retailers: (await dropbox.getDb()).retailers.map(({ id, name }) => {
                         return { id, name };
                     })
                 });
@@ -207,7 +246,7 @@ function noCache(req, res, next) {
             const { _id } = await mongo.rest.insert('uploads', { name });
             const url = `${_id}${ext}`;
             const file = await mongo.rest.update('uploads', _id, { url }, { userAuth: 0 });
-            dropbox.updload(url, req.files.exchangeUpload.data);
+            await dropbox.updload(url, req.files.exchangeUpload.data);
             res.send(file);
         });
 
@@ -215,7 +254,8 @@ function noCache(req, res, next) {
         requiresLogin,
         async function (req, res) {
             const id = req.params.id;
-            await mongo.rest.delete('uploads', id, { userAuth: 0 });
+            const file = await mongo.rest.delete('uploads', id, { userAuth: 0 });
+            await dropbox.delete(file.url);
             res.send('ok');
         });
 
@@ -235,6 +275,15 @@ function noCache(req, res, next) {
                 });
         });
 
+    function getUserFamily(user) {
+        const ua = Number(user.userAuth);
+        if (ua === 0) return 'CGTE';
+        if (ua === 1) return 'CGTE';
+        if (ua === 2) return 'CGT';
+        if (ua === 3) return user.organization;
+        if (ua === 4) return user.organization;
+    }
+
     app.post('/api/rest/:table',
         requiresLogin,
         filterUserAuth('post'),
@@ -242,7 +291,8 @@ function noCache(req, res, next) {
             const table = req.params.table;
             const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
             const userId = req.session.userId;
-            mongo.rest.insert(table, Object.assign(req.body, { ip, userId }))
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
+            mongo.rest.insert(table, Object.assign(req.body, { ip, userId, userFamily: getUserFamily(user) }))
                 .then(function (cash) {
                     res.send(cash);
                 })
@@ -288,10 +338,12 @@ function noCache(req, res, next) {
         requiresLogin,
         async function (req, res) {
             const table = req.params.table;
-            const order = await mongo.rest.insert(table, Object.assign({ userId: req.session.userId }, req.body));
+            const userId = req.session.userId;
+            const user = (await mongo.rest.get('users', `_id=${userId}`, { userAuth: 0 }))[0];
+            const progressive = await mongo.getOrderProgressive(user.userAuth, user.organization);
+            const order = await mongo.rest.insert(table, Object.assign({ userId, progressive }, req.body));
             const budget = await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, { ordered: true }, req.session);
-            const dbx = dropbox.getDb();
-            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
+            const dbx = await dropbox.getDb(null, user);
             const xlsxPath = dropbox.uniqueTempFile('xlsx');
             const attachments = [];
             if (table === 'vehicleorders') {
@@ -300,15 +352,11 @@ function noCache(req, res, next) {
                 attachments.push(...createEquipmentXlsx(budget, dbx, order, user, xlsxPath));
             }
             attachments.push(...(await dropbox.getAttachments(table, budget, order)));
-            const email = [];
-            if (!isDeveloping && Number(req.session.userAuth) <= 1)
-                email.push('amministrazionevendite@cgtedilizia.it');
-            else if (!isDeveloping && Number(req.session.userAuth) === 3)
-                email.push('ordiniconcessionari@cgtedilizia.it');
+            const email = getOrderEmail(req.session.userAuth);
             if (order.emailMe === 'on')
                 email.push(user.email);
             mailer.send(createTemplate('order', { table, order, budget, user, dbx, attachments, email }));
-            dropbox.updload(`Ordine_${order.created.substr(0, 16)}_${user.name}_${user.surname}.xlsx`, fs.readFileSync(xlsxPath), '/Ordini');
+            dropbox.updload(createOrderXlsName(order, user), fs.readFileSync(xlsxPath), '/Ordini');
             res.send(order);
         });
 

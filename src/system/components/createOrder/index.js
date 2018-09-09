@@ -15,7 +15,7 @@ export default async function ({ locale, system, thread }) {
     let table;
 
     const store = rx.create({
-        files: [],
+        files: system.getStorage('orderFiles') || [],
         exchange: {
             overvalue: '',
             date: '',
@@ -36,6 +36,10 @@ export default async function ({ locale, system, thread }) {
         deliveryDate: '',
         emailMe: '',
         notes: ''
+    });
+
+    rx.connect({ orderFiles: () => store.files }, function ({ orderFiles }) {
+        system.setStorage({ orderFiles });
     });
 
     function refresh() {
@@ -77,9 +81,12 @@ export default async function ({ locale, system, thread }) {
             form.removeFile = async function (id) {
                 const file = store.files.find(f => f._id === id);
                 if (file) {
+                    system.store.loading = true;
                     await RetryRequest('/api/upload/' + id, {}).send('DELETE');
                     setTimeout(function () {
                         store.files.splice(store.files.indexOf(file), 1);
+                        subView.clear('files').appendTo('files', filesTpl, [], { files: store.files });
+                        system.store.loading = false;
                     }, 100);
                 }
             };
@@ -95,6 +102,20 @@ export default async function ({ locale, system, thread }) {
                 updateValues();
             };
 
+            form.uploadFile = async function () {
+                system.store.loading = true;
+                const file = await RetryRequest('/api/upload', { timeout: 60000 }).post(new FormData(this))
+                    .catch(function (e) {
+                        system.throw('generic-error');
+                        system.store.loading = false;
+                    });
+                setTimeout(function () {
+                    store.files.push(JSON.parse(file.responseText));
+                    subView.clear('files').appendTo('files', filesTpl, [], { files: store.files });
+                    system.store.loading = false;
+                }, 100);
+            };
+
             form.save = async function (table, id) {
                 if (!store.price) return system.throw('missingOrderPrice');
                 if (!store.deliveryDate) return system.throw('missingDeliveryDate');
@@ -108,6 +129,7 @@ export default async function ({ locale, system, thread }) {
                 system.store[table].push(Object.assign({ ordered: true }, b));
                 system.store[mTable].push(JSON.parse(res.responseText));
                 system.store.loading = false;
+                system.removeStorage('orderFiles');
                 system.navigateTo(locale.get('urls.orders.href'));
             };
 
@@ -115,6 +137,7 @@ export default async function ({ locale, system, thread }) {
         if (subView && subView.get('files')) {
             subView.clear('files').appendTo('files', filesTpl, [], { files: store.files });
         }
+        componentHandler.upgradeDom();
     }
 
     view.style();

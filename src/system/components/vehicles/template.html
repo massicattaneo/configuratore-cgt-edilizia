@@ -66,6 +66,16 @@
 
         </div>
     </fieldset>
+    <fieldset #leasingswrapper id="leasings"
+            onclick="this.form.step('leasings')"
+            class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div #leasingstitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            {{vehicles.leasings.title}}
+        </div>
+        <div #leasings>
+
+        </div>
+    </fieldset>
     <fieldset #clientswrapper id="clients"
             onclick="this.form.step('clients')"
             class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">

@@ -1,8 +1,9 @@
 const PdfDoc = require('pdfkit');
 const path = require('path');
-const loc = require('../static/localization/system/it.json');
-const { calculateTotal, calculateEqTotal, calculateEqOfferedTotal } = require('../shared');
+const { calculateEqTotal, calculateEqOfferedTotal, isOutsource } = require('../shared');
 const { addHeader, getLongDate, toCurrency } = require('./addHeader');
+const sizeOf = require('image-size');
+
 
 module.exports = function createPdfOrder(res, budget, dbx, user) {
     const doc = new PdfDoc();
@@ -22,7 +23,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
     const marginLeft = 30;
     const bodyLineHeight = 14;
     const spettMarginLeft = 300;
-    let pos = addHeader(user, doc,dbx);
+    let pos = addHeader(user, doc, dbx);
 
     /** SPETT.LE */
     doc
@@ -84,7 +85,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             .text(`${eq.name}`, marginLeft + 180, pos + 30);
     });
 
-    pos += 80;
+    pos += 70;
     if (doc.y > 500) {
         doc.addPage();
         pos = 40;
@@ -92,31 +93,32 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
 
     doc.fontSize(9);
     const summary = {
-        notes: 'Note',
         payment: 'Pagamento',
         availability: 'Disponibilità',
         validity: 'Validità'
     };
 
-    Object.keys(summary).forEach(function (key) {
-        if (budget.summary[key]) {
-            pos = doc.y + 4;
+    Object.keys(summary)
+        .filter(key => budget.summary[key])
+        .forEach(function (key, index) {
+            pos = index === 0 ? pos : doc.y + 4;
             doc
                 .font('Helvetica')
                 .text(`${summary[key]}:`, marginLeft, pos)
                 .text(budget.summary[key] + (key === 'validity' ? 'gg' : ''), marginLeft + 100, pos);
-        }
-    });
+        });
 
-    pos +=20;
-    doc
-        .rect(marginLeft, pos, docWidth - (marginLeft * 2), 24)
-        .stroke('black')
-        .font('Helvetica-Bold')
-        .text('PREZZO DI LISTINO', marginLeft + 20, (pos += 8))
-        .text(toCurrency(calculateEqTotal(budget, dbx)), marginLeft + 250, pos, { align: 'right', width: 200 });
+    if (budget.client.showPriceReal) {
+        pos += 20;
+        doc
+            .rect(marginLeft, pos, docWidth - (marginLeft * 2), 24)
+            .stroke('black')
+            .font('Helvetica-Bold')
+            .text('PREZZO DI LISTINO', marginLeft + 20, (pos += 8))
+            .text(toCurrency(calculateEqTotal(budget, dbx)), marginLeft + 250, pos, { align: 'right', width: 200 });
+    }
 
-    pos+=20;
+    pos += 20;
     doc
         .rect(marginLeft, pos, docWidth - (marginLeft * 2), 24)
         .stroke('black')
@@ -124,15 +126,25 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .text('PREZZO NETTO A VOI RISERVATO', marginLeft + 20, (pos += 8))
         .text(toCurrency(calculateEqOfferedTotal(budget, dbx)), marginLeft + 250, pos, { align: 'right', width: 200 });
 
-    pos+=20;
-    doc.text('Restiamo a disposizione per ogni chiarimento e con l’occasione Vi inviamo i ns più Cordiali Saluti.', marginLeft, (pos +=20));
+    if (budget.summary.notes) {
+        pos += 40;
+        doc
+            .fontSize(9)
+            .font('Helvetica')
+            .text(`Note:`, marginLeft, pos)
+            .text(budget.summary.notes, marginLeft + 100, pos);
+        pos = doc.y;
+    }
 
-    doc.text(`${user.name} ${user.surname || ''}`, 200, (pos+=30), {align: 'center'});
-    doc.text(`${user.email} - ${user.tel}`, 200, (pos+=13), {align: 'center'});
+    pos += 20;
+    doc.text('Restiamo a disposizione per ogni chiarimento e con l’occasione Vi inviamo i ns più Cordiali Saluti.', marginLeft, (pos += 20));
+
+    doc.text(`${user.name} ${user.surname || ''}`, 200, (pos += 30), { align: 'center' });
+    doc.text(`${user.email} - ${user.tel}`, 200, (pos += 13), { align: 'center' });
 
     if (user.type == 1) doc.font('Helvetica-Bold').text('CGT Edilizia Spa', 200, (pos += 13), { align: 'center' });
     if (user.type == 2) doc.font('Helvetica-Bold').text('Compagnia Generale Trattori S.p.A.', 200, (pos += 13), { align: 'center' });
-    if (user.type == 3) doc.font('Helvetica-Bold').text(retailer.name || '', 200, (pos += 13), { align: 'center' });
+    if (isOutsource(user.type)) doc.font('Helvetica-Bold').text(retailer.name || '', 200, (pos += 13), { align: 'center' });
 
     doc.end();
 };

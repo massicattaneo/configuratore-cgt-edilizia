@@ -68,3 +68,47 @@ select {    height: 26px;}
 .alternate-table tr:hover {
     background-color: rgba(174, 14, 14, 0.1);
 }
+
+table.alternate-table.blocks {
+    border: 0;
+}
+
+table.alternate-table.blocks caption {
+    font-size: 1.3em;
+}
+
+table.alternate-table.blocks thead {
+    border: none;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+table.alternate-table.blocks tr {
+    border-bottom: 3px solid #ddd;
+    display: block;
+    margin-bottom: .625em;
+}
+
+table.alternate-table.blocks td {
+    border-bottom: 1px solid #ddd;
+    display: block !important;
+    font-size: .8em;
+    text-align: left;
+}
+
+table.alternate-table.blocks td::before {
+    content: attr(data-label);
+    float: left;
+    font-weight: bold;
+    text-transform: uppercase;
+    min-width: 150px;
+}
+
+table.alternate-table.blocks td:last-child {
+    border-bottom: 0;
+}

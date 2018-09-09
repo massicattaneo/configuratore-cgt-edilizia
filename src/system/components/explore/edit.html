@@ -1,0 +1,43 @@
+<dialog class="mdl-dialog" style="min-width: 320px">
+    <form #form>
+        <div class="mdl-dialog__content">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="code" value="{{code}}">
+                <label class="mdl-textfield__label" for="code">
+                    CODICE
+                </label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="name" value="{{name}}">
+                <label class="mdl-textfield__label" for="name">
+                    DESCRIZIONE
+                </label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="constructorId" value="{{constructorId}}">
+                <label class="mdl-textfield__label" for="constructorId">
+                    COSTRUTTORE
+                </label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="time" value="{{time}}">
+                <label class="mdl-textfield__label" for="time">
+                    TEMPI DI CONSEGNA
+                </label>
+            </div>
+            <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+                <input class="mdl-currency-usd__input" type="text" id="priceReal" value="{{priceReal}}">
+                <label class="mdl-currency-usd__label" for="priceReal">PREZZO DI LISTINO</label>
+                <div class="mdl-currency-usd__symbol">€</div>
+                <span class="mdl-currency-usd__error">#.##</span>
+            </div>
+        </div>
+        <div class="mdl-dialog__actions">
+            <button type="button" class="mdl-button" onclick="this.form.save()">SALVA</button>
+            <button type="button" class="mdl-button close" onclick="this.form.close()">ANNULLA</button>
+            <button type="button" class="mdl-button close mdl-color--red mdl-color-text--white"
+                    style="display: {{showDelete}}"
+                    onclick="this.form.save(true)">BORRAR</button>
+        </div>
+    </form>
+</dialog>

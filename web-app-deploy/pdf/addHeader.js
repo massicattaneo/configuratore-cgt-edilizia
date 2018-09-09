@@ -1,6 +1,7 @@
 const path = require('path');
 const loc = require('../static/localization/system/it.json');
 const globalize = require('../static/localization/globalize/it.json');
+const { isOutsource } = require('../shared');
 
 module.exports = {
     addHeader: function (user, doc, dbx) {
@@ -10,7 +11,7 @@ module.exports = {
         const marginLeft = 30;
 
         let pos = 0;
-        if (user.type == 3) {
+        if (isOutsource(user.type)) {
             const retailer = dbx.retailers.find(r => r.id === user.organization);
             doc
                 .image(path.resolve(`${__dirname}/..${retailer.src}`), marginLeft, 20, { height: 60 });
@@ -35,7 +36,7 @@ module.exports = {
                 .text('Direzione Generale - Milano - 20090 Vimodrone', headerMarginLeft, pos)
                 .text('Strada Statale Padana Superiore, 19', headerMarginLeft, (pos += headerLineHeight))
                 .text(`Tel. +39 02 27427.1 - Fax. +39 02 27427.554`, headerMarginLeft, (pos += headerLineHeight))
-                .text(`www.cgt.it`, headerMarginLeft, (pos += headerLineHeight))
+                .text(`www.cgt.it`, headerMarginLeft, (pos += headerLineHeight));
 
             pos = 60;
             return pos;
@@ -66,7 +67,7 @@ module.exports = {
     getLongDate: function getLongDate(date) {
         return `${globalize[`day_${date.getDay()}`]}, ${date.getDate()} ${globalize[`month_${date.getMonth()}`]} ${date.getFullYear()}`;
     },
-    toCurrency: function toCurrency(number, currency = 'Euro') {
+    toCurrency: function toCurrency(number = '0', currency = 'Euro') {
         const string = parseFloat(number).toFixed(2);
         const integer = string.split('.')[0].split('').reverse().reduce((array, item, index) => {
             const number = Math.floor(index / 3);
@@ -76,5 +77,8 @@ module.exports = {
         }, []).map(a => a.reverse()).reverse().join('.').replace(/,/g, '');
         const decimals = string.split('.')[1];
         return `${currency} ${integer},${decimals}`;
+    },
+    toPercentage: function (string = '0', fractionDigits = 2) {
+        return `${Number(string).toFixed(fractionDigits)}%`;
     }
 };

@@ -1,3 +1,4 @@
+const { isOutsourceDirection, isOutsource } = require('./shared');
 const createTemplate = require('./mailer/createTemplate');
 const { confirmRegistrationUrl, modifyUserUrl, registerUrl, loginUrl, logoutUrl, logStatusUrl, recoverUrl, resetUrl, deleteAccountUrl } = require('./serverInfo');
 const ObjectId = require('mongodb').ObjectID;
@@ -7,8 +8,12 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
     app.put(modifyUserUrl,
         requiresLogin,
         async function (req, res) {
-            const { name, surname, organization, tel } = req.body;
-            const data = await mongo.rest.update('users', req.session.userId, { name, surname, organization, tel }, {userAuth: 0});
+            const { name, surname, organization, tel, discount } = req.body;
+            const data = await mongo.rest
+                .update('users', req.session.userId, { name, surname, tel }, { userAuth: 0 });
+            if (isOutsourceDirection(req.session.userAuth)) {
+                await mongo.rest.updateMany('users', { organization }, { discount });
+            }
             res.send(data);
         });
 
@@ -40,8 +45,8 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
                 user,
                 vehiclebudgets: vehiclebudgets,
                 equipmentbudgets: equipmentbudgets,
-                vehicleorders: vehicleorders,
-                equipmentorders: equipmentorders
+                vehicleorders: vehicleorders.filter(o => !o.deleted),
+                equipmentorders: equipmentorders.filter(o => !o.deleted)
             });
             res.send(data);
         });
@@ -89,7 +94,14 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
     app.post(registerUrl,
         bruteforce.prevent,
         async function response(req, res) {
-            mongo.insertUser(req.body)
+            let discount = 0;
+            if (isOutsource(req.body.type)) {
+                const discountUser = await mongo.rest.get('users', `organization=${req.body.organization}`, { userAuth: 0 });
+                if (discountUser.length) {
+                    discount = discountUser[0].discount;
+                }
+            }
+            mongo.insertUser(Object.assign(req.body, { discount }))
                 .then(function (data) {
                     mailer.send(createTemplate('confirmEmail', data));
                     res.send('ok');
