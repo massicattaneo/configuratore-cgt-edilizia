@@ -8,6 +8,7 @@ const marginLeft = 30;
 const labels = {
     priceMin: 'mv',
     priceOutsource: 'conc',
+    priceOriginalOutsource: 'mv',
     priceCGT: 'cgt'
 };
 //305.5E2CR, 308E2CR

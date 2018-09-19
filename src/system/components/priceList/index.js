@@ -3,6 +3,7 @@ import template from './template.html';
 import loadedTpl from './loaded.html';
 import * as style from './style.scss';
 import { RetryRequest } from '../../../../modules/gml-http-request';
+import { getPriceType } from '../../../../web-app-deploy/shared';
 
 function htmlListToArray(elements) {
     const arr = [];
@@ -20,7 +21,8 @@ export default async function ({ locale, system, thread }) {
     view.get().download = async function (includeType) {
         const arr = htmlListToArray(view.get().models).filter(el => el.checked);
         if (arr.length) {
-            const url = `/api/price-list/?models=${arr.map(m => m.value).join(',')}&includeType=${includeType}`;
+            const type = includeType === 'priceMin' ? getPriceType(system.store.userAuth) : includeType;
+            const url = `/api/price-list/?models=${arr.map(m => m.value).join(',')}&includeType=${type}`;
             window.open(url);
         }
     };
@@ -49,7 +51,12 @@ export default async function ({ locale, system, thread }) {
                 .start()
                 .then(function (images) {
                     const params = Object.assign({
-                        minimumOn: Number(system.store.userAuth) <= 1 ? 'inline-block' : 'none',
+                        minimumOn: Number(system.store.userAuth) <= 1
+                        || Number(system.store.userAuth) === 3
+                        || Number(system.store.userAuth) === 4
+                            ? 'inline-block' : 'none',
+                        displayOriginalOutsource: Number(system.store.userAuth) === 0 || Number(system.store.userAuth) === 3
+                            ? 'inline-block' : 'none',
                         displaySuperAdmin: Number(system.store.userAuth) === 0 ? 'inline-block' : 'none',
                         familys: system.db.familys.map(f => Object.assign({
                             checkboxes: system.db.models

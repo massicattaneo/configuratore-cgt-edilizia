@@ -9,6 +9,7 @@ const db = {};
 const dbUA1 = {};
 const dbUA2 = {};
 const dbUA3 = {};
+const dbUA4 = {};
 const path = require('path');
 const access = require('./private/mongo-db-access');
 const backup = require('mongodb-backup');
@@ -81,6 +82,7 @@ const versionDataStructure = {
     priceReal: { column: 'Listino', convert: convertCurrency },
     priceMin: { column: 'Minimo', convert: convertCurrency },
     priceOutsource: { column: 'Prezzo concessionario', convert: convertCurrency },
+    priceOriginalOutsource: { column: 'Prezzo concessionario', convert: convertCurrency },
     priceCGT: { column: 'Prezzo CGT', convert: convertCurrency },
     available: 'Disponibilit',
     time: 'Tempi da fabbrica',
@@ -112,6 +114,7 @@ const equipementDataStructure = {
     priceReal: { column: 'Listino', convert: convertCurrency },
     priceMin: { column: 'Minimo', convert: convertCurrency },
     priceOutsource: { column: 'Prezzo concessionario', convert: convertCurrency },
+    priceOriginalOutsource: { column: 'Prezzo concessionario', convert: convertCurrency },
     priceCGT: { column: 'Prezzo CGT', convert: convertCurrency },
     familys: { column: 'Famiglia macchine', convert: string => string.split('-') },
     equipmentFamily: 'Famiglia attrezzature',
@@ -207,9 +210,11 @@ module.exports = function (mongo) {
         Object.assign(dbUA1, JSON.parse(JSON.stringify(db)));
         Object.assign(dbUA2, JSON.parse(JSON.stringify(db)));
         Object.assign(dbUA3, JSON.parse(JSON.stringify(db)));
-        removeReference(dbUA1, ['priceOutsource', 'priceCGT']);
-        removeReference(dbUA2, ['priceMin', 'priceOutsource']);
+        Object.assign(dbUA4, JSON.parse(JSON.stringify(db)));
+        removeReference(dbUA1, ['priceOutsource', 'priceCGT', 'priceOriginalOutsource']);
+        removeReference(dbUA2, ['priceMin', 'priceOutsource', 'priceOriginalOutsource']);
         removeReference(dbUA3, ['priceCGT', 'priceMin']);
+        removeReference(dbUA4, ['priceCGT', 'priceMin', 'priceOriginalOutsource']);
     };
 
     function changeDiscounts(o, user) {
@@ -238,7 +243,7 @@ module.exports = function (mongo) {
         case 3:
             return changeDiscounts(await appendEquipments(dbUA3, mongo, user.organization), user);
         case 4:
-            return changeDiscounts(await appendEquipments(dbUA3, mongo, user.organization), user);
+            return changeDiscounts(await appendEquipments(dbUA4, mongo, user.organization), user);
         }
     };
 

@@ -148,9 +148,9 @@ function getOrderEmail(userAuth) {
             const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
             const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
             if (table === 'vehiclebudgets') {
-                createPdfVehicleBudget(res, budget, await dropbox.getDb(null, user), user);
+                createPdfVehicleBudget(res, budget, await dropbox.getDb(req.session.userAuth, user), user);
             } else if (table === 'equipmentbudgets') {
-                createPdfEquipmentBudget(res, budget, await dropbox.getDb(null, user), user);
+                createPdfEquipmentBudget(res, budget, await dropbox.getDb(req.session.userAuth, user), user);
             }
         });
 
@@ -161,7 +161,7 @@ function getOrderEmail(userAuth) {
             const id = req.params.id;
             const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
             const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
-            createPdfLeasingBudget(res, Object.assign({ leasing: {} }, budget), await dropbox.getDb(null, user), user);
+            createPdfLeasingBudget(res, Object.assign({ leasing: {} }, budget), await dropbox.getDb(req.session.userAuth, user), user);
         });
 
     app.get('/api/price-list/',
@@ -169,11 +169,13 @@ function getOrderEmail(userAuth) {
         async function (req, res) {
             const userAuth = Number(req.session.userAuth);
             const includeType = req.query.includeType;
-            const includeMin = (userAuth === 0 && (['priceMin', 'priceOutsource', 'priceCGT'].indexOf(includeType) !== -1))
-                || (userAuth === 1 && (['priceMin'].indexOf(includeType) !== -1));
+            const includeMin = (userAuth === 0 && (['priceMin', 'priceOutsource', 'priceCGT', 'priceOriginalOutsource'].indexOf(includeType) !== -1))
+                || (userAuth === 1 && (['priceMin'].indexOf(includeType) !== -1))
+                || (userAuth === 3 && (['priceOriginalOutsource', 'priceOutsource'].indexOf(includeType) !== -1))
+                || (userAuth === 4 && (['priceOutsource'].indexOf(includeType) !== -1));
             const models = (req.query.models || '').split(',');
             const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
-            createPdfPriceList(res, models, await dropbox.getDb(null, user), includeMin, includeType);
+            createPdfPriceList(res, models, await dropbox.getDb(userAuth, user), includeMin, includeType);
         });
 
     app.get('/api/email/:table/:id',
@@ -186,7 +188,7 @@ function getOrderEmail(userAuth) {
             const email = [budget.client.email, user.email];
             const pdfBudget = dropbox.uniqueTempFile();
             const file = fs.createWriteStream(pdfBudget);
-            const db1 = await dropbox.getDb(null, user);
+            const db1 = await dropbox.getDb(req.session.userAuth, user);
             if (table === 'vehiclebudgets') {
                 createPdfVehicleBudget(file, budget, db1, user);
             } else {
@@ -198,7 +200,7 @@ function getOrderEmail(userAuth) {
                 const pdfLeasing = dropbox.uniqueTempFile();
                 const fileLeasing = fs.createWriteStream(pdfLeasing);
                 createPdfLeasingBudget(fileLeasing,
-                    Object.assign({ leasing: {} }, budget), await dropbox.getDb(null, user), user);
+                    Object.assign({ leasing: {} }, budget), await dropbox.getDb(req.session.userAuth, user), user);
                 attachments.push({
                     filename: 'Offerta Finanziamento Leasing.pdf',
                     path: pdfLeasing
