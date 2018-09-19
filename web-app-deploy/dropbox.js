@@ -212,14 +212,18 @@ module.exports = function (mongo) {
         removeReference(dbUA3, ['priceCGT', 'priceMin']);
     };
 
-    function changeDiscounts(obj, user) {
-        obj.versions.forEach(function (i) {
-            i.priceOutsource = (i.priceReal / 100) * (100 - user.discount);
+    function changeDiscounts(o, user) {
+        o.versions = o.versions.map(function (i) {
+            return Object.assign({}, i, {
+                priceOutsource: Number(((i.priceOutsource / 100) * (100 + user.discount)).toFixed(2))
+            });
         });
-        obj.equipements.forEach(function (i) {
-            i.priceOutsource = (i.priceReal / 100) * (100 - user.discount);
+        o.equipements = o.equipements.map(function (i) {
+            return Object.assign({}, i, {
+                priceOutsource: Number(((i.priceOutsource / 100) * (100 + user.discount)).toFixed(2))
+            });
         });
-        return obj;
+        return o;
     }
 
     obj.getDb = async function (userAuth = 0, user = { discount: 0 }) {

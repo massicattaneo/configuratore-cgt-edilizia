@@ -21,7 +21,13 @@ export default async function ({ locale, system, thread }) {
                 discount
             }));
         system.store.loading = false;
-        system.throw('custom', { message: 'Informazioni salvate' });
+        console.log(system.store.userAuth)
+        if (Number(system.store.userAuth) === 3) {
+            setTimeout(() => location.reload(), 1000);
+            system.throw('custom', { message: 'Informazioni salvate - Il configuratore verrá ricaricato in automatico' });
+        } else {
+            system.throw('custom', { message: 'Informazioni salvate' });
+        }
     };
 
     rx.connect
