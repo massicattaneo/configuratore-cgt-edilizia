@@ -73,6 +73,10 @@ table.alternate-table.blocks {
     border: 0;
 }
 
+table.alternate-table.blocks th {
+    display: none;
+}
+
 table.alternate-table.blocks caption {
     font-size: 1.3em;
 }

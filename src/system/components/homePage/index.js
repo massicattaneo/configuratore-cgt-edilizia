@@ -9,6 +9,7 @@ import { isOutsource } from '../../../../web-app-deploy/shared';
 export default async function ({ locale, system }) {
     const view = HtmlView(template);
     let users;
+    let content;
 
     const model = rx.create({
         filter: '',
@@ -56,6 +57,9 @@ export default async function ({ locale, system }) {
         system.throw('custom', { message: 'Utenza aggiornata' });
         system.store.loading = false;
     };
+    view.get().block = function (bool) {
+        content.get('table').className = bool ? 'alternate-table blocks' : 'alternate-table';
+    };
 
     rx.connect
         .partial({
@@ -66,6 +70,15 @@ export default async function ({ locale, system }) {
         .filter(({ a }) => a !== undefined && a.toString() === '0')
         .subscribe(function () {
             view.appendTo('filter', `<div>
+            <fieldset class="mdl-color-text--blue-grey-400 material-icons"
+                    onclick="this.form.block(true)"
+                    style="font-size: 38px; cursor: pointer;vertical-align: middle;" role="presentation">view_module
+            </fieldset>
+            <span>&nbsp;</span>
+            <fieldset class="mdl-color-text--blue-grey-400 material-icons"
+                    onclick="this.form.block(false)"
+                    style="font-size: 38px; cursor: pointer;vertical-align: middle;" role="presentation">view_list
+            </fieldset>
                 <label for="user-filter">FILTRA:</label>
                 <input autocomplete="off" type="text" onkeyup="this.form.filter(this)" id="user-filter" style="width: 200px"/>
             <hr/>
@@ -134,7 +147,7 @@ export default async function ({ locale, system }) {
                 item[`sort_${key}`] = model.order === key ? `mdl-data-table__header--sorted-${model.ascending ? 'ascending': 'descending'}` : '';
                 return Object.assign(ret, item);
             }, {});
-            view.clear('list').appendTo('list', adminTpl, style, Object.assign({ users: us }, orders));
+            content = view.clear('list').appendTo('list', adminTpl, style, Object.assign({ users: us }, orders));
         } else {
             view.appendTo('list', noAdminTpl, style, locale.get());
         }
