@@ -85,7 +85,7 @@ function getter(fn) {
                 if (props[key] && props[key] instanceof Array) {
                     store[key].splice(0, store[key].length);
                     store[key].push(...props[key]);
-                } else if (props[key]) {
+                } else if (props[key] !== undefined) {
                     store[key] = props[key];
                 }
             });
