@@ -8,7 +8,7 @@ module.exports = function({grayColor, primaryColor, host, footer, table, budget,
             Alla Cortese Attenzione Sig. ${budget.client.pa}
         </p>
         <p>
-            In allegato puo' trovare il dettaglio dell'offerta da Lei rischiesta.
+            In allegato puo' trovare il dettaglio dell'offerta da Lei richiesta.
         </p>
         <p>
             Cordiali Saluti
