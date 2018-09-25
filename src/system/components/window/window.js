@@ -30,7 +30,7 @@ export default async function ({ thread, system, context, parent, title, locale,
         }, function t({ deviceType, height, cart, windowHeight }) {
             const wrapperHeight = windowHeight - 15;
             const isDesktop = deviceType === 'desktop';
-            const contHeight = (isDesktop ? Number(wrapperHeight) : height) - 150;
+            const contHeight = (isDesktop ? Number(wrapperHeight) : height) - 100;
             view.style(deviceType, {
                 bar: { height: barHeight },
                 container: { height: contHeight },

@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const webmail = require('../private/webmail');
+const createTemplate = require('./createTemplate');
 
 module.exports = function () {
     const obj = {};
@@ -12,7 +13,7 @@ module.exports = function () {
             user: webmail.user,
             pass: webmail.password
         },
-        tls: {rejectUnauthorized: false}
+        tls: { rejectUnauthorized: false }
     });
 
     obj.send = function (mailOptions) {
@@ -22,11 +23,15 @@ module.exports = function () {
             }
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
-                    return reject(new Error('mail-error'))
+                    return reject(new Error('mail-error'));
                 }
                 res(info);
             });
-        })
+        });
+    };
+
+    obj.internalError = function (message) {
+        obj.send(createTemplate('internal-error', { message }));
     };
 
     return obj;

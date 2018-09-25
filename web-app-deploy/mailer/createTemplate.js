@@ -7,6 +7,7 @@ const budget = require('./templates/budget');
 const order = require('./templates/order');
 const orderDelete = require('./templates/orderDelete');
 const webmail = require('../private/webmail');
+const emailsAddresses = require('../private/emails');
 
 module.exports = function (type, emailParams) {
     const email = emailParams.email;
@@ -15,7 +16,7 @@ module.exports = function (type, emailParams) {
     switch (type) {
     case 'confirmEmail':
         return {
-            to: 'samuele.albertini@cgtedilizia.it; carlotta.beccaro@cgtedilizia.it; francesco.cerizzi@cgtedilizia.it', // list of receivers
+            to: emailsAddresses.confirmEmail, // list of receivers
             subject: 'CONFIGURATORE CGT - CREAZIONE UTENZA', // Subject line
             text: '', // plain text body
             html: confirm(params)
@@ -57,6 +58,14 @@ module.exports = function (type, emailParams) {
             subject: `ELIMINAZIONE ORDINE`,
             text: '', // plain text body
             html: orderDelete(params),
+            attachments: []
+        };
+    case 'internal-error':
+        return {
+            to: emailsAddresses.internalErrors,
+            subject: `ERRORE NEL DATABASE`,
+            text: '', // plain text body
+            html: `CONTROLLA QUESTO: ${emailParams.message}`,
             attachments: []
         };
     }

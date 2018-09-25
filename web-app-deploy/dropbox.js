@@ -17,6 +17,7 @@ const devUri = `mongodb://localhost:27017/cgt-edilizia`;
 const prodUri = `mongodb://${access.config.mongo.user}:${encodeURIComponent(access.password)}@${access.config.mongo.hostString}`;
 const nodeJsZip = require('nodeJs-zip');
 const rimraf = require('rimraf');
+const mailer = require('./mailer/mailer')();
 
 function uniqueTempFile(ext = 'pdf') {
     let fileName;
@@ -254,16 +255,22 @@ module.exports = function (mongo) {
             if (version.depliants) {
                 const url = `/APPS/configuratore-cgt-edilizia/${version.depliants.replace(/\\/g, '/')}.pdf`;
                 const pdfSpecs = uniqueTempFile();
-                const i = await dbx.filesDownload({ path: url });
-                fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
-                ret.push({ filename: `Depliant - ${i.name}`, path: pdfSpecs });
+                await dbx.filesDownload({ path: url })
+                    .catch(e => mailer.internalError(url))
+                    .then(i => {
+                        fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
+                        ret.push({ filename: `Depliant - ${i.name}`, path: pdfSpecs });
+                    });
             }
             if (version.attachment) {
                 const url = `/APPS/configuratore-cgt-edilizia/${version.attachment.replace(/\\/g, '/')}.pdf`;
                 const pdfSpecs = uniqueTempFile();
-                const i = await dbx.filesDownload({ path: url });
-                fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
-                ret.push({ filename: 'Scheda Tecnica.pdf', path: pdfSpecs });
+                await dbx.filesDownload({ path: url })
+                    .catch(e => mailer.internalError(url))
+                    .then(i => {
+                        fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
+                        ret.push({ filename: 'Scheda Tecnica.pdf', path: pdfSpecs });
+                    });
             }
         }
         if (table === 'vehiclebudgets' || table === 'equipmentbudgets') {
@@ -274,9 +281,12 @@ module.exports = function (mongo) {
                 await Promise.all(eqDepliants.map(async function (eq) {
                     const url = `/APPS/configuratore-cgt-edilizia/${eq.depliants.replace(/\\/g, '/')}.pdf`;
                     const pdfSpecs = uniqueTempFile();
-                    const i = await dbx.filesDownload({ path: url });
-                    fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
-                    ret.push({ filename: `Depliant - ${i.name}`, path: pdfSpecs });
+                    await dbx.filesDownload({ path: url })
+                        .catch(e => mailer.internalError(url))
+                        .then(i => {
+                            fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
+                            ret.push({ filename: `Depliant - ${i.name}`, path: pdfSpecs });
+                        });
                 }));
             }
         }
@@ -284,18 +294,24 @@ module.exports = function (mongo) {
             await Promise.all(budget.files.map(async function (file) {
                 const url = `/APPS/configuratore-cgt-edilizia/Uploads/${file.url}`;
                 const pdfSpecs = uniqueTempFile();
-                const i = await dbx.filesDownload({ path: url });
-                fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
-                ret.push({ filename: file.name, path: pdfSpecs });
+                await dbx.filesDownload({ path: url })
+                    .catch(e => mailer.internalError(url))
+                    .then(i => {
+                        fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
+                        ret.push({ filename: file.name, path: pdfSpecs });
+                    });
             }));
         }
         if (order && order.files) {
             await Promise.all(order.files.map(async function (file) {
                 const url = `/APPS/configuratore-cgt-edilizia/Uploads/${file.url}`;
                 const pdfSpecs = uniqueTempFile();
-                const i = await dbx.filesDownload({ path: url });
-                fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
-                ret.push({ filename: file.name, path: pdfSpecs });
+                await dbx.filesDownload({ path: url })
+                    .catch(e => mailer.internalError(url))
+                    .then(i => {
+                        fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
+                        ret.push({ filename: file.name, path: pdfSpecs });
+                    })
             }));
         }
         return ret;

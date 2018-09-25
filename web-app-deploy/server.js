@@ -30,6 +30,7 @@ const { createVehicleXlsx, createEquipmentXlsx } = require('./xlsx/xlsx');
 const schedule = require('node-schedule');
 const rimraf = require('rimraf');
 const { isOutsource, createOrderXlsName } = require('./shared');
+const emailsAddresses = require('./private/emails');
 
 function noCache(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
@@ -39,11 +40,11 @@ function noCache(req, res, next) {
 function getOrderEmail(userAuth) {
     const email = [];
     if (!isDeveloping && Number(userAuth) <= 1)
-        email.push('amministrazionevendite@cgtedilizia.it');
+        email.push(emailsAddresses.adminOrders);
     else if (!isDeveloping && isOutsource(userAuth))
-        email.push('ordiniconcessionari@cgtedilizia.it');
+        email.push(emailsAddresses.outsourceOrders);
     else if (isDeveloping)
-        email.push('massi.cattaneo.it@gmail.com');
+        email.push(emailsAddresses.dev);
     return email;
 }
 
