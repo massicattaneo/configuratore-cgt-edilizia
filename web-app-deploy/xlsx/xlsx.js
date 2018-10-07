@@ -3,38 +3,40 @@ const fs = require('fs');
 const shared = require('../shared');
 
 module.exports = {
-    createVehicleXlsx: function (budget, dbx, order, user, xlsxPath) {
+    createVehicleCgteXlsx: function (budget, dbx, order, user, xlsxPath) {
         const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
         const orderNumber = shared.formatOrderNumber(order);
         const orderDetails = XLSX.utils.json_to_sheet([
-            { CAMPO: 'Number ordine', VALORE: orderNumber },
+            { CAMPO: 'Numero ordine', VALORE: orderNumber },
             { CAMPO: 'Cliente', VALORE: budget.client.name },
             { CAMPO: 'Modello macchina', VALORE: dbx.versions.find(v => v.id === budget.version).name },
             { CAMPO: 'Stato macchina', VALORE: 'Nuova' },
-            { CAMPO: 'Data vendita', VALORE: order.created.substr(0, 10) },
+            { CAMPO: 'PERMUTA', VALORE: '' },
+            { CAMPO: 'Data vendita', VALORE: order.exchange.date },
+            { CAMPO: 'Documenti permuta', VALORE: order.exchange.documents },
+            { CAMPO: 'Valore ritiro', VALORE: order.exchange.value },
+            { CAMPO: 'Valore acquisto', VALORE: order.exchange.cost },
+            { CAMPO: 'Super valutazione', VALORE: order.exchange.cost - order.exchange.value },
             { CAMPO: 'Data prevista consegna macchina', VALORE: order.deliveryDate },
-            { CAMPO: 'Prezzo vendita', VALORE: order.price },
-            { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateTotal(budget, dbx, shared.getPriceType(user.userAuth)) },
-            { CAMPO: 'Note', VALORE: order.notes },
-            { CAMPO: 'PERMUTA', VALORE: ''},
-            { CAMPO: 'Valore permuta', VALORE: budget.exchange.value },
-            { CAMPO: 'Supervalutazione permuta', VALORE: order.exchange.overvalue },
-            { CAMPO: 'Data vendita permuta', VALORE: order.exchange.date },
-            { CAMPO: 'Disponibilità macchina', VALORE: order.exchange.availability },
+            { CAMPO: 'Dichiarazione per sollevamento', VALORE: order.exchange.declaration },
+            { CAMPO: 'Targatura', VALORE: order.exchange.plate },
+            { CAMPO: 'Consegna meccanico officina esterna', VALORE: order.exchange.mechanic },
+            { CAMPO: '', VALORE: '' },
+            { CAMPO: 'Leasing', VALORE: order.leasing.on },
+            { CAMPO: '', VALORE: '' },
+
+            { CAMPO: 'Prezzo vendita (esclusa la permuta)', VALORE: order.price },
+            { CAMPO: 'Prezzo al netto della permuta', VALORE: order.price - order.exchange.cost },
             {
                 CAMPO: 'Venditore',
                 VALORE: `${user.name} ${user.surname} ${retailer.name ? ` - ${retailer.name}` : ''}`
             },
-            { CAMPO: 'Note permuta', VALORE: order.exchange.notes },
-            { CAMPO: 'Documenti permuta', VALORE: order.exchange.documents },
-            { CAMPO: 'Consegna meccanico officina esterna', VALORE: order.exchange.mechanic },
-            { CAMPO: 'Data prevista consegna macchina in permuta', VALORE: order.exchange.delivery },
-            { CAMPO: 'Dichiarazione per sollevamento', VALORE: order.exchange.declaration },
-            { CAMPO: 'Targatura', VALORE: order.exchange.plate },
-            { CAMPO: 'LEASING', VALORE: ''},
-            { CAMPO: 'Leasing - documenti consegnati a società leasing', VALORE: order.leasing.documents },
-            { CAMPO: 'Leasing approvato', VALORE: order.leasing.approved },
-            { CAMPO: 'Leasing - pagamento anticipo', VALORE: order.leasing.payment }
+            {
+                CAMPO: 'Prezzo minimo vendita (TOTALE)',
+                VALORE: shared.calculateTotal(budget, dbx, shared.getPriceType(user.userAuth))
+            },
+            { CAMPO: '', VALORE: '' },
+            { CAMPO: 'Note', VALORE: order.notes }
         ]);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, orderDetails, 'Dettaglio Ordine');
@@ -47,7 +49,49 @@ module.exports = {
                 'SERIAL NUMBER': '',
                 'Data invio ordine': '',
                 'Disponibilita': '',
-                'Completamento allestimento': '',
+                'Completamento allestimento': ''
+            };
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), 'Attrezzature');
+
+        /* generate buffer */
+        const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+        fs.writeFileSync(xlsxPath, buf);
+        const attachments = [{
+            filename: 'Ordine.xlsx',
+            path: xlsxPath
+        }];
+        return attachments;
+    },
+    createVehicleOutsourceXlsx: function (budget, dbx, order, user, xlsxPath) {
+        const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
+        const orderNumber = shared.formatOrderNumber(order);
+        const orderDetails = XLSX.utils.json_to_sheet([
+            { CAMPO: 'Numero ordine', VALORE: orderNumber },
+            { CAMPO: 'Cliente', VALORE: budget.client.name },
+            { CAMPO: 'Modello macchina', VALORE: dbx.versions.find(v => v.id === budget.version).name },
+            { CAMPO: 'Stato macchina', VALORE: 'Nuova' },
+            { CAMPO: 'Campagna', VALORE: order.outsource.campaign },
+            { CAMPO: 'Prezzo Acquisto', VALORE: order.price },
+            { CAMPO: 'Trasporto', VALORE: order.outsource.transport },
+            { CAMPO: 'Pagamento', VALORE: order.outsource.payment },
+            { CAMPO: 'Data acquisto', VALORE: order.created.substr(0, 10) },
+            { CAMPO: 'Data prevista consegna macchina', VALORE: order.deliveryDate },
+            { CAMPO: 'Leasing', VALORE: order.leasing.on },
+            {
+                CAMPO: 'Venditore',
+                VALORE: `${user.name} ${user.surname} ${retailer.name ? ` - ${retailer.name}` : ''}`
+            },
+            { CAMPO: 'Note', VALORE: order.notes }
+        ]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, orderDetails, 'Dettaglio Ordine');
+        const data = budget.equipment.map(eId => {
+            const eq = dbx.equipements.find(e => e.id === eId);
+            return {
+                'Codice Articolo': eq.code,
+                'Descrizione Articolo': eq.name
             };
         });
         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), 'Attrezzature');
@@ -65,23 +109,31 @@ module.exports = {
     createEquipmentXlsx: function (budget, dbx, order, user, xlsxPath) {
         const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
         const orderNumber = shared.formatOrderNumber(order);
-        const orderDetails = XLSX.utils.json_to_sheet([
-            { CAMPO: 'Number ordine', VALORE: orderNumber },
+        const outsource = shared.isOutsource(user.userAuth);
+
+        const data1 = [
+            { CAMPO: 'Numero ordine', VALORE: orderNumber },
             { CAMPO: 'Cliente', VALORE: budget.client.name },
-            { CAMPO: 'Data vendita', VALORE: order.created.substr(0, 10) },
-            { CAMPO: 'Data prevista consegna attrezzature', VALORE: order.deliveryDate },
-            { CAMPO: 'Prezzo vendita', VALORE: order.price },
-            { CAMPO: 'Prezzo minimo vendita (TOTALE)', VALORE: shared.calculateTotal(budget, dbx, shared.getPriceType(user.userAuth)) },
-            { CAMPO: 'Note', VALORE: order.notes },
+            { CAMPO: 'Campagna', VALORE: order.outsource.campaign },
+            { CAMPO: `Prezzo ${outsource ? 'acquisto' : 'vendita'}`, VALORE: order.price },
+            { CAMPO: `Prezzo minimo ${outsource ? 'acquisto' : 'vendita'} (TOTALE)`, VALORE: shared.calculateEqTotal(budget, dbx, shared.getPriceType(user.userAuth)) },
+            { CAMPO: 'Trasporto', VALORE: order.outsource.transport },
+            { CAMPO: 'Pagamento', VALORE: order.outsource.payment },
+            { CAMPO: `Data ${outsource ? 'acquisto' : 'vendita'}`, VALORE: order.created.substr(0, 10) },
+            { CAMPO: 'Data prevista consegna attrezzatura', VALORE: order.deliveryDate },
+            { CAMPO: 'Leasing', VALORE: order.leasing.on },
             {
                 CAMPO: 'Venditore',
                 VALORE: `${user.name} ${user.surname} ${retailer.name ? ` - ${retailer.name}` : ''}`
             },
-            { CAMPO: 'LEASING', VALORE: ''},
-            { CAMPO: 'Leasing - documenti consegnati a società leasing', VALORE: order.leasing.documents },
-            { CAMPO: 'Leasing approvato', VALORE: order.leasing.approved },
-            { CAMPO: 'Leasing - pagamento anticipo', VALORE: order.leasing.payment }
-        ]);
+            { CAMPO: 'Note', VALORE: order.notes }
+        ];
+        if (!outsource) {
+            data1.splice(2, 1);
+            data1.splice(4, 2);
+        }
+        const orderDetails = XLSX.utils.json_to_sheet(data1);
+
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, orderDetails, 'Dettaglio Ordine');
         const data = budget.equipment.map(eId => {
@@ -93,7 +145,7 @@ module.exports = {
                 'SERIAL NUMBER': '',
                 'Data invio ordine': '',
                 'Disponibilita': '',
-                'Completamento allestimento': '',
+                'Completamento allestimento': ''
             };
         });
         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), 'Attrezzature');

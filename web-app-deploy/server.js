@@ -26,7 +26,7 @@ const urlParse = require('url');
 const fileUpload = require('express-fileupload');
 const createTemplate = require('./mailer/createTemplate');
 const privateInfo = require('./private/privateInfo.json');
-const { createVehicleXlsx, createEquipmentXlsx } = require('./xlsx/xlsx');
+const { createVehicleCgteXlsx, createVehicleOutsourceXlsx, createEquipmentXlsx } = require('./xlsx/xlsx');
 const schedule = require('node-schedule');
 const rimraf = require('rimraf');
 const { isOutsource, createOrderXlsName } = require('./shared');
@@ -217,7 +217,12 @@ function getOrderEmail(userAuth) {
         const type = req.params.type;
         switch (type) {
         case 'order-delete':
-            mailer.send(createTemplate(type, { email: getOrderEmail(req.session.userAuth), order: req.body.order }));
+            if (!isDeveloping)
+                mailer.send(createTemplate(type, {
+                    email: getOrderEmail(req.session.userAuth),
+                    order: req.body.order
+                }));
+            break;
         }
         res.send('ok');
     });
@@ -343,14 +348,17 @@ function getOrderEmail(userAuth) {
             const table = req.params.table;
             const userId = req.session.userId;
             const user = (await mongo.rest.get('users', `_id=${userId}`, { userAuth: 0 }))[0];
-            const progressive = await mongo.getOrderProgressive(user.userAuth, user.organization);
+            const dbx = await dropbox.getDb(null, user);
+            const progressive = await mongo.getOrderProgressive(user, dbx);
             const order = await mongo.rest.insert(table, Object.assign({ userId, progressive }, req.body));
             const budget = await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, { ordered: true }, req.session);
-            const dbx = await dropbox.getDb(null, user);
             const xlsxPath = dropbox.uniqueTempFile('xlsx');
             const attachments = [];
             if (table === 'vehicleorders') {
-                attachments.push(...createVehicleXlsx(budget, dbx, order, user, xlsxPath));
+                if (isOutsource(user.userAuth))
+                    attachments.push(...createVehicleOutsourceXlsx(budget, dbx, order, user, xlsxPath));
+                else
+                    attachments.push(...createVehicleCgteXlsx(budget, dbx, order, user, xlsxPath));
             } else {
                 attachments.push(...createEquipmentXlsx(budget, dbx, order, user, xlsxPath));
             }
@@ -359,7 +367,8 @@ function getOrderEmail(userAuth) {
             if (order.emailMe === 'on')
                 email.push(user.email);
             mailer.send(createTemplate('order', { table, order, budget, user, dbx, attachments, email }));
-            dropbox.updload(createOrderXlsName(order, user), fs.readFileSync(xlsxPath), '/Ordini');
+            if (!isDeveloping)
+                dropbox.updload(createOrderXlsName(order, user), fs.readFileSync(xlsxPath), '/Ordini');
             res.send(order);
         });
 

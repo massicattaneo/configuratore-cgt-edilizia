@@ -4,7 +4,12 @@ import orderTpl from './order.html';
 import vehicleSummary from './vehicleSummary.html';
 import filesTpl from './files.html';
 import * as style from './style.scss';
-import { calculateEqOfferedTotal, calculateEqTotal, calculateTotal } from '../../../../web-app-deploy/shared';
+import {
+    calculateEqOfferedTotal,
+    calculateEqTotal,
+    calculateTotal,
+    isOutsource
+} from '../../../../web-app-deploy/shared';
 import { RetryRequest } from '../../../../modules/gml-http-request';
 
 export default async function ({ locale, system, thread }) {
@@ -17,9 +22,9 @@ export default async function ({ locale, system, thread }) {
     const store = rx.create({
         files: system.getStorage('orderFiles') || [],
         exchange: {
-            overvalue: '',
+            cost: '',
+            value: '',
             date: '',
-            availability: '',
             documents: '',
             delivery: '',
             declaration: '',
@@ -27,10 +32,12 @@ export default async function ({ locale, system, thread }) {
             mechanic: ''
         },
         leasing: {
-            on: 'No',
-            documents: '',
-            approved: '',
-            payment: ''
+            on: 'No'
+        },
+        outsource: {
+            campaign: '',
+            transport: 'a nostra cura',
+            payment: 'come concordato'
         },
         price: '',
         deliveryDate: '',
@@ -57,8 +64,8 @@ export default async function ({ locale, system, thread }) {
                 family: family,
                 model: system.db.models.find(i => i.id === budget.model),
                 showLeasing: (userAuth <= 1) ? 'block' : 'none',
-                showExchangeTitle: (userAuth <= 1 && isVehicle && budget.exchange.name) ? 'inline-block' : 'none',
-                showExchange: (userAuth <= 1 && isVehicle) ? 'block' : 'none',
+                showExchange: (userAuth <= 1 && isVehicle && budget.exchange.name) ? 'block' : 'none',
+                showOutsource: (isOutsource(userAuth)) ? 'inline-block' : 'none',
                 exchange: budget.exchange,
                 priceReal: isVehicle
                     ? calculateTotal(budget, system.db, 'priceReal')
@@ -99,7 +106,6 @@ export default async function ({ locale, system, thread }) {
                     const k = split.slice(0).splice(0, 1).reduce((s, i) => s[i], store);
                     k[split[split.length - 1]] = value;
                 }
-                updateValues();
             };
 
             form.uploadFile = async function () {
@@ -142,18 +148,40 @@ export default async function ({ locale, system, thread }) {
 
     view.style();
 
-    function updateValues() {
-        const el = document.getElementById('leasing-wrapper');
-        if (el)
-            el.style.display = store.leasing.on === 'Si' ? 'inline' : 'none';
-    }
-
     view.init = function (_table, _id) {
         table = _table;
         id = _id;
         budget = system.store[_table].find(i => i._id === _id);
+        rx.update(store, {
+            files: system.getStorage('orderFiles') || [],
+            exchange: {
+                cost: '',
+                value: '',
+                date: '',
+                documents: '',
+                delivery: '',
+                declaration: '',
+                plate: '',
+                mechanic: ''
+            },
+            leasing: {
+                on: 'No'
+            },
+            outsource: {
+                campaign: '',
+                transport: 'a nostra cura',
+                payment: 'come concordato'
+            },
+            price: '',
+            deliveryDate: '',
+            emailMe: '',
+            notes: ''
+        });
+        if (budget.exchange) {
+            store.exchange.cost = budget.exchange.cost;
+            store.exchange.value = budget.exchange.value;
+        }
         refresh(store);
-        setTimeout(updateValues, 500);
     };
 
     view.destroy = function () {

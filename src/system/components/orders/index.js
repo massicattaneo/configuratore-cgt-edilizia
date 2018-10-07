@@ -9,35 +9,38 @@ import { createOrderXlsName } from '../../../../web-app-deploy/shared';
 export default async function ({ system, gos, locale }) {
     const view = HtmlView(template, style);
 
-    rx.connect({
-        vehicleorders: () => system.store.vehicleorders,
-        equipmentorders: () => system.store.equipmentorders,
-    }, function ({ vehicleorders, equipmentorders }) {
-        const vb = vehicleorders
-            .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
-            .map(o => {
-                const b = system.store.vehiclebudgets.find(r => r._id === o.budgetId);
-                return Object.assign({
-                    validity: b.summary.validity,
-                    photo: `${system.db.models.find(m => m.id === b.model).src}?v=${system.info().version}`,
-                    clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
-                    disabled: b.client.name ? '' : 'disabled="disabled"'
-                }, o);
-            });
-        const eb = equipmentorders
-            .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
-            .map(o => {
-                const b = system.store.equipmentbudgets.find(r => r._id === o.budgetId);
-                const txtEq = b.equipment.map(id => system.db.equipements.find(i => i.id === id).name).join('</li><li>');
-                return Object.assign({
-                    equipments: `<ul><li>${txtEq}</li></ul>`,
-                    clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
-                    disabled: b.client.name ? '' : 'disabled="disabled"'
-                }, o);
-            });
-        view.clear('vehicleorders').appendTo('vehicleorders', vehicleordersTpl, [], { vehicleorders: vb });
-        view.clear('equipmentorders').appendTo('equipmentorders', equipmentordersTpl, [], { equipmentorders: eb });
-    });
+    rx.connect
+        .partial({
+            vehicleorders: () => system.store.vehicleorders,
+            equipmentorders: () => system.store.equipmentorders
+        })
+        .filter(() => system.store.logged)
+        .subscribe(function ({ vehicleorders, equipmentorders }) {
+            const vb = vehicleorders
+                .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
+                .map(o => {
+                    const b = system.store.vehiclebudgets.find(r => r._id === o.budgetId);
+                    return Object.assign({
+                        validity: b.summary.validity,
+                        photo: `${system.db.models.find(m => m.id === b.model).src}?v=${system.info().version}`,
+                        clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
+                        disabled: b.client.name ? '' : 'disabled="disabled"'
+                    }, o);
+                });
+            const eb = equipmentorders
+                .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
+                .map(o => {
+                    const b = system.store.equipmentbudgets.find(r => r._id === o.budgetId);
+                    const txtEq = b.equipment.map(id => system.db.equipements.find(i => i.id === id).name).join('</li><li>');
+                    return Object.assign({
+                        equipments: `<ul><li>${txtEq}</li></ul>`,
+                        clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
+                        disabled: b.client.name ? '' : 'disabled="disabled"'
+                    }, o);
+                });
+            view.clear('vehicleorders').appendTo('vehicleorders', vehicleordersTpl, [], { vehicleorders: vb });
+            view.clear('equipmentorders').appendTo('equipmentorders', equipmentordersTpl, [], { equipmentorders: eb });
+        });
 
     view.get().delete = async function (table, id) {
         if (confirm('SEI SICURO DI VOLER ELIMINARE QUESTO ORDINE?')) {

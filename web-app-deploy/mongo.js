@@ -172,38 +172,42 @@ module.exports = function (isDeveloping) {
         });
     };
 
-    obj.getOrderProgressive = async function (userAuth, organization) {
+    obj.getOrderProgressive = async function ({ userAuth, organization, surname, _id }, {retailers}) {
         const year = (new Date()).getFullYear();
         const ua = Number(userAuth);
         const thisYearStart = ObjectID.createFromTime(new Date(`${year}-01-01 00:00:01`).getTime() / 1000);
         const sort = { sort: { $natural: -1 } };
         if (ua === 3 || ua === 4) {
-            const vOrder = await db.collection('vehicleorders')
-                .findOne({ organization, userAuth: { $in: [3, 4] }, _id: { '$gte': thisYearStart } }, sort)
-                .progressive || { number: 0, year, code: organization };
-            const eOrder = await db.collection('equipmentorders')
-                .findOne({ organization, userAuth: { $in: [3, 4] }, _id: { '$gte': thisYearStart } }, sort)
-                .progressive || { number: 0, year, code: organization };
-            if (vOrder.number >= eOrder.number) return Object.assign(vOrder, { number: vOrder.number + 1 });
-            return Object.assign(eOrder, { number: eOrder.number + 1 });
+            const {code} = retailers.find(r => r.id === organization);
+            const vOrder = ((await db.collection('vehicleorders')
+                .findOne({ _id: { '$gte': thisYearStart }, 'progressive.code': code }, sort)) || {})
+                .progressive || { number: 0, year };
+            const eOrder = ((await db.collection('equipmentorders')
+                .findOne({ _id: { '$gte': thisYearStart }, 'progressive.code': code }, sort)) || {})
+                .progressive || { number: 0, year };
+            if (vOrder.number >= eOrder.number)
+                return Object.assign(vOrder, { number: vOrder.number + 1, code });
+            return Object.assign(eOrder, { number: eOrder.number + 1, code });
         } else if (ua === 2) {
-            const vOrder = await db.collection('vehicleorders')
-                .findOne({ userAuth: { $in: [2] }, _id: { '$gte': thisYearStart } }, sort)
-                .progressive || { number: 0, year, code: 'CGT' };
-            const eOrder = await db.collection('equipmentorders')
-                .findOne({ userAuth: { $in: [2] }, _id: { '$gte': thisYearStart } }, sort)
-                .progressive || { number: 0, year, code: 'CGT' };
-            if (vOrder.number >= eOrder.number) return Object.assign(vOrder, { number: vOrder.number + 1 });
-            return Object.assign(eOrder, { number: eOrder.number + 1 });
+            const vOrder = ((await db.collection('vehicleorders')
+                .findOne({ userAuth: { $in: [2] }, _id: { '$gte': thisYearStart } }, sort)) || {})
+                .progressive || { number: 0, year };
+            const eOrder = ((await db.collection('equipmentorders')
+                .findOne({ userAuth: { $in: [2] }, _id: { '$gte': thisYearStart } }, sort)) || {})
+                .progressive || { number: 0, year };
+            if (vOrder.number >= eOrder.number) return Object.assign(vOrder, { number: vOrder.number + 1, code: 'CGT' });
+            return Object.assign(eOrder, { number: eOrder.number + 1, code: 'CGT' });
         } else {
-            const vOrder = await db.collection('vehicleorders')
-                .findOne({ userAuth: { $in: [0, 1] }, _id: { '$gte': thisYearStart } }, sort)
-                .progressive || { number: 0, year, code: 'CGTE' };
-            const eOrder = await db.collection('equipmentorders')
-                .findOne({ userAuth: { $in: [0, 1] }, _id: { '$gte': thisYearStart } }, sort)
-                .progressive || { number: 0, year, code: 'CGTE' };
-            if (vOrder.number >= eOrder.number) return Object.assign(vOrder, { number: vOrder.number + 1 });
-            return Object.assign(eOrder, { number: eOrder.number + 1 });
+            const vOrder = ((await db.collection('vehicleorders')
+                .findOne({ userId: ObjectID(_id.toString()), _id: { '$gte': thisYearStart } }, sort)) || {})
+                .progressive || { number: 0, year };
+            const eOrder = ((await db.collection('equipmentorders')
+                .findOne({ userId: ObjectID(_id.toString()), _id: { '$gte': thisYearStart } }, sort)) || {})
+                .progressive || { number: 0, year };
+            const code = surname.toUpperCase();
+            if (vOrder.number >= eOrder.number)
+                return Object.assign(vOrder, { number: vOrder.number + 1, code });
+            return Object.assign(eOrder, { number: eOrder.number + 1, code });
         }
     };
 

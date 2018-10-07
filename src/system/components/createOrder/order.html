@@ -2,28 +2,14 @@
     <div #summary></div>
     <div style="display: {{showExchange}}" class="mdl-cell mdl-shadow--2dp mdl-cell--12-col">
         <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">
-            DATI AGGIUNTIVI ORDINE: <span style="display: {{showExchangeTitle}}">
-                {{exchange.name}} ({{exchange.builder}}) - ESTIMATO: {{toCurrency(exchange.value)}}
-            <span>
+            PERMUTA: {{exchange.name}} ({{exchange.builder}}) - {{exchange.model}}
         </div>
 
         <div style="padding: 10px">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input onkeyup="this.form.updateStore('exchange.overvalue', this.value)" class="mdl-textfield__input" type="text" id="exchange_overvalue">
-                <label class="mdl-textfield__label" for="exchange_overvalue">
-                    SUPERVALUTAZIONE PERMUTA
-                </label>
-            </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input onchange="this.form.updateStore('exchange.date', this.value)" class="mdl-textfield__input" type="date" id="exchange_date">
                 <label class="mdl-textfield__label" for="exchange_date">
                     DATA VENDITA
-                </label>
-            </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input onchange="this.form.updateStore('exchange.availability', this.value)" class="mdl-textfield__input" type="date" id="exchange_availability">
-                <label class="mdl-textfield__label" for="exchange_availability">
-                    DISPONIBILITÁ MACCHINA
                 </label>
             </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
@@ -35,11 +21,19 @@
                 </select>
                 <label class="mdl-textfield__label" for="exchange_documents">DOCUMENTI PERMUTA</label>
             </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input onchange="this.form.updateStore('delivery', this.value)" class="mdl-textfield__input" type="date" id="exchange_delivery">
-                <label class="mdl-textfield__label" for="exchange_delivery">
-                    DATA PREVISTA CONSEGNA MACCHINA
-                </label>
+            <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+                <input value="{{exchange.value}}" onkeyup="this.form.updateStore('exchange.value', this.value)"
+                       class="mdl-currency-usd__input" type="text" id="exchange_value"/>
+                <label class="mdl-currency-usd__label" for="exchange_value">VALORE RITIRO PERMUTA</label>
+                <div class="mdl-currency-usd__symbol">€</div>
+                <span class="mdl-currency-usd__error">#.##</span>
+            </div>
+            <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+                <input value="{{exchange.cost}}" onkeyup="this.form.updateStore('exchange.cost', this.value)"
+                       class="mdl-currency-usd__input" type="text" id="exchange_cost"/>
+                <label class="mdl-currency-usd__label" for="exchange_cost">VALORE ACQUISTO PERMUTA</label>
+                <div class="mdl-currency-usd__symbol">€</div>
+                <span class="mdl-currency-usd__error">#.##</span>
             </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <select onchange="this.form.updateStore('exchange.declaration', this.value)" class="mdl-textfield__input" id="exchange_declaration" name="exchange_declaration">
@@ -67,13 +61,14 @@
                 <label class="mdl-textfield__label" for="exchange_mechanic">CONSEGNA MECCANICO OFFICINA ESTERNA</label>
             </div>
         </div>
-
     </div>
 
-    <div class="mdl-cell mdl-shadow--2dp mdl-cell--12-col" style="display: {{showLeasing}};">
-        <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">LEASING:</div>
-        <div style="padding: 10px">
 
+
+    <div class="mdl-cell mdl-shadow--2dp mdl-cell--12-col">
+        <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">
+            ORDINA: {{title}}</div>
+        <div style="padding: 10px">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <select onchange="this.form.updateStore('leasing.on', this.value)" class="mdl-textfield__input" id="leasing" name="leasing">
                     <option value=""></option>
@@ -82,58 +77,42 @@
                 </select>
                 <label class="mdl-textfield__label" for="leasing">LEASING</label>
             </div>
-            <span id="leasing-wrapper">
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <select onchange="this.form.updateStore('leasing.documents', this.value)" class="mdl-textfield__input" id="leasing_documents" name="leasing_documents">
-                    <option value=""></option>
-                    <option value="Si">Si</option>
-                    <option value="No">No</option>
-                    <option value="In attesa">In attesa</option>
-                </select>
-                <label class="mdl-textfield__label" for="leasing_documents">DOCUMENTI CONSEGNATI A SOCIETÀ
-                    LEASING?</label>
-            </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <select onchange="this.form.updateStore('leasing.approved', this.value)" class="mdl-textfield__input" id="leasing_approved" name="leasing_approved">
-                    <option value=""></option>
-                    <option value="Si">Si</option>
-                    <option value="No">No</option>
-                    <option value="In attesa">In attesa</option>
-                </select>
-                <label class="mdl-textfield__label" for="leasing_approved">LEASING APPROVATO?</label>
-            </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <select onchange="this.form.updateStore('leasing.payment', this.value)" class="mdl-textfield__input" id="leasing_payment" name="leasing_payment">
-                    <option value=""></option>
-                    <option value="Si">Si</option>
-                    <option value="No">No</option>
-                    <option value="In attesa">In attesa</option>
-                </select>
-                <label class="mdl-textfield__label" for="leasing_payment">LEASING CON PAGAMENTO ANTICIPO?</label>
-            </div>
-            </span>
-        </div>
-    </div>
-
-    <div class="mdl-cell mdl-shadow--2dp mdl-cell--12-col">
-        <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">
-            ORDINA: {{title}}</div>
-        <div style="padding: 10px">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input onchange="this.form.updateStore('deliveryDate', this.value)" class="mdl-textfield__input" type="date" id="delivery_date">
                 <label class="mdl-textfield__label" for="delivery_date">
                     DATA PREVISTA CONSEGNA
                 </label>
             </div>
-            <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
-                <input value="{{priceOffered}}" onkeyup="this.form.updateStore('price', this.value)" class="mdl-currency-usd__input" type="text" id="price"/>
-                <label class="mdl-currency-usd__label" for="price">PREZZO TOTALE</label>
-                <div class="mdl-currency-usd__symbol">€</div>
-                <span class="mdl-currency-usd__error">#.##</span>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label"  style="display: {{showOutsource}};">
+                <input onkeyup="this.form.updateStore('outsource.campaign', this.value)" class="mdl-textfield__input" type="text" id="campaign">
+                <label class="mdl-textfield__label" for="campaign">
+                    CAMPAGNA
+                </label>
             </div>
-            <br/>
-            (PREZZO OFFERTO: {{toCurrency(priceOffered)}} - PREZZO LISTINO: {{toCurrency(priceReal)}})
-            <hr/>
+            <div style="background-color: #dddddd; padding: 10px; border-radius: 6px;">
+                <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+                    <input value="{{priceOffered}}" onkeyup="this.form.updateStore('price', this.value)" class="mdl-currency-usd__input" type="text" id="price"/>
+                    <label class="mdl-currency-usd__label" for="price">PREZZO TOTALE (ESCLUSA LA PERMUTA):</label>
+                    <div class="mdl-currency-usd__symbol">€</div>
+                    <span class="mdl-currency-usd__error">#.##</span>
+                </div>
+                <br/>
+                (PREZZO OFFERTO: {{toCurrency(priceOffered)}} - PREZZO LISTINO: {{toCurrency(priceReal)}})
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label"  style="display: {{showOutsource}};">
+                <input onkeyup="this.form.updateStore('outsource.transport', this.value)" value="a nostra cura"
+                       class="mdl-textfield__input" type="text" id="transport">
+                <label class="mdl-textfield__label" for="transport">
+                    TRASPORTO
+                </label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label"  style="display: {{showOutsource}};">
+                <input onkeyup="this.form.updateStore('outsource.payment', this.value)" value="come concordato"
+                       class="mdl-textfield__input" type="text" id="payment">
+                <label class="mdl-textfield__label" for="payment">
+                    PAGAMENTO
+                </label>
+            </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%">
                 <textarea onkeyup="this.form.updateStore('notes', this.value)"
                           style="width: 100%;" class="mdl-textfield__input" rows="4"

@@ -48,7 +48,7 @@ module.exports = {
         return value.toString() === '3';
     },
     formatOrderNumber: function (order) {
-        return `${order.progressive.code}.${order.progressive.year}.${order.progressive.number}`;
+        return `${order.progressive.year}_${order.progressive.code}_${order.progressive.number}`;
     },
     emptyLeasing: function emptyLeasing() {
         return {

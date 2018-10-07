@@ -42,6 +42,7 @@ function mapCompatibility(codice, item, row, db) {
 const retailersDataStructure = {
     id: 'IDENTIFICATORE',
     name: 'NOME',
+    code: 'CODICE',
     address: 'INDIRIZZO',
     image: 'IMMAGINE'
 };
@@ -368,6 +369,8 @@ module.exports = function (mongo) {
     return obj;
 };
 
+const imageHash = Date.now();
+
 async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
     const filter = versions
         .map(v => v.image)
@@ -412,7 +415,7 @@ async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
 
     images.forEach(function (image, index) {
         if (image && image.fileBinary) {
-            const fileName = `/dpx-photos/image_${index}.jpg`;
+            const fileName = `/dpx-photos/image_${index}.${imageHash}.jpg`;
             fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
         }
     });
@@ -420,7 +423,7 @@ async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
     images2.forEach(function (image, index) {
         if (image && image.fileBinary) {
             const idx = index + images.length;
-            const fileName = `/dpx-photos/image_${idx}.jpg`;
+            const fileName = `/dpx-photos/image_${idx}.${imageHash}.jpg`;
             fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
         }
     });
@@ -428,25 +431,25 @@ async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
     images3.forEach(function (image, index) {
         if (image && image.fileBinary) {
             const idx = index + images2.length + images.length;
-            const fileName = `/dpx-photos/image_${idx}.jpg`;
+            const fileName = `/dpx-photos/image_${idx}.${imageHash}.jpg`;
             fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
         }
     });
 
     versions.forEach(function (version) {
-        version.src = `/dpx-photos/image_${filter.indexOf(version.image)}.jpg`;
+        version.src = `/dpx-photos/image_${filter.indexOf(version.image)}.${imageHash}.jpg`;
     });
 
     equipments
         .filter(i => i.image)
         .forEach(function (eq) {
-            eq.src = `/dpx-photos/image_${filter2.indexOf(eq.image) + filter.length}.jpg`;
+            eq.src = `/dpx-photos/image_${filter2.indexOf(eq.image) + filter.length}.${imageHash}.jpg`;
         });
 
     retailers
         .filter(i => i.image)
         .forEach(function (eq) {
-            eq.src = `/dpx-photos/image_${filter3.indexOf(eq.image) + filter2.length + filter.length}.jpg`;
+            eq.src = `/dpx-photos/image_${filter3.indexOf(eq.image) + filter2.length + filter.length}.${imageHash}.jpg`;
         });
 
     models.forEach(function (model) {
