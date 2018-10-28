@@ -49,7 +49,7 @@ export default async function ({ system, gos }) {
                     const urls = context.locale.get('urls');
                     const goName = Object.keys(urls).find(key => urls[key].href === url);
                     const tableName = event.split('/').splice(3, 1).join('');
-                    if (gos[goName].navigate && tableName)
+                    if (gos[goName] && gos[goName].navigate && tableName)
                         {
                             gos[goName].navigate(tableName, context.locale.get('tables')[tableName]);
                         }

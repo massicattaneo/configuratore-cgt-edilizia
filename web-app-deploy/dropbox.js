@@ -276,7 +276,7 @@ module.exports = function (mongo) {
         }
         if (table === 'vehiclebudgets' || table === 'equipmentbudgets') {
             const eqDepliants = budget.equipment
-                .map(e => db.equipements.find(i => i.id === e))
+                .map(e => db.equipements.find(i => i.id === e) || {})
                 .filter(e => e.depliants);
             if (eqDepliants.length) {
                 await Promise.all(eqDepliants.map(async function (eq) {

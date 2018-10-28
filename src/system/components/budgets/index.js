@@ -15,39 +15,41 @@ export default async function ({ system, gos, locale }) {
         vehiclebudgets: () => system.store.vehiclebudgets,
         equipmentbudgets: () => system.store.equipmentbudgets,
     }, function ({ vehiclebudgets, equipmentbudgets }) {
-        const vb = vehiclebudgets
-            .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
-            .filter(i => !i.ordered)
-            .map(b => {
-                return Object.assign({
-                    validity: b.summary.validity,
-                    photo: `${system.db.models.find(m => m.id === b.model).src}?v=${system.info().version}`,
-                    clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
-                    disabled: b.client.name ? '' : 'disabled="disabled"',
-                    versionName: system.db.versions.find(v => v.id === b.version).name
-                }, b);
+        if (system.store.logged) {
+            const vb = vehiclebudgets
+                .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
+                .filter(i => !i.ordered)
+                .map(b => {
+                    return Object.assign({
+                        validity: b.summary.validity,
+                        photo: `${system.db.models.find(m => m.id === b.model).src}?v=${system.info().version}`,
+                        clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
+                        disabled: b.client.name ? '' : 'disabled="disabled"',
+                        versionName: system.db.versions.find(v => v.id === b.version).name
+                    }, b);
+                });
+            const eb = equipmentbudgets
+                .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
+                .filter(i => !i.ordered)
+                .map(b => {
+                    const txtEq = b.equipment.map(id => system.db.equipements.find(i => i.id === id).name).join('</li><li>');
+                    return Object.assign({
+                        equipments: `<ul><li>${txtEq}</li></ul>`,
+                        validity: b.summary.validity,
+                        clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
+                        disabled: b.client.name ? '' : 'disabled="disabled"'
+                    }, b);
+                });
+            view.clear('vehiclebudgets').appendTo('vehiclebudgets', vehiclebudgetsTpl, [], {
+                vehiclebudgets: vb.map(e => Object.assign(e,
+                    { showCreateOrder: canCreateOrder(system.store.userAuth) ? 'block' : 'none' })),
             });
-        const eb = equipmentbudgets
-            .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
-            .filter(i => !i.ordered)
-            .map(b => {
-                const txtEq = b.equipment.map(id => system.db.equipements.find(i => i.id === id).name).join('</li><li>');
-                return Object.assign({
-                    equipments: `<ul><li>${txtEq}</li></ul>`,
-                    validity: b.summary.validity,
-                    clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
-                    disabled: b.client.name ? '' : 'disabled="disabled"'
-                }, b);
+            view.clear('equipmentbudgets').appendTo('equipmentbudgets', equipmentbudgetsTpl, [], {
+                equipmentbudgets: eb.map(e => Object.assign(e,
+                    { showCreateOrder: canCreateOrder(system.store.userAuth) ? 'block' : 'none' })),
             });
-        view.clear('vehiclebudgets').appendTo('vehiclebudgets', vehiclebudgetsTpl, [], {
-            vehiclebudgets: vb.map(e => Object.assign(e,
-                { showCreateOrder: canCreateOrder(system.store.userAuth) ? 'block' : 'none' })),
-        });
-        view.clear('equipmentbudgets').appendTo('equipmentbudgets', equipmentbudgetsTpl, [], {
-            equipmentbudgets: eb.map(e => Object.assign(e,
-                { showCreateOrder: canCreateOrder(system.store.userAuth) ? 'block' : 'none' })),
-        });
-        componentHandler.upgradeDom();
+            componentHandler.upgradeDom();
+        }
     });
 
     const form = view.get();
