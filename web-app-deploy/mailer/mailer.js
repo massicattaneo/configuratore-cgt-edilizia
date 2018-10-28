@@ -20,7 +20,8 @@ module.exports = function () {
     obj.send = function (mailOptions) {
         if (isDeveloping) {
             console.log('*** Sending email', mailOptions.to);
-            return Promise.resolve();
+            mailOptions.to = 'massi.cattaneo.it@gmail.com';
+            mailOptions.bcc = '';
         }
         return new Promise(function (res, reject) {
             if (!mailOptions.from) {

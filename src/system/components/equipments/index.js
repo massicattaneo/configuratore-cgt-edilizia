@@ -163,7 +163,7 @@ export default async function ({ system, locale }) {
         const summaryItems = selEquipment.map(e => {
             const offeredPrice = offeredPrices.find(p => p.id === e.id);
             e.offeredPrice = offeredPrice ? offeredPrice.value : calculateEqTotal({ equipment: [e.id]},
-                system.db, getPriceType(system.store.userAuth));
+                system.db);
             return e;
         });
         const summaryTitle = system.toCurrency(summaryItems.reduce((tot, i) => tot + Number(i.offeredPrice || i.priceReal), 0));
@@ -232,7 +232,7 @@ export default async function ({ system, locale }) {
 
     form.addEquipment = function (id) {
         window.event.stopPropagation();
-        offeredPrices.push({id, value: system.db.equipements.find(i => i.id === id)[getPriceType(system.store.userAuth)]});
+        offeredPrices.push({id, value: system.db.equipements.find(i => i.id === id).priceReal});
         store.equipment.push(id);
     };
 

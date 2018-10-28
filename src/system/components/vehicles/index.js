@@ -358,7 +358,7 @@ export default async function ({ locale, system, thread }) {
         let exchangeTitle = exchange.value ? `${exchange.name} - ${system.toCurrency(exchange.cost)}` : 'NESSUNA PERMUTA';
         updateExchanges([{ id: 0, files, exchange }], true, step, exchangeTitle);
         if (!summary.price && step === 'summarys') {
-            summary.price = calculateTotal({version, equipment}, system.db, getPriceType(system.store.userAuth))
+            summary.price = calculateTotal({version, equipment}, system.db)
         }
         updateSummarys([{
             id: 0,

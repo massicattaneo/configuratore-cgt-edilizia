@@ -1,5 +1,5 @@
 {
-  "host": "http://configuratore.cgtedilizia.it",
+  "host": "https://configuratore.cgtedilizia.it",
   "confirmRegistrationUrl": "/api/login/confirm",
   "registerUrl": "/api/login/register",
   "loginUrl": "/api/login/login",
