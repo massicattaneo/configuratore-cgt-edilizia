@@ -473,7 +473,7 @@ function parse(sheetName, data) {
                 datum = { column: data[otherKey], convert: e => e };
             }
             const idKey = Object.keys(row).find(key => key.indexOf(datum.column) !== -1);
-            ret[otherKey] = datum.convert(row[idKey] ? row[idKey].trim() : row[idKey], ret, row, db);
+            ret[otherKey] = datum.convert(row[idKey] ? row[idKey].trim().replace('\r', '\n') : row[idKey], ret, row, db);
             return ret;
         }, {});
     });
