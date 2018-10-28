@@ -35,35 +35,8 @@
                 <div class="mdl-currency-usd__symbol">€</div>
                 <span class="mdl-currency-usd__error">#.##</span>
             </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <select onchange="this.form.updateStore('exchange.declaration', this.value)" class="mdl-textfield__input" id="exchange_declaration" name="exchange_declaration">
-                    <option value=""></option>
-                    <option value="Si">Si</option>
-                    <option value="No">No</option>
-                    <option value="N.A.">N.A.</option>
-                </select>
-                <label class="mdl-textfield__label" for="exchange_declaration">DICHIARAZIONE PER SOLLEVAMENTO</label>
-            </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <select onchange="this.form.updateStore('exchange.plate', this.value)" class="mdl-textfield__input" id="exchange_plate" name="exchange_plate">
-                    <option value=""></option>
-                    <option value="Si">Si</option>
-                    <option value="No">No</option>
-                </select>
-                <label class="mdl-textfield__label" for="exchange_plate">TARGATURA</label>
-            </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <select onchange="this.form.updateStore('exchange.mechanic', this.value)" class="mdl-textfield__input" id="exchange_mechanic" name="exchange_mechanic">
-                    <option value=""></option>
-                    <option value="Si">Si</option>
-                    <option value="No">No</option>
-                </select>
-                <label class="mdl-textfield__label" for="exchange_mechanic">CONSEGNA MECCANICO OFFICINA ESTERNA</label>
-            </div>
         </div>
     </div>
-
-
 
     <div class="mdl-cell mdl-shadow--2dp mdl-cell--12-col">
         <div class="mdl-card__title mdl-color-text--primary-contrast mdl-color--primary">
@@ -77,11 +50,36 @@
                 </select>
                 <label class="mdl-textfield__label" for="leasing">LEASING</label>
             </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: {{showExtendedOrder}};">
+                <select onchange="this.form.updateStore('exchange.plate', this.value)" class="mdl-textfield__input" id="exchange_plate" name="exchange_plate">
+                    <option value=""></option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                </select>
+                <label class="mdl-textfield__label" for="exchange_plate">TARGATURA</label>
+            </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input onchange="this.form.updateStore('deliveryDate', this.value)" class="mdl-textfield__input" type="date" id="delivery_date">
                 <label class="mdl-textfield__label" for="delivery_date">
                     DATA PREVISTA CONSEGNA
                 </label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: {{showExtendedOrder}};">
+                <select onchange="this.form.updateStore('exchange.mechanic', this.value)" class="mdl-textfield__input" id="exchange_mechanic" name="exchange_mechanic">
+                    <option value=""></option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                </select>
+                <label class="mdl-textfield__label" for="exchange_mechanic">CONSEGNA MECCANICO OFFICINA ESTERNA</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="display: {{showExtendedOrder}};">
+                <select onchange="this.form.updateStore('exchange.declaration', this.value)" class="mdl-textfield__input" id="exchange_declaration" name="exchange_declaration">
+                    <option value=""></option>
+                    <option value="Si">Si</option>
+                    <option value="No">No</option>
+                    <option value="N.A.">N.A.</option>
+                </select>
+                <label class="mdl-textfield__label" for="exchange_declaration">DICHIARAZIONE PER SOLLEVAMENTO</label>
             </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label"  style="display: {{showOutsource}};">
                 <input onkeyup="this.form.updateStore('outsource.campaign', this.value)" class="mdl-textfield__input" type="text" id="campaign">

@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const webmail = require('../private/webmail');
 const createTemplate = require('./createTemplate');
+const isDeveloping = process.env.NODE_ENV === 'development';
 
 module.exports = function () {
     const obj = {};
@@ -17,6 +18,10 @@ module.exports = function () {
     });
 
     obj.send = function (mailOptions) {
+        if (isDeveloping) {
+            console.log('*** Sending email', mailOptions.to);
+            return Promise.resolve();
+        }
         return new Promise(function (res, reject) {
             if (!mailOptions.from) {
                 mailOptions.from = `"CGT EDILIZIA" <${webmail.email}>`;

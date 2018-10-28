@@ -1,3 +1,9 @@
 #wrapper {
 
 }
+
+#email {
+  max-width: 182px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -4,7 +4,7 @@ import * as style from './style.scss';
 
 export default async function ({ locale, system, thread }) {
     const view = HtmlView(template, style, locale.get());
-
+    view.style();
 
     rx.connect
         .partial({

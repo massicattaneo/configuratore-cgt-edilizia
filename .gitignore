@@ -12,3 +12,5 @@ web-app-deploy/temp
 web-app-deploy/backup-db
 web-app-deploy/backup-db-zip
 !web-app-deploy/.gitignore
+backup/
+!backup/backup

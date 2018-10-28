@@ -65,6 +65,7 @@ export default async function ({ locale, system, thread }) {
                 model: system.db.models.find(i => i.id === budget.model),
                 showLeasing: (userAuth <= 1) ? 'block' : 'none',
                 showExchange: (userAuth <= 1 && isVehicle && budget.exchange.name) ? 'block' : 'none',
+                showExtendedOrder: (userAuth <= 1 && isVehicle) ? 'inline-block' : 'none',
                 showOutsource: (isOutsource(userAuth)) ? 'inline-block' : 'none',
                 exchange: budget.exchange,
                 priceReal: isVehicle
