@@ -26,12 +26,15 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
     let pos = addHeader(user, doc, dbx);
 
     /** SPETT.LE */
+    doc.y = 110;
     doc
         .fillColor('black')
         .fontSize(10)
-        .text('Spett.le', spettMarginLeft, (pos += 40))
-        .text(budget.client.name || '', spettMarginLeft, (pos += 20))
-        .text(budget.client.address || '', spettMarginLeft, (pos += bodyLineHeight));
+        .text('Spett.le', spettMarginLeft);
+    doc.y += 5;
+    doc.text(budget.client.name || '', spettMarginLeft)
+        .text(budget.client.address || '', spettMarginLeft);
+    pos = 154;
 
     /** Date */
     const date = new Date(budget.modified || budget.created);
