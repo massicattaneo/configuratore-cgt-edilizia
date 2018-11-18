@@ -63,11 +63,18 @@ module.exports = function createPdfOrder(res, models, dbx, includeMin, includeTy
             columns.forEach(col => {
                 const format = col.format || (e => e);
                 if (col.field === 'priceReal' && includeMin) {
-                    doc.text(format(version[col.field], index, version), posX, y + 6, { width: col.width, height: 100, continued:true });
+                    doc.text(format(version[col.field], index, version), posX, y + 6, {
+                        width: col.width,
+                        height: 100,
+                        continued: true
+                    });
                     doc.fontSize(7).text(`\n${labels[includeType]}: ${toCurrency(version[includeType], '€')}`, posX);
                     doc.fontSize(9);
                 } else {
-                    doc.text(format(version[col.field], index, version), posX, y + 6, { width: col.width, height: 100 });
+                    doc.text(format(version[col.field], index, version), posX, y + 6, {
+                        width: col.width,
+                        height: 100
+                    });
                 }
                 maxY = Math.max(doc.y, maxY);
                 posX += col.width + 5;
@@ -153,12 +160,12 @@ module.exports = function createPdfOrder(res, models, dbx, includeMin, includeTy
     doc.rect(marginLeft / 2, doc.y - 20, docWidth - marginLeft, doc.y).fill(primaryBackColor);
     doc.fill('#ffffff');
     let y = doc.y;
-    doc.text('VERSIONE', marginLeft, y-16);
-    doc.text('LISTINO', marginLeft + 145, y-16);
-    doc.text('CONFIGURAZIONE BASE (O)', marginLeft + 210, y-16);
-    doc.text('DISPONIBILITÀ', marginLeft + 365, y-16);
-    doc.text('FABBRICA', marginLeft + 430, y-16);
-    doc.text('EUROSTOCK', marginLeft + 495, y-16);
+    doc.text('VERSIONE', marginLeft, y - 16);
+    doc.text('LISTINO', marginLeft + 145, y - 16);
+    doc.text('CONFIGURAZIONE BASE (O)', marginLeft + 210, y - 16);
+    doc.text('DISPONIBILITÀ', marginLeft + 365, y - 16);
+    doc.text('FABBRICA', marginLeft + 430, y - 16);
+    doc.text('EUROSTOCK', marginLeft + 495, y - 16);
 
     doc.y += 10;
 
@@ -174,7 +181,7 @@ module.exports = function createPdfOrder(res, models, dbx, includeMin, includeTy
             printTableLine(doc, version, y);
 
             if (doc.y > 600) {
-                doc.addPage()
+                doc.addPage();
             } else {
                 doc.y = maxY + 10;
             }
@@ -244,10 +251,14 @@ module.exports = function createPdfOrder(res, models, dbx, includeMin, includeTy
                 { field: 'code', title: 'Codice', width: 110 },
                 {
                     field: 'name', title: 'Attrezzatura', width: 380, format: (str, index, item) => {
+                        if (str.startsWith('Decespugliatrice BERTI GKR/SB80')) {
+                            const length = str.indexOf(' ', 70) === -1 ? str.length : str.indexOf(' ', 70);
+                            return `${str.substr(0, length)}${str.indexOf(' ', 70) === -1 ? '' : `\n${str.substr(length, str.length - length)}`} ${item.notes ? `\nNOTE: ${item.notes}` : ''} ${item.info ? `\nINFORMAZIONI: ${item.info}` : ''}`;
+                        }
                         return `${str} ${item.notes ? `\nNOTE: ${item.notes}` : ''} ${item.info ? `\nINFORMAZIONI: ${item.info}` : ''}`;
                     }
                 },
-                { field: 'priceReal', title: 'Listino', width: 80, format: v => toCurrency(v, '€') },
+                { field: 'priceReal', title: 'Listino', width: 80, format: v => toCurrency(v, '€') }
             ], eList.filter(e => e.equipmentFamily === group), y);
             y += 20;
             doc.y = y;
