@@ -312,7 +312,7 @@ module.exports = function (mongo) {
                     .then(i => {
                         fs.writeFileSync(pdfSpecs, i.fileBinary, { encoding: 'binary' });
                         ret.push({ filename: file.name, path: pdfSpecs });
-                    })
+                    });
             }));
         }
         return ret;
@@ -485,7 +485,7 @@ async function getDbFromDropBox(dbx) {
     const read_opts = {
         type: '', //base64, binary, string, buffer, array, file
         raw: false, //If true, plain text parsing will not parse values **
-        sheetRows: 0, //If >0, read the first sheetRows rows **
+        sheetRows: 0 //If >0, read the first sheetRows rows **
     };
     const workbook = XLSX.read(fileData.fileBinary, read_opts);
     workbook.SheetNames.forEach(function (name) {
@@ -500,7 +500,7 @@ async function getRetailersListFromDropBox(dbx) {
     const read_opts = {
         type: '', //base64, binary, string, buffer, array, file
         raw: false, //If true, plain text parsing will not parse values **
-        sheetRows: 0, //If >0, read the first sheetRows rows **
+        sheetRows: 0 //If >0, read the first sheetRows rows **
     };
     const workbook = XLSX.read(fileData.fileBinary, read_opts);
     const name = workbook.SheetNames[0];
@@ -517,7 +517,7 @@ async function getFromXlsxFile() {
     const read_opts = {
         type: '', //base64, binary, string, buffer, array, file
         raw: false, //If true, plain text parsing will not parse values **
-        sheetRows: 0, //If >0, read the first sheetRows rows **
+        sheetRows: 0 //If >0, read the first sheetRows rows **
     };
     const workbook = XLSX.read(fileData, read_opts);
     workbook.SheetNames.forEach(function (name) {

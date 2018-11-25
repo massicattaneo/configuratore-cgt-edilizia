@@ -55,6 +55,7 @@ export default async function ({ locale, system, thread }) {
                         || Number(system.store.userAuth) === 3
                         || Number(system.store.userAuth) === 4
                             ? 'inline-block' : 'none',
+                        displayCgt: Number(system.store.userAuth) === 2,
                         displayOriginalOutsource: Number(system.store.userAuth) === 0 || Number(system.store.userAuth) === 3
                             ? 'inline-block' : 'none',
                         displaySuperAdmin: Number(system.store.userAuth) === 0 ? 'inline-block' : 'none',
