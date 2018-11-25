@@ -204,7 +204,7 @@
         if (this.maxIntegers > 0) {
             //Strip any commas prior to matching
             while (this.input_.value.indexOf(",") !== -1) {
-                this.input_.value = this.input_.value.replace(",", "");
+                this.input_.value = this.input_.value.replace(",", ".");
             }
             //match on main expression
             var matches = this.Constant_.Pattern.exec(this.input_.value);
