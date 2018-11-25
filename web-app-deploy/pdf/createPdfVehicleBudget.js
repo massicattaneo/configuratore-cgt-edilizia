@@ -184,7 +184,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             .fontSize(9)
             .font('Helvetica')
             .text(`Note:`, marginLeft, pos)
-            .text(budget.summary.notes, marginLeft + 100, pos);
+            .text(budget.summary.notes.replace(/\t/g, '   '), marginLeft + 100, pos);
         pos = doc.y;
     }
 
