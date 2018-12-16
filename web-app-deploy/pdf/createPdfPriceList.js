@@ -233,7 +233,7 @@ module.exports = function createPdfOrder(res, models, dbx, includeMin, includeTy
         doc.addPage();
         y = doc.y;
         const eList = dbx.equipements
-            .sort((a, b) => a.equipmentFamily.localeCompare(b.equipmentFamily))
+            // .sort((a, b) => a.equipmentFamily.localeCompare(b.equipmentFamily))
             .filter(e => e.compatibility.find(c => c.id === modelId));
 
         const groups = eList.map(e => e.equipmentFamily).filter((o, i, a) => a.indexOf(o) === i).sort();
