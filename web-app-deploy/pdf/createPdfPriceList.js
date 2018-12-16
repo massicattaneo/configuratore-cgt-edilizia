@@ -251,11 +251,11 @@ module.exports = function createPdfOrder(res, models, dbx, includeMin, includeTy
                 { field: 'code', title: 'Codice', width: 110 },
                 {
                     field: 'name', title: 'Attrezzatura', width: 380, format: (str, index, item) => {
-                        if (str.startsWith('Decespugliatrice BERTI GKR/SB80')) {
+                        if (str.startsWith('Decespugliatrice BERTI GKR/SB80') || item.code === '00118114099-12' || item.code === '00118074099-12') {
                             const length = str.indexOf(' ', 70) === -1 ? str.length : str.indexOf(' ', 70);
                             return `${str.substr(0, length)}${str.indexOf(' ', 70) === -1 ? '' : `\n${str.substr(length, str.length - length)}`} ${item.notes ? `\nNOTE: ${item.notes}` : ''} ${item.info ? `\nINFORMAZIONI: ${item.info}` : ''}`;
                         }
-                        return `${str} ${item.notes ? `\nNOTE: ${item.notes}` : ''} ${item.info ? `\nINFORMAZIONI: ${item.info}` : ''}`;
+                        return `${str.replace('\n', '')} ${item.notes ? `\nNOTE: ${item.notes}` : ''} ${item.info ? `\nINFORMAZIONI: ${item.info}` : ''}`;
                     }
                 },
                 { field: 'priceReal', title: 'Listino', width: 80, format: v => toCurrency(v, '€') }
