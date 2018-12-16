@@ -42,11 +42,19 @@ export default async function ({ system, gos, locale }) {
                 });
             view.clear('vehiclebudgets').appendTo('vehiclebudgets', vehiclebudgetsTpl, [], {
                 vehiclebudgets: vb.map(e => Object.assign(e,
-                    { showCreateOrder: canCreateOrder(system.store.userAuth) ? 'block' : 'none' })),
+                    {
+                        showMenuItem: e.outdated ? 'none' : 'block',
+                        showOutdated: !e.outdated ? 'none' : 'block',
+                        showCreateOrder: (!e.outdated && canCreateOrder(system.store.userAuth)) ? 'block' : 'none'
+                    })),
             });
             view.clear('equipmentbudgets').appendTo('equipmentbudgets', equipmentbudgetsTpl, [], {
                 equipmentbudgets: eb.map(e => Object.assign(e,
-                    { showCreateOrder: canCreateOrder(system.store.userAuth) ? 'block' : 'none' })),
+                    {
+                        showMenuItem: e.outdated ? 'none' : 'block',
+                        showOutdated: !e.outdated ? 'none' : 'block',
+                        showCreateOrder: (!e.outdated && canCreateOrder(system.store.userAuth)) ? 'block' : 'none'
+                    })),
             });
             componentHandler.upgradeDom();
         }

@@ -3,7 +3,7 @@ const createTemplate = require('./mailer/createTemplate');
 const { confirmRegistrationUrl, modifyUserUrl, registerUrl, loginUrl, logoutUrl, logStatusUrl, recoverUrl, resetUrl, deleteAccountUrl } = require('./serverInfo');
 const ObjectId = require('mongodb').ObjectID;
 
-module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
+module.exports = function ({ app, mongo, dropbox, mailer, bruteforce, requiresLogin }) {
 
     app.put(modifyUserUrl,
         requiresLogin,
@@ -40,11 +40,23 @@ module.exports = function ({ app, mongo, mailer, bruteforce, requiresLogin }) {
             const data = {};
             delete user.activationCode;
             delete user.hash;
+            const dbx = await dropbox.getDb(req.session.userAuth, user);
+
             Object.assign(data, {
                 logged: true,
                 user,
-                vehiclebudgets: vehiclebudgets,
-                equipmentbudgets: equipmentbudgets,
+                vehiclebudgets: vehiclebudgets.map(i => {
+                    const equipment = i.equipment.filter(id => dbx.equipements.find(e => e.id === id));
+                    return Object.assign(i, {
+                        equipment, outdated : equipment.length !== i.equipment.length
+                    });
+                }),
+                equipmentbudgets: equipmentbudgets.map(i => {
+                    const equipment = i.equipment.filter(id => dbx.equipements.find(e => e.id === id));
+                    return Object.assign(i, {
+                        equipment, outdated : equipment.length !== i.equipment.length
+                    });
+                }),
                 vehicleorders: vehicleorders.filter(o => !o.deleted),
                 equipmentorders: equipmentorders.filter(o => !o.deleted)
             });

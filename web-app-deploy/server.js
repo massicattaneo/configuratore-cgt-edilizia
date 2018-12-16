@@ -113,7 +113,7 @@ function getOrderEmail(userAuth) {
         };
     }
 
-    LoginServices({ app, mongo, mailer, bruteforce, requiresLogin });
+    LoginServices({ app, mongo, dropbox, mailer, bruteforce, requiresLogin });
 
     app.get('/dpx-photos/*',
         function (req, res, next) {

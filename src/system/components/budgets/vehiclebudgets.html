@@ -2,12 +2,17 @@
     <h4>PREVENTIVI MACCHINE:</h4>
     <ul class="demo-list-three mdl-list">
         {{#each vehiclebudgets}}
-        <li style="clear: both; min-height: 115px;padding: 8px;" class="mdl-shadow--2dp">
-            <div  style="float: right; margin: 0 5px">
+        <li style="clear: both; min-height: 115px;padding: 8px;position: relative;" class="mdl-shadow--2dp">
+            <div  style="float: right; margin: 0 5px;">
                 <button type="button"
                         class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="vb_{{this._id}}">
                     <i class="material-icons">more_vert</i>
                 </button>
+                <div style="display: {{this.showOutdated}}; position:absolute;    top: 45px;
+    left: 32px;
+    font-size: 22px;
+    opacity: 0.5;
+    transform: rotate(12deg);">LISTINO MODIFICATO</div>
                 <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="vb_{{this._id}}">
                     <li class="mdl-menu__item"><fieldset
                             class="mdl-color-text--grey-700"
@@ -17,15 +22,15 @@
                             class="mdl-color-text--grey-700"
                             style="display: block;"
                             onclick="this.form.modify('vehiclebudgets', '{{this._id}}')">MODIFICA</fieldset></li>
-                    <li class="mdl-menu__item"><fieldset
+                    <li class="mdl-menu__item" style="display: {{this.showMenuItem}}"><fieldset
                             class="mdl-color-text--grey-700"
                             style="display: block;"
                             onclick="this.form.preview('vehiclebudgets', '{{this._id}}')">ANTEPRIMA OFFERTA</fieldset></li>
-                    <li class="mdl-menu__item"><fieldset
+                    <li class="mdl-menu__item" style="display: {{this.showMenuItem}}"><fieldset
                             class="mdl-color-text--grey-700"
                             style="display: block;"
                             onclick="this.form.previewLeasing('vehiclebudgets', '{{this._id}}')">ANTEPRIMA LEASING</fieldset></li>
-                    <li class="mdl-menu__item"><fieldset
+                    <li class="mdl-menu__item" style="display: {{this.showMenuItem}}"><fieldset
                             class="mdl-color-text--grey-700"
                             style="display: block;"
                             onclick="this.form.email('vehiclebudgets', '{{this._id}}')">INVIA PER EMAIL</fieldset></li>
