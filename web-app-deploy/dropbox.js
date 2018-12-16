@@ -214,7 +214,7 @@ module.exports = function (mongo) {
         Object.assign(dbUA3, JSON.parse(JSON.stringify(db)));
         Object.assign(dbUA4, JSON.parse(JSON.stringify(db)));
         removeReference(dbUA1, ['priceOutsource', 'priceCGT', 'priceOriginalOutsource']);
-        removeReference(dbUA2, ['priceMin', 'priceOutsource', 'priceOriginalOutsource']);
+        removeReference(dbUA2, ['priceCGT', 'priceOutsource', 'priceOriginalOutsource']);
         removeReference(dbUA3, ['priceCGT', 'priceMin']);
         removeReference(dbUA4, ['priceCGT', 'priceMin', 'priceOriginalOutsource']);
     };

@@ -172,7 +172,7 @@ function getOrderEmail(userAuth) {
             const includeType = req.query.includeType;
             const includeMin = (userAuth === 0 && (['priceMin', 'priceOutsource', 'priceCGT', 'priceOriginalOutsource'].indexOf(includeType) !== -1))
                 || (userAuth === 1 && (['priceMin'].indexOf(includeType) !== -1))
-                || (userAuth === 2 && (['priceCGT'].indexOf(includeType) !== -1))
+                || (userAuth === 2 && (['priceMin'].indexOf(includeType) !== -1))
                 || (userAuth === 3 && (['priceOriginalOutsource', 'priceOutsource'].indexOf(includeType) !== -1))
                 || (userAuth === 4 && (['priceOutsource'].indexOf(includeType) !== -1));
             const models = (req.query.models || '').split(',');

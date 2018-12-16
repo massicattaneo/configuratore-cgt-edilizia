@@ -31,7 +31,7 @@ module.exports = {
     getPriceType: function (userAuth) {
         const ua = Number(userAuth);
         if (ua <= 1) return 'priceMin';
-        if (ua === 2) return 'priceCGT';
+        if (ua === 2) return 'priceMin';
         if (ua === 3) return 'priceOutsource';
         if (ua === 4) return 'priceOutsource';
     },
