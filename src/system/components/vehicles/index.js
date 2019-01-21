@@ -8,6 +8,7 @@ import equipementsTemplate from './equipement.html';
 import exchangesTemplate from './exchange.html';
 import summarysTemplate from './summary.html';
 import leasingsTemplate from './leasing.html';
+import salechargesTemplate from './salecharge.html';
 import clientsTemplate from './client.html';
 import priceSummaryTpl from './priceSummary.html';
 import { RetryRequest } from '../../../../modules/gml-http-request';
@@ -15,15 +16,15 @@ import { RetryRequest } from '../../../../modules/gml-http-request';
 const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 function sDisplay(id) {
-    return id ? 'display: block;' : 'display: none;'
+    return id ? 'display: block;' : 'display: none;';
 }
 
-import { calculateTotal, getPriceType, emptyLeasing } from '../../../../web-app-deploy/shared';
-import { createModal } from '../../utils';
+import { calculateTotal, emptyLeasing, emptyVehicleSaleCharge } from '../../../../web-app-deploy/shared';
+import { showPriceSummaryList } from '../../utils';
 
-export default async function ({ locale, system, thread }) {
+export default async function ({ locale, system, thread, gos }) {
     const view = HtmlView(template, style, locale.get());
-    const steps = ['familys', 'models', 'versions', 'equipements', 'exchanges', 'summarys', 'leasings', 'clients'];
+    const steps = ['familys', 'models', 'versions', 'equipements', 'exchanges', 'salecharges', 'summarys', 'leasings', 'clients'];
     const form = view.get('wrapper');
     const templates = {
         familysTemplate,
@@ -31,6 +32,7 @@ export default async function ({ locale, system, thread }) {
         versionsTemplate,
         equipementsTemplate,
         exchangesTemplate,
+        salechargesTemplate,
         summarysTemplate,
         leasingsTemplate,
         clientsTemplate
@@ -56,9 +58,13 @@ export default async function ({ locale, system, thread }) {
         notes: ''
     }, system.getStorage('vehicle').summary);
     let leasing = Object.assign(emptyLeasing(), system.getStorage('vehicle').leasing);
+    let salecharges = Object.assign(emptyVehicleSaleCharge(), system.getStorage('vehicle').salecharges);
     let client = Object.assign({
         name: '',
         address: '',
+        cap: '',
+        city: '',
+        province: '',
         email: '',
         pa: '',
         showPriceReal: false
@@ -84,7 +90,13 @@ export default async function ({ locale, system, thread }) {
                 const selected = sDisplay(selectedId.toString() === id.toString());
                 const notSelected = sDisplay(selectedId.toString() !== id.toString());
                 const gridNum = ar.length === 1 ? 12 : (ar.length === 2 ? 6 : 4);
-                const variables = Object.assign({}, item, { itemName, selected, notSelected, gridNum, system: locale.get('system') });
+                const variables = Object.assign({}, item, {
+                    itemName,
+                    selected,
+                    notSelected,
+                    gridNum,
+                    system: locale.get('system')
+                });
                 return view.appendTo(itemName, templates[`${itemName}Template`], [], variables);
             });
         }
@@ -105,6 +117,7 @@ export default async function ({ locale, system, thread }) {
     const updateVersions = update.partial('versions');
     const updateEquipmentsFamilys = update.partial('equipements');
     const updateExchanges = update.partial('exchanges');
+    const updateSaleCharges = update.partial('salecharges');
     const updateSummarys = update.partial('summarys');
     const updateLeasings = update.partial('leasings');
     const updateClients = update.partial('clients');
@@ -122,7 +135,7 @@ export default async function ({ locale, system, thread }) {
             return true;
         },
         client: function () {
-            const items = ['name', 'address', 'email'];
+            const items = ['name', 'address', 'city', 'province', 'cap', 'email'];
             const filled = items.filter(i => client[i]);
             if (filled.length !== 0 && filled.length !== items.length) {
                 const key = items.filter(i => !client[i])[0];
@@ -144,6 +157,9 @@ export default async function ({ locale, system, thread }) {
                 return false;
             }
             return true;
+        },
+        salecharges: function () {
+            return true;
         }
     };
 
@@ -156,7 +172,8 @@ export default async function ({ locale, system, thread }) {
 
         summary = { price: '', payment: 'da concordare', availability: 'da definire', validity: '30' };
         leasing = emptyLeasing();
-        client = { name: '', address: '', email: '', pa: '', showPriceReal: false };
+        salecharges = emptyVehicleSaleCharge();
+        client = { name: '', address: '', cap: '', city: '', province: '', email: '', pa: '', showPriceReal: false };
         rx.update(store, {
             id: '',
             model: '',
@@ -208,37 +225,8 @@ export default async function ({ locale, system, thread }) {
         store.equipment.push(id);
     };
 
-    form.showPriceList = function (id) {
-        window.event.stopPropagation();
-        const version = system.db.versions
-            .find(v => v.id === store.version);
-        const eq = store.equipment.map(id => system.db.equipements.find(e => e.id === id));
-        const priceReal = calculateTotal(store, system.db, 'priceReal');
-        const priceMin = calculateTotal(store, system.db, getPriceType(system.store.userAuth));
-        createModal(priceSummaryTpl, {
-            vehicle: {
-                priceReal: system.toCurrency(version.priceReal),
-                priceMin: system.toCurrency(version[getPriceType(system.store.userAuth)])
-            },
-            equipments: eq.map(e => Object.assign({
-                name: e.name,
-                priceReal: system.toCurrency(e.priceReal),
-                priceMin: system.toCurrency(e[getPriceType(system.store.userAuth)])
-            })),
-            total: {
-                priceReal: system.toCurrency(priceReal),
-                priceMin: system.toCurrency(priceMin)
-            },
-            showExchange: exchange.cost ? '' : 'none',
-            exchange: {
-                priceReal: system.toCurrency(exchange.cost),
-                priceMin: system.toCurrency(exchange.cost)
-            },
-            newTotal: {
-                priceReal: system.toCurrency(priceReal - exchange.cost),
-                priceMin: system.toCurrency(priceMin - exchange.cost)
-            }
-        })
+    form.showPriceList = function () {
+        showPriceSummaryList(system, store, salecharges, exchange, summary, summary.price, priceSummaryTpl);
     };
 
     form.uploadExchange = async function () {
@@ -277,6 +265,10 @@ export default async function ({ locale, system, thread }) {
         leasing[name] = value;
     };
 
+    form.updateSaleCharges = function (name, value) {
+        salecharges[name] = value;
+    };
+
     form.updateClient = function (name, value) {
         client[name] = value;
         const temp = system.getStorage('vehicle');
@@ -286,7 +278,7 @@ export default async function ({ locale, system, thread }) {
     form.save = (new Function()).debouncePromise().subscribe(async function (id) {
         if (checks.client()) {
             system.store.loading = true;
-            const body = Object.assign({}, store, { client, summary, leasing, exchange });
+            const body = Object.assign({}, store, { client, summary, leasing, salecharges, exchange });
             if (id) {
                 const item = system.store.vehiclebudgets.find(i => i._id === id);
                 system.store.vehiclebudgets.splice(system.store.vehiclebudgets.indexOf(item), 1);
@@ -300,15 +292,45 @@ export default async function ({ locale, system, thread }) {
             }
             reset();
             system.store.loading = false;
-            system.navigateTo('/it/preventivi');
+            const match = location.search.match(/redirect=([^&]*)/);
+            if (match && match[1] === 'createOrder') {
+                const table = 'vehiclebudgets';
+                gos.createOrder.init(table, id);
+                system.navigateTo(`${locale.get('urls.createOrder.href')}?table=${table}&id=${id}`);
+            } else {
+                system.navigateTo('/it/preventivi');
+            }
         }
     });
 
-    form.reset = function() {
+    form.reset = function () {
         if (confirm('TUTTI I DATI INSERITI IN QUESTA PAGINA VERRANNO ELIMINATI. CONTINUARE?')) {
             reset();
             system.removeStorage('vehicle');
         }
+    };
+
+    form.addCustomCharge = function () {
+        const description = document.getElementById('salecharges_custom_description').value;
+        const amount = Number(document.getElementById('salecharges_custom_amount').value);
+        if (!description) system.throw('missing-salecharges-custom-description-description');
+        if (!amount) system.throw('missing-salecharges-custom-description-amount');
+        salecharges.customCharges.push({
+            id: Date.now(),
+            description,
+            amount
+        });
+        const temp = system.getStorage('vehicle');
+        system.setStorage({ vehicle: Object.assign(temp, { salecharges }) });
+        refresh(store);
+    };
+
+    form.removeCustomCharge = function (id) {
+        const item = salecharges.customCharges.find(i => i.id === id);
+        salecharges.customCharges.splice(salecharges.customCharges.indexOf(item), 1);
+        const temp = system.getStorage('vehicle');
+        system.setStorage({ vehicle: Object.assign(temp, { salecharges }) });
+        refresh(store);
     };
 
     function getCategories(model, remove) {
@@ -340,6 +362,7 @@ export default async function ({ locale, system, thread }) {
                 exchange,
                 summary,
                 leasing,
+                salecharges,
                 client,
                 id
             }
@@ -357,8 +380,9 @@ export default async function ({ locale, system, thread }) {
         }], equipment, step, equipment.length.toString());
         let exchangeTitle = exchange.value ? `${exchange.name} - ${system.toCurrency(exchange.cost)}` : 'NESSUNA PERMUTA';
         updateExchanges([{ id: 0, files, exchange }], true, step, exchangeTitle);
+        updateSaleCharges([{ id: 0, salecharges, customCharges: salecharges.customCharges }], true, step, '');
         if (!summary.price && step === 'summarys') {
-            summary.price = calculateTotal({version, equipment}, system.db)
+            summary.price = calculateTotal({ version, equipment }, system.db);
         }
         updateSummarys([{
             id: 0,
@@ -367,7 +391,7 @@ export default async function ({ locale, system, thread }) {
             version: versions.find(f => f.id === version),
             equipment,
             summary,
-            price: calculateTotal({version, equipment}, system.db),
+            price: calculateTotal({ version, equipment }, system.db),
             selExchange: exchange.name
                 ? `<div>PERMUTA: ${exchange.name} (${exchange.builder}) - ${system.toCurrency(exchange.value)}</div><br/>`
                 : 'NESSUNA PERMUTA',
@@ -375,15 +399,21 @@ export default async function ({ locale, system, thread }) {
                 ? `<div>ATTREZZATURE:</div><ul><li>${equipment
                     .map(id => {
                         const find = equipements.find(e => e.id == id);
-                        return `${find.code}${find.name} - ${system.toCurrency(find.priceReal)}`
+                        return `${find.code}${find.name} - ${system.toCurrency(find.priceReal)}`;
                     })
                     .join('</li><li>')}</li></ul>`
                 : 'NESSUNA ATTREZZATURA SELEZIONATA'
-        }], true, step, system.toCurrency(summary.price || calculateTotal({version, equipment}, system.db)));
+        }], true, step, system.toCurrency(summary.price || calculateTotal({ version, equipment }, system.db)));
         const leasingTitle = leasing.loanPrice ? `IMPORTO FINANZIAMENTO: ${system.toCurrency(leasing.loanPrice)}` : 'NESSUN LEASING';
-        updateLeasings([{ id: 0, leasing}], true, step, leasingTitle);
+        updateLeasings([{ id: 0, leasing }], true, step, leasingTitle);
         const updateButton = id && system.store.vehiclebudgets.find(i => !i.ordered && i._id === id);
-        updateClients([{ id: 0, client, budgetId: id, on: sDisplay(updateButton), off:  sDisplay(!updateButton)}], true, step, summary.price);
+        updateClients([{
+            id: 0,
+            client,
+            budgetId: id,
+            on: sDisplay(updateButton),
+            off: sDisplay(!updateButton)
+        }], true, step, summary.price);
         location.href = `#${step}`;
         setTimeout(checkPrice, 500);
         componentHandler.upgradeDom();
@@ -407,11 +437,12 @@ export default async function ({ locale, system, thread }) {
         exchange = item.exchange;
         summary = item.summary;
         leasing = item.leasing || emptyLeasing();
+        salecharges = item.salecharges || emptyVehicleSaleCharge();
         client = item.client;
         refresh(item);
     };
 
-    view.createNew = function() {
+    view.createNew = function () {
         reset();
     };
 

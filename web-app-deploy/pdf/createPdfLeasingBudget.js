@@ -3,7 +3,7 @@ const path = require('path');
 const sizeOf = require('image-size');
 const loc = require('../static/localization/system/it.json');
 const { isOutsource, calculateLeasing, convertNumber } = require('../shared');
-const { addHeader, getLongDate, toCurrency, toPercentage } = require('./addHeader');
+const { addHeader, getLongDate, toCurrency, toPercentage, getClientAddress } = require('./addHeader');
 
 module.exports = function createPdfOrder(res, budget, dbx, user) {
     const doc = new PdfDoc();
@@ -33,7 +33,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .text('Spett.le', spettMarginLeft);
     doc.y += 5;
     doc.text(budget.client.name || '', spettMarginLeft)
-        .text(budget.client.address || '', spettMarginLeft);
+        .text(getClientAddress(budget.client), spettMarginLeft);
     pos = 154;
 
     /** Date */

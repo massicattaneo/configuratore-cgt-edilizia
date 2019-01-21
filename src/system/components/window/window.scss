@@ -7,7 +7,7 @@
   max-width: 600px;
   right: 0;
   margin: auto;
-  box-shadow: -11px 0px 15px rgba(0,0,0,0.5);
+  box-shadow: 2px 0px 11px rgba(0,0,0,0.5);
   z-index: 20;
   overflow: hidden;
 }
@@ -17,13 +17,13 @@
   position: fixed;
   width: 400px;
   height: 400px;
-  overflow: scroll;
   right: auto;
   left: 0;
   top: 0;
   bottom: auto;
   resize: both;
-  border: 4px outset grey;
+  border: 2px solid #ecc337;
+  border-radius: 6px;
   max-width: initial;
 }
 
@@ -37,7 +37,7 @@
   height: 40px;
   background: white;
   position: absolute;
-  bottom: 0;
+  top: 40px;
   color: #000;
 }
 

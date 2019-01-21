@@ -56,6 +56,16 @@
 
         </div>
     </fieldset>
+    <fieldset #salechargeswrapper id="salecharges"
+            onclick="this.form.step('salecharges')"
+            class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div #salechargestitle class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            {{vehicles.exchanges.title}}
+        </div>
+        <div #salecharges>
+
+        </div>
+    </fieldset>
     <fieldset #summaryswrapper id="summarys"
             onclick="this.form.step('summarys')"
             class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">

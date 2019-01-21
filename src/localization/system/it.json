@@ -27,6 +27,9 @@
     "missing-exchange-vehicle-cost": "Manca la valutazione di acquisto della permuta",
     "missing-client-name": "Manca il nome del cliente",
     "missing-client-address": "Manca l'indirizzo del cliente",
+    "missing-client-city": "Manca la cittá del cliente",
+    "missing-client-cap": "Manca il CAP del cliente",
+    "missing-client-province": "Manca la provincia del cliente",
     "missing-client-email": "Manca l'email del cliente",
     "missing-client-email-malformed": "L'email inserita non è in un fomato valido",
     "missingBudgetClientEmail": "Modifica l'offerta e inserisci i dati del cliente a cui vuoi inviarlo",
@@ -41,7 +44,9 @@
     "missing-leasing-finalPayment": "Aggiungi il riscatto finale",
     "missing-leasing-factor": "Aggiungi il coeficiente",
     "missing-leasing-contractualExpenses": "Aggiungi le spese contrattuali",
-    "missing-leasing-insurance": "Aggiungi il costo dell'assicurazione obbligatoria"
+    "missing-leasing-insurance": "Aggiungi il costo dell'assicurazione obbligatoria",
+    "missing-salecharges-custom-description-description": "Manca la descrizione dell'onere",
+    "missing-salecharges-custom-description-amount": "Manca il valore dell'onere"
   },
   "urls": {
     "homePage": {
@@ -137,7 +142,12 @@
   },
   "tables": {
     "macchine": "versions",
-    "attrezzature": "equipements"
+    "attrezzature": "equipements",
+    "offerte-macchine": "vehiclebudgets",
+    "ordini-macchine": "vehicleorders",
+    "offerte-attrezzature": "equipmentbudgets",
+    "ordini-attrezzature": "equipmentorders",
+    "disponibilita-macchine": "vehicleAvailability"
   },
   "menuHeader": {
     "userNotLogged": "UTENTE...",
@@ -201,6 +211,10 @@
       "title": "PROSPETTO LEASING:",
       "titleSelected": "{0}"
     },
+    "salecharges": {
+      "title": "ONERI DI VENDITA:",
+      "titleSelected": "ONERI DI VENDITA"
+    },
     "clients": {
       "title": "SALVA e/o AGGIORNA OFFERTA:",
       "titleSelected": "COMPLETATO"
@@ -226,6 +240,10 @@
     "exchanges": {
       "title": "AGGIUNGI UNA PERMUTA:",
       "titleSelected": "PERMUTA: {0}"
+    },
+    "salecharges": {
+      "title": "ONERI DI VENDITA:",
+      "titleSelected": "ONERI DI VENDITA"
     },
     "summarys": {
       "title": "RIEPILOGO MACCHINA:",

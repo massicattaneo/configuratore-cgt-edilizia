@@ -397,6 +397,12 @@ function getOrderEmail(userAuth) {
         });
     });
 
+    schedule.scheduleJob('* * /4 * *', function () {
+        dropbox.updateNavision();
+    });
+
+
+
     app.get('*', callback);
 
     app.listen(port, () => {

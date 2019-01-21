@@ -55,7 +55,7 @@ export default async function ({ locale, system, thread }) {
                         || Number(system.store.userAuth) === 3
                         || Number(system.store.userAuth) === 4
                             ? 'inline-block' : 'none',
-                        displayCgt: Number(system.store.userAuth) === 2,
+                        displayCgt: Number(system.store.userAuth) === 2 ? 'inline-block' : 'none',
                         displayOriginalOutsource: Number(system.store.userAuth) === 0 || Number(system.store.userAuth) === 3
                             ? 'inline-block' : 'none',
                         displaySuperAdmin: Number(system.store.userAuth) === 0 ? 'inline-block' : 'none',
@@ -73,10 +73,10 @@ export default async function ({ locale, system, thread }) {
                                 `).join(''),
                             downloadAttachment: `
                                 <button type="button"
-                                        style="margin-bottom: 10px"
+                                        style="margin-bottom: 10px; width: 100%;"
                                         onclick="this.form.downloadAttachment('${f.id}')"
                                         class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
-                                    SCARICA ALLEGATO
+                                    ALLEGATO FAMIGLIA
                                 </button>`
                         }, f))
                     }, locale.get());

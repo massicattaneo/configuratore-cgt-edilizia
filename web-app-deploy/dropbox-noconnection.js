@@ -39,12 +39,6 @@ function mapCompatibility(codice, item, row, db) {
     }).filter(i => i);
 }
 
-function convertAmericanDate(date) {
-    if (!date) return '';
-    const d = new Date(`20${date.split('/')[2]}`, Number(date.split('/')[0]) - 1, date.split('/')[1]);
-    return isNaN(d.getTime()) ? '' : d.toISOString();
-}
-
 const retailersDataStructure = {
     id: 'IDENTIFICATORE',
     name: 'NOME',
@@ -132,18 +126,6 @@ const equipementDataStructure = {
     id: 'Identificatore'
 };
 
-const stockMachinesDataStructure = {
-    model: 'Nr. articolo',
-    description: 'Descrizione',
-    serialNumber: 'Seriale Macchina',
-    foa: 'Ordine Acquisto',
-    mso: 'Ordine Fornitore',
-    manufactureDate: 'Anno/Mese Costr.Macch.',
-    availability: 'Disponibilit',
-    expectedEntryDate: { column: 'Data Prevista Entrata Merce', convert: convertAmericanDate },
-    positioning: 'Presente in Magazzino'
-};
-
 function getDropboxSpecialOffers(dbx) {
     const paths = ['Venditori CGT Edilizia', 'CGT', 'Concessionari'];
     return Promise.all([
@@ -192,37 +174,6 @@ async function appendEquipments(db, mongo, userFamily) {
     });
 }
 
-async function appendBudgetsOrders(db, mongo, user) {
-    const userAuth = 0;
-    const users = await mongo.getAllUsers();
-    return Object.assign({}, db, {
-        vehiclebudgets: (await mongo.rest.get('vehiclebudgets', Number(user.userAuth) ? `userId=${user._id}` : '', { userAuth }))
-            .filter(item => !item.isDeleted)
-            .map(item => Object.assign(item, {
-                id: item._id.toString(),
-                user: users.find(u => u._id.toString() === item.userId.toString())
-            })),
-        equipmentbudgets: (await mongo.rest.get('equipmentbudgets', Number(user.userAuth) ? `userId=${user._id}` : '', { userAuth }))
-            .filter(item => !item.isDeleted)
-            .map(item => Object.assign(item, {
-                id: item._id.toString(),
-                user: users.find(u => u._id.toString() === item.userId.toString())
-            })),
-        vehicleorders: (await mongo.rest.get('vehicleorders', Number(user.userAuth) ? `userId=${user._id}` : '', { userAuth }))
-            .filter(item => !item.isDeleted)
-            .map(item => Object.assign(item, {
-                id: item._id.toString(),
-                user: users.find(u => u._id.toString() === item.userId.toString())
-            })),
-        equipmentorders: (await mongo.rest.get('equipmentorders', Number(user.userAuth) ? `userId=${user._id}` : '', { userAuth }))
-            .filter(item => !item.isDeleted)
-            .map(item => Object.assign(item, {
-                id: item._id.toString(),
-                user: users.find(u => u._id.toString() === item.userId.toString())
-            }))
-    });
-}
-
 module.exports = function (mongo) {
     const obj = {};
     const dbx = new Dropbox({ accessToken: privateInfo.accessToken });
@@ -235,32 +186,31 @@ module.exports = function (mongo) {
         console.log('/****** downloading CGT EDILIZIA DROPBOX DATABASE');
         let start = Date.now();
         console.log(`/****** finished downloading CGT EDILIZIA DROPBOX DATABASE in ${(Date.now() - start) / 1000}s`);
-        Object.assign(originalDb, await getDbFromDropBox(dbx));
-        Object.assign(originalDb, await getRetailersListFromDropBox(dbx));
-        Object.assign(originalDb, await getNavisionDatabaseFromDropBox(dbx));
+        // Object.assign(originalDb, await getDbFromDropBox(dbx));
+        // Object.assign(originalDb, await getRetailersListFromDropBox(dbx));
         start = Date.now();
-        //stockManichesDataStructure
-        // Object.assign(originalDb, await getFromXlsxFile());
-        // Object.assign(originalDb, await getFromJSON());
-        // fs.writeFileSync('./db.json', JSON.stringify(originalDb));
+
         console.log('/****** parsing CGT EDILIZIA DROPBOX DATABASE');
-        db.familys = parse('Famiglia Macchine', familyDataStructure).filter(({ id }) => id.indexOf('-') === -1);
-        db.models = parse('Modelli', modeldataStructure);
-        db.vehicleAvailability = parse('vehicleAvailability', stockMachinesDataStructure).filter(item => item.mso);
-        db.versions = parse('Listino macchine', versionDataStructure);
-        db.equipements = parse('Listino attrezz. SSL-CTL-CWL', equipementDataStructure);
-        db.equipements.push(...parse('Listino attrezzature MHE', equipementDataStructure));
-        db.equipements.push(...parse('Listino attrezzature BHL', equipementDataStructure));
-        db.equipements = db.equipements.filter(i => i.code !== 'T').filter(i => i.code !== 'F');
-        db.codes = codes;
-        db.retailers = parse('Concessionari', retailersDataStructure);
+        // db.familys = parse('Famiglia Macchine', familyDataStructure).filter(({ id }) => id.indexOf('-') === -1);
+        // db.models = parse('Modelli', modeldataStructure);
+        // db.versions = parse('Listino macchine', versionDataStructure);
+        // db.equipements = parse('Listino attrezz. SSL-CTL-CWL', equipementDataStructure);
+        // db.equipements.push(...parse('Listino attrezzature MHE', equipementDataStructure));
+        // db.equipements.push(...parse('Listino attrezzature BHL', equipementDataStructure));
+        // db.equipements = db.equipements.filter(i => i.code !== 'T').filter(i => i.code !== 'F');
+        // db.codes = codes;
+        // db.retailers = parse('Concessionari', retailersDataStructure);
         console.log(`/****** finished parsing CGT EDILIZIA DROPBOX DATABASE in ${(Date.now() - start) / 1000}s`);
         start = Date.now();
         console.log('/****** DOWNLOADING IMAGES FROM DROPBOX');
-        await copyDropboxImages(dbx, db.models, db.versions, db.equipements, db.retailers);
+        // await copyDropboxImages(dbx, db.models, db.versions, db.equipements, db.retailers);
         console.log('/****** CREATING SPECIAL OFFERS FROM DROPBOX');
-        db.specialOffers = await getDropboxSpecialOffers(dbx);
+        // db.specialOffers = await getDropboxSpecialOffers(dbx);
         console.log(`/****** finished parsing DOWNLOADING IMAGES FROM DROPBOX in ${(Date.now() - start) / 1000}s`);
+
+        // fs.writeFileSync('./db.json', JSON.stringify(db));
+        Object.assign(db, await getFromJSON());
+
         Object.assign(dbUA1, JSON.parse(JSON.stringify(db)));
         Object.assign(dbUA2, JSON.parse(JSON.stringify(db)));
         Object.assign(dbUA3, JSON.parse(JSON.stringify(db)));
@@ -289,15 +239,15 @@ module.exports = function (mongo) {
         const ua = Number(userAuth);
         switch (ua) {
         case 0:
-            return await appendBudgetsOrders(await appendEquipments(db, mongo, 'CGTE'), mongo, user);
+            return await appendEquipments(db, mongo, 'CGTE');
         case 1:
-            return await appendBudgetsOrders(await appendEquipments(dbUA1, mongo, 'CGTE'), mongo, user);
+            return await appendEquipments(dbUA1, mongo, 'CGTE');
         case 2:
-            return await appendBudgetsOrders(await appendEquipments(dbUA2, mongo, 'CGT'), mongo, user);
+            return await appendEquipments(dbUA2, mongo, 'CGT');
         case 3:
-            return await appendBudgetsOrders(changeDiscounts(await appendEquipments(dbUA3, mongo, user.organization), user), mongo, user);
+            return changeDiscounts(await appendEquipments(dbUA3, mongo, user.organization), user);
         case 4:
-            return await appendBudgetsOrders(changeDiscounts(await appendEquipments(dbUA4, mongo, user.organization), user), mongo, user);
+            return changeDiscounts(await appendEquipments(dbUA4, mongo, user.organization), user);
         }
     };
 
@@ -414,13 +364,6 @@ module.exports = function (mongo) {
                 }
             }
         });
-    };
-
-    obj.updateNavision = async function () {
-        console.log('UPDATING NAVISION');
-        Object.assign(originalDb, await getNavisionDatabaseFromDropBox(dbx));
-        db.vehicleAvailability = parse('vehicleAvailability', stockMachinesDataStructure).filter(item => item.mso);
-        console.log('UPDATING NAVISION ENDED');
     };
 
     obj.uniqueTempFile = uniqueTempFile;
@@ -566,20 +509,6 @@ async function getRetailersListFromDropBox(dbx) {
     const workSheet = workbook.Sheets[name];
     return {
         Concessionari: XLSX.utils.sheet_to_json(workSheet)
-    };
-}
-
-async function getNavisionDatabaseFromDropBox(dbx) {
-    const fileData = await dbx.filesDownload({ path: '/APPS/configuratore-cgt-edilizia/Estrazione_ZDispo/navision.xlsx' });
-    const read_opts = {
-        type: '', //base64, binary, string, buffer, array, file
-        raw: false, //If true, plain text parsing will not parse values **
-        sheetRows: 0 //If >0, read the first sheetRows rows **
-    };
-    const workbook = XLSX.read(fileData.fileBinary, read_opts);
-    const workSheet = workbook.Sheets[workbook.SheetNames[0]];
-    return {
-        vehicleAvailability: XLSX.utils.sheet_to_json(workSheet)
     };
 }
 

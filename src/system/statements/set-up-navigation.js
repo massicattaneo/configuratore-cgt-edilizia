@@ -32,7 +32,7 @@ export default async function ({ system, gos }) {
     system
         .onNavigate()
         .filter(e => e.match(/\//g).length > 1 && e.substr(0, 4) !== '/api')
-        .subscribe(async(event) => {
+        .subscribe(async (event) => {
             const old = activeUrl;
             activeUrl = event;
             if (old !== event) {
@@ -48,11 +48,13 @@ export default async function ({ system, gos }) {
                     const url = event.split('/').splice(0, 3).join('/');
                     const urls = context.locale.get('urls');
                     const goName = Object.keys(urls).find(key => urls[key].href === url);
-                    const tableName = event.split('/').splice(3, 1).join('');
-                    if (gos[goName] && gos[goName].navigate && tableName)
-                        {
-                            gos[goName].navigate(tableName, context.locale.get('tables')[tableName]);
-                        }
+                    const tableName = event.split('/').splice(3, 1).join('').split('?')[0];
+                    const search = event.split('/').splice(3, 1).join('').split('?')[1] ?
+                        event.split('/').splice(3, 1).join('').split('?')[1].split('&').reduce((acc, i) => {acc[i.split('=')[0]] = i.split('=')[1]; return acc; }, {})
+                        : {};
+                    if (gos[goName] && gos[goName].navigate && tableName) {
+                        gos[goName].navigate(tableName, context.locale.get('tables')[tableName], { search });
+                    }
                 }
             }
         });
@@ -71,7 +73,7 @@ export default async function ({ system, gos }) {
     system
         .onNavigate()
         .filter(e => e === '/api/login/confirm')
-        .subscribe(async() => {
+        .subscribe(async () => {
             system.navigateTo(activeUrl = context.locale.get(`urls.homePage.url`));
         });
 
@@ -89,7 +91,7 @@ export default async function ({ system, gos }) {
     window.navigate = function (el, e) {
         const event = e || this.event;
         event.preventDefault();
-        system.navigateTo(el.pathname);
+        system.navigateTo(el.pathname + el.search);
         return false;
     };
 

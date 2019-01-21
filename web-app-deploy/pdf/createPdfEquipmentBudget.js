@@ -1,7 +1,7 @@
 const PdfDoc = require('pdfkit');
 const path = require('path');
 const { calculateEqTotal, calculateEqOfferedTotal, isOutsource } = require('../shared');
-const { addHeader, getLongDate, toCurrency } = require('./addHeader');
+const { addHeader, getLongDate, toCurrency, getClientAddress } = require('./addHeader');
 const sizeOf = require('image-size');
 
 
@@ -33,7 +33,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .text('Spett.le', spettMarginLeft);
     doc.y += 5;
     doc.text(budget.client.name || '', spettMarginLeft)
-        .text(budget.client.address || '', spettMarginLeft);
+        .text(getClientAddress(budget.client), spettMarginLeft);
     pos = 154;
 
     /** Date */
@@ -58,7 +58,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .fontSize(10);
 
     budget.equipment.forEach((eqId, index) => {
-        const eq = dbx.equipements.find(e => e.id === eqId);
+        const eq = dbx.equipements.find(e => e.id === eqId) || {};
         pos += index === 0 ? 30 : 60;
         if (doc.y > 630) {
             doc.addPage();

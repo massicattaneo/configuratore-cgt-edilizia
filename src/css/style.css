@@ -1,4 +1,7 @@
 /* fallback */
+html {
+    scroll-behavior: smooth;
+}
 input::-webkit-datetime-edit{ color: transparent; }
 input:focus::-webkit-datetime-edit{ color: initial; }
 .is-dirty input::-webkit-datetime-edit{ color: initial; }
@@ -93,7 +96,7 @@ table.alternate-table.blocks thead {
 }
 
 table.alternate-table.blocks tr {
-    border-bottom: 3px solid #ddd;
+    border-bottom: 5px dotted #ae0d0e;
     display: block;
     margin-bottom: .625em;
 }

@@ -80,5 +80,10 @@ module.exports = {
     },
     toPercentage: function (string = '0', fractionDigits = 2) {
         return `${Number(string).toFixed(fractionDigits)}%`;
+    },
+    getClientAddress: function (client) {
+        if (!client.address) return '';
+        if (!client.cap) return client.address;
+        return `${client.address}\n${client.cap} ${client.city} (${client.province})`
     }
 };

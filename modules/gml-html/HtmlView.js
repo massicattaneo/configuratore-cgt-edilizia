@@ -66,6 +66,9 @@ const myParsers = {
         const date = new Date(d);
         return date.formatDay('dd/mm/yyyy', []);
     },
+    toPercentage: function (d) {
+        return `${Number(d).toFixed(2)}%`
+    },
     formatTime: function (d) {
         const date = new Date(d);
         return date.formatTime('hh:mm');
@@ -77,6 +80,9 @@ const myParsers = {
     },
     checked: function (d) {
         return d ? 'checked' : ''
+    },
+    YesNo: function (d) {
+        return d ? 'SI' : 'NO'
     }
 };
 
