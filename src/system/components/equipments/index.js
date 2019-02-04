@@ -4,12 +4,18 @@ import equipementsTemplate from './equipement.html';
 import summarysTemplate from './summary.html';
 import leasingsTemplate from './leasing.html';
 import clientsTemplate from './client.html';
+import salechargesTemplate from '../vehicles/salecharge.html';
 import * as style from './style.scss';
 import { createModal } from '../../utils';
 import selectModelTpl from './selectModel.html';
 import modelsTpl from './models.html';
 import { RetryRequest } from '../../../../modules/gml-http-request';
-import { calculateEqTotal, getPriceType, emptyLeasing } from '../../../../web-app-deploy/shared';
+import {
+    calculateEqTotal,
+    getPriceType,
+    emptyLeasing,
+    emptyVehicleSaleCharge
+} from '../../../../web-app-deploy/shared';
 import priceSummaryTpl from './priceSummary.html';
 
 function sDisplay(id) {
@@ -30,9 +36,9 @@ function getBuilders(equipements) {
 
 const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-export default async function ({ system, locale }) {
+export default async function ({ system, locale, gos }) {
     let { familys, models, versions, equipements } = system.db;
-    const steps = ['equipements', 'summarys', 'leasings', 'clients'];
+    const steps = ['equipements', 'salecharges', 'summarys', 'leasings', 'clients'];
     const store = rx.create({
         equipment: system.getStorage('equipement').equipment || [],
         step: system.getStorage('equipement').step || 'equipements',
@@ -45,10 +51,14 @@ export default async function ({ system, locale }) {
     let client = Object.assign({
         name: '',
         address: '',
+        cap: '',
+        city: '',
+        province: '',
         email: '',
         pa: '',
         showPriceReal: false
     }, system.getStorage('equipement').client);
+    let salecharges = Object.assign(emptyVehicleSaleCharge(), system.getStorage('vehicle').salecharges);
     let summary = Object.assign({
         payment: 'da concordare',
         availability: 'da definire',
@@ -59,6 +69,7 @@ export default async function ({ system, locale }) {
     const view = HtmlView(template, style, store);
     const templates = {
         equipementsTemplate,
+        salechargesTemplate,
         summarysTemplate,
         leasingsTemplate,
         clientsTemplate
@@ -66,7 +77,7 @@ export default async function ({ system, locale }) {
 
     const checks = {
         client: function () {
-            const items = ['name', 'address', 'email'];
+            const items = ['name', 'address', 'city', 'province', 'cap', 'email'];
             const filled = items.filter(i => client[i]);
             if (filled.length !== 0 && filled.length !== items.length) {
                 const key = items.filter(i => !client[i])[0];
@@ -87,6 +98,9 @@ export default async function ({ system, locale }) {
                 system.throw('missing-leasing-' + key);
                 return false;
             }
+            return true;
+        },
+        salecharges: function () {
             return true;
         }
     };
@@ -135,12 +149,13 @@ export default async function ({ system, locale }) {
     const updateSummarys = update.partial('summarys');
     const updateLeasings = update.partial('leasings');
     const updateClients = update.partial('clients');
+    const updateSaleCharges = update.partial('salecharges');
 
     async function refresh({ equipment, step, filters, id }) {
         view.style('');
         const arg1 = Object.assign({}, arguments[0], { equipementFamilys, builders });
         system.setStorage({
-            equipement: Object.assign({ offeredPrices, client, summary, leasing }, arguments[0])
+            equipement: Object.assign({ offeredPrices, client, summary, salecharges, leasing }, arguments[0])
         });
         const itm = equipements
             .filter(() => filters.length !== 0)
@@ -160,6 +175,7 @@ export default async function ({ system, locale }) {
             items: itm,
             equipments: selEquipment
         })], true, step, equipment.length.toString());
+        updateSaleCharges([{ id: 0, salecharges, customCharges: salecharges.customCharges }], true, step, '*');
         const summaryItems = selEquipment.map(e => {
             const offeredPrice = offeredPrices.find(p => p.id === e.id);
             e.offeredPrice = offeredPrice ? offeredPrice.value : calculateEqTotal({ equipment: [e.id]},
@@ -179,7 +195,8 @@ export default async function ({ system, locale }) {
 
     function reset() {
         offeredPrices.length = 0;
-        client = { name: '', address: '', email: '', pa: '', showPriceReal: false };
+        client = { name: '', address: '', cap: '', city: '', province: '', email: '', pa: '', showPriceReal: false };
+        salecharges = emptyVehicleSaleCharge();
         summary = {
             payment: 'da concordare',
             availability: 'da definire',
@@ -288,7 +305,7 @@ export default async function ({ system, locale }) {
     form.save = (new Function()).debouncePromise().subscribe(async function (id) {
         if (checks.client()) {
             system.store.loading = true;
-            const body = Object.assign({}, store, { client, summary, leasing, offeredPrices });
+            const body = Object.assign({}, store, { client, summary, leasing, salecharges, offeredPrices });
             if (id) {
                 const item = system.store.equipmentbudgets.find(i => i._id === id);
                 system.store.equipmentbudgets.splice(system.store.equipmentbudgets.indexOf(item), 1);
@@ -303,9 +320,43 @@ export default async function ({ system, locale }) {
             }
             reset();
             system.store.loading = false;
-            system.navigateTo('/it/preventivi');
+            const match = location.search.match(/redirect=([^&]*)/);
+            if (match && match[1] === 'createOrder') {
+                const table = 'equipmentbudgets';
+                gos.createOrder.init(table, id);
+                system.navigateTo(`${locale.get('urls.createOrder.href')}?table=${table}&id=${id}`);
+            } else {
+                system.navigateTo('/it/preventivi');
+            }
         }
     });
+
+    form.updateSaleCharges = function (name, value) {
+        salecharges[name] = value;
+    };
+
+    form.addCustomCharge = function () {
+        const description = document.getElementById('salecharges_custom_description').value;
+        const amount = Number(document.getElementById('salecharges_custom_amount').value);
+        if (!description) system.throw('missing-salecharges-custom-description-description');
+        if (!amount) system.throw('missing-salecharges-custom-description-amount');
+        salecharges.customCharges.push({
+            id: Date.now(),
+            description,
+            amount
+        });
+        const temp = system.getStorage('vehicle');
+        system.setStorage({ vehicle: Object.assign(temp, { salecharges }) });
+        refresh(store);
+    };
+
+    form.removeCustomCharge = function (id) {
+        const item = salecharges.customCharges.find(i => i.id === id);
+        salecharges.customCharges.splice(salecharges.customCharges.indexOf(item), 1);
+        const temp = system.getStorage('vehicle');
+        system.setStorage({ vehicle: Object.assign(temp, { salecharges }) });
+        refresh(store);
+    };
 
     form.reset = function() {
         if (confirm('TUTTI I DATI INSERITI IN QUESTA PAGINA VERRANNO ELIMINATI. CONTINUARE?')) {
@@ -333,6 +384,7 @@ export default async function ({ system, locale }) {
         offeredPrices = item.offeredPrices;
         client = item.client;
         summary = item.summary;
+        salecharges = item.salecharges || emptyVehicleSaleCharge();
         leasing = item.leasing || emptyLeasing();
         rx.update(store, item);
         refresh(item);

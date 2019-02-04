@@ -63,6 +63,17 @@ module.exports = {
             factor: ''
         };
     },
+    emptyVehicleSaleCharge: function emptyVehicleSaleCharge() {
+        return {
+            transport: 500,
+            leasingCharge: '',
+            directFinancingCharge: '',
+            promotionalCampaign: '',
+            unconditionalDiscount: '',
+            cuttingOff: '',
+            customCharges: []
+        };
+    },
     createOrderXlsName: function (order, user) {
         return `Ordine_${order.created.substr(0, 16)}_${user.name}_${user.surname}.xlsx`;
     },

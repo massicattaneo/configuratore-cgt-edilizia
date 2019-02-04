@@ -1,0 +1,9 @@
+<tr>
+    <td style="display: none;" data-label="ID: ">{{id}}</td>
+    <td style="display: none;" data-label="OFFERTA: "><a style="color: #ae0d0e;" target="_blank" href="/api/pdf/budget/equipmentbudgets/{{budgetId}}">{{budgetId}}</a></td>
+    <td data-label="DATA: ">{{formatShortDate(created)}}</td>
+    <td data-label="UTENTE: ">{{user.surname}} {{user.name}}</td>
+    <td data-label="PREZZO: ">{{toCurrency(price)}}</td>
+    <td style="display: none;" data-label="DATA DI CONSEGNA: ">{{formatShortDate(deliveryDate)}}</td>
+    <td style="display: none;" data-label="NOTE: ">{{notes}}&nbsp;</td>
+</tr>

@@ -7,11 +7,13 @@
   width: 120px;
   text-align: center;
   cursor: pointer;
+  vertical-align: middle;
 }
 
 #icon {
-  font-size: 80px;
-  display: inline-block;
+  font-size: 49px;
+  display: block;
+  color: #f9c31f;
 }
 
 #label {

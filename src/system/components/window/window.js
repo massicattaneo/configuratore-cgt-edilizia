@@ -28,9 +28,9 @@ export default async function ({ thread, system, context, parent, title, locale,
             cart: () => system.store.cart,
             windowHeight: () => model.height
         }, function t({ deviceType, height, cart, windowHeight }) {
-            const wrapperHeight = windowHeight - 15;
+            const wrapperHeight = windowHeight;
             const isDesktop = deviceType === 'desktop';
-            const contHeight = (isDesktop ? Number(wrapperHeight) : height) - 100;
+            const contHeight = (isDesktop ? Number(wrapperHeight) : height - 50) - 100;
             view.style(deviceType, {
                 bar: { height: barHeight },
                 container: { height: contHeight },
@@ -39,10 +39,10 @@ export default async function ({ thread, system, context, parent, title, locale,
             view.get('title').innerHTML = title;
         });
 
-    obj.startApp = function () {
+    obj.startApp = function (...args) {
         system.deviceInfo().deviceType === 'desktop' ? startDesktopApp() : startMobileApp();
         view.get('close').addEventListener('click', obj.destroy);
-        app.start();
+        app.start(...args);
     };
 
     obj.destroy = function () {

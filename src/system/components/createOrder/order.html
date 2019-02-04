@@ -97,6 +97,30 @@
                 <br/>
                 (PREZZO OFFERTO: {{toCurrency(priceOffered)}} - PREZZO LISTINO: {{toCurrency(priceReal)}})
             </div>
+            <br/>
+            <div>
+
+                <button type="button" onclick="this.form.showPriceList('{{table}}', '{{id}}')"
+                        class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+                        data-upgraded=",MaterialButton,MaterialRipple">
+                    <i class="material-icons">help</i> <span
+                        class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
+
+                <button type="button" onclick="this.form.previewBudget('{{table}}', '{{id}}')"
+                        class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+                        data-upgraded=",MaterialButton,MaterialRipple">
+                    <i class="material-icons">assignment</i> <span
+                        class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
+
+                <button type="button" onclick="this.form.modifyBudget('{{table}}', '{{id}}')"
+                        class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+                        data-upgraded=",MaterialButton,MaterialRipple">
+                    <i class="material-icons">edit</i> <span
+                        class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
+
+
+            </div>
+
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label"  style="display: {{showOutsource}};">
                 <input onkeyup="this.form.updateStore('outsource.transport', this.value)" value="a nostra cura"
                        class="mdl-textfield__input" type="text" id="transport">

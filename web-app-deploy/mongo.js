@@ -117,6 +117,12 @@ module.exports = function (isDeveloping) {
         });
     };
 
+
+
+    obj.getAllUsers = async function () {
+        return await db.collection('users').find().toArray()
+    };
+
     obj.recoverPassword = function (data) {
         return new Promise(function (resolve, reject) {
             db

@@ -7,9 +7,11 @@
     <td style="display: none;" data-label="NOTE: ">{{notes}}&nbsp;</td>
     <td style="display: none;" data-label="INFO: ">{{info}}&nbsp;</td>
     <td data-label="PREZZO DI LISTINO: ">{{toCurrency(priceReal)}}&nbsp;</td>
-    <td data-label="MODIFICA: ">
+    <td style="display: none;text-align: left;" data-label="IMMAGINE: "><img src="{{src}}" style="max-width: 150px;max-height: 150px"/>&nbsp;</td>
+    <td data-label="AZIONI: ">
         <fieldset onclick="this.form.add('block', '{{id}}')" style="cursor: pointer; display: {{showEdit}}">
             <i class="mdl-color-text--blue-grey-400 material-icons">edit</i>
         </fieldset>&nbsp;
     </td>
+
 </tr>

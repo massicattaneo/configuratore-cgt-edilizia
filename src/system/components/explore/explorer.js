@@ -1,31 +1,101 @@
 import headTpl from './head.html';
-import { createModal } from '../../utils';
+import { createModal, flatten } from '../../utils';
 import editTpl from './edit.html';
 import { RetryRequest } from '../../../../modules/gml-http-request';
 
-export default function (template, itemTemplate, data, tableName, window, system) {
+function getValue(item, key, keyAppendix, what) {
+    return what === 'key' ? `${keyAppendix}${key}` || '' : item[key].toString();
+}
+
+function isObject(value) {
+    return value instanceof Object && !(value instanceof Array);
+}
+
+function reduceObject(item, what = 'value', keyAppendix = '') {
+    return Object.keys(item)
+        .filter(key => key !== 'id' && key !== '_id' && key !== 'activationCode' && key !== 'userAuth' && key !== 'hash' && key !== 'userId' && key !== '')
+        .map(key => isObject(item[key]) ? reduceObject(item[key], what, `${keyAppendix}${key}.`) : `${getValue(item, key, keyAppendix, what)}`);
+}
+
+function escape(string) {
+    return string.toString().replace(/"/g, '\'').replace(/\n/g, '').replace(/\r/g, '').replace(/\t/g, '')
+}
+
+function escapeEnd(string) {
+    return string.replace(/\\",/g, '.",')
+}
+
+function getColumnItem(item, col) {
+    const keys = col.split('.');
+    const value = keys.reduce((acc, key) => {
+        return acc[key] || {};
+    }, item);
+    return value instanceof Object ? '' : escape(value);
+}
+
+export default function ({ template, itemTemplate, filters }, data, tableName, Window, system) {
     const obj = {};
     let index = 0;
     let content;
     let head;
     let filterText = '';
     let table = data.slice(0);
+    let sort = {
+        field: '',
+        direction: 1,
+        type: 'text'
+    };
+
+    const sorters = {
+        text: (a, b) => sort.direction * (a.localeCompare(b)),
+        number: (a, b) => sort.direction * (a - b),
+        date: (a, b) => sort.direction * (new Date(a).getTime() - new Date(b).getTime())
+    };
 
     function filter() {
+        const splitFilter = filterText.split(' ').map(i => i.trim());
         table = data
+            .sort(function (a, b) {
+                if (!sort.field) return 1;
+                const a1 = sort.field.split('.').reduce((val, o) => val[o], a);
+                const b1 = sort.field.split('.').reduce((val, o) => val[o], b);
+                return sorters[sort.type](a1, b1);
+            })
             .filter(i => {
-                const checkName = i.name.toUpperCase().indexOf(filterText.toUpperCase()) !== -1;
-                const checkCategory = i.equipmentFamily.toUpperCase().indexOf(filterText.toUpperCase()) !== -1;
-                return checkName || checkCategory;
+                return filters.reduce(function (acc, field) {
+                    const ands = field.split('&').map(i => i.trim());
+                    if (i[field] && i[field].indexOf(filterText) !== -1) return true;
+                    const matches = ands.filter(function (and) {
+                        const red = and.split('.').reduce((val, o) => val[o], i).toUpperCase();
+                        return splitFilter.filter(f => red.indexOf(f.toUpperCase()) !== -1).length > 0;
+                    });
+                    return !filterText || acc || (matches.length === splitFilter.length);
+                }, false);
             });
         content.clear('items');
-        window.loadContent();
+        Window.loadContent();
     }
 
-    obj.start = function () {
-        content = window.content(template, [], {});
-        head = window.head(headTpl, [], {});
-        const form = window.get();
+    obj.sort = function (e) {
+        const attribute = e.target.getAttribute('data-sort');
+        if (attribute) {
+            const [field, type] = attribute.split(':');
+            if (field === sort.field) sort.direction *= -1;
+            sort.field = field;
+            sort.type = type;
+            index = 0;
+            filter();
+        }
+    };
+
+    obj.start = function (search = '') {
+        content = Window.content(template, [], {});
+        head = Window.head(headTpl, [], {});
+        Array.from(content.get().getElementsByTagName('th')).forEach(function (el) {
+            el.addEventListener('click', obj.sort);
+            el.style.cursor = 'pointer';
+        });
+        const form = Window.get();
         form.block = function (bool) {
             content.get().className = bool ? 'alternate-table blocks' : 'alternate-table';
         };
@@ -72,11 +142,36 @@ export default function (template, itemTemplate, data, tableName, window, system
                         if (!isDeleted)
                             system.db.equipements.push(item);
                         system.updateDb();
-                        filter();
                         close();
+                        index = 0;
+                        filter();
                     });
             }
         };
+        form.save = function () {
+            const columns = flatten(table
+                .reduce((a, i) => a.concat(reduceObject(i, 'key')), []))
+                .filter((o, i, a) => a.indexOf(o) === i)
+                .sort((a, b) => a.localeCompare(b));
+
+            const csvContent = [columns.join(',')].concat(table.map(item => {
+                return columns.map(col => `"${getColumnItem(item, col)}"`).join(',');
+            }));
+
+            const encodedUri = encodeURI(`data:text/csv;charset=utf-8,${escapeEnd(csvContent.join('\r\n'))}`);
+            window.open(encodedUri);
+        };
+        if (search) {
+            filterText = search;
+            filter();
+            form.block(true);
+        }
+    };
+
+    obj.destroy = function () {
+        Array.from(content.get().getElementsByTagName('th')).forEach(function (el) {
+            el.removeEventListener('click', obj.sort);
+        });
     };
 
     obj.loadContent = async function () {
@@ -84,7 +179,7 @@ export default function (template, itemTemplate, data, tableName, window, system
         if (content && item) {
             content.appendTo('items', itemTemplate, [], Object.assign({}, item, {
                 showEdit: item.equipmentFamily === 'FUORI LISTINO' ? 'inline-block' : 'none',
-                name: filterText ?
+                name: filterText && item.name ?
                     item.name.replace(new RegExp(filterText, 'i'), `<strong style="color: green">${filterText}</strong>`) :
                     item.name
             }));

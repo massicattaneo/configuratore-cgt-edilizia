@@ -1,0 +1,17 @@
+<tr>
+    <td style="display: none;" data-label="ID: "><a style="color: #ae0d0e;" target="_blank" href="/api/pdf/budget/vehiclebudgets/{{id}}">{{id}}</a></td>
+    <td data-label="DATA: ">{{formatShortDate(created)}}</td>
+    <td style="display: none;" data-label="UTENTE: ">{{user.surname}} {{user.name}}</td>
+    <td data-label="MACCHINA: " style="display: none;">{{family}} {{model}} {{version}}</td>
+    <td data-label="NOME CLIENTE: ">{{client.name}}&nbsp;</td>
+    <td style="display: none;" data-label="INDIRIZZO CLIENTE: ">{{client.address}}&nbsp;</td>
+    <td style="display: none;" data-label="C/A: ">{{client.pa}} <a style="color: #ae0d0e;" href="mailto:{{client.address}}">{{client.email}}</a>&nbsp;</td>
+    <td data-label="PREZZO OFFERTO: ">{{toCurrency(summary.price)}}</td>
+    <td style="display: none;" data-label="ATTREZZATURE: ">{{#each equipment}}
+            <a style="color: #ae0d0e;" onclick="window.navigate(this, event)"
+               href="/it/esplora/attrezzature?id={{this}}">{{this}}</a>
+            &nbsp;
+        {{/each}}&nbsp;
+    </td>
+    <td style="display: none;" data-label="ORDINE: ">{{YesNo(ordered)}}</td>
+</tr>

@@ -2,43 +2,66 @@
     <form #form>
         <div class="mdl-dialog__content" style="padding: 20px 0;">
             <h6>RIEPILOGO PREZZI</h6>
-            <table width="100%" class="alternate-table">
+            <table #table width="100%" class="alternate-table">
                 <tr>
-                    <td>&nbsp;</td>
-                    <td style="text-align: right;">LISTINO</td>
-                    <td style="text-align: right;">MINIMO</td>
+                    <td>DESCRIZIONE</td>
+                    <td style="text-align: right;width: 90px;">LISTINO</td>
+                    <td style="text-align: right;width: 90px;">MINIMO</td>
                 </tr>
                 <tr>
                     <td>Macchina</td>
-                    <td style="text-align: right;">{{vehicle.priceReal}}</td>
-                    <td style="text-align: right;">{{vehicle.priceMin}}</td>
+                    <td style="text-align: right;">{{toCurrency(vehicle.priceReal)}}</td>
+                    <td style="text-align: right;">{{toCurrency(vehicle.priceMin)}}</td>
                 </tr>
                 {{#each equipments}}
                 <tr>
                     <td>{{this.name}}</td>
-                    <td style="text-align: right;">{{this.priceReal}}</td>
-                    <td style="text-align: right;">{{this.priceMin}}</td>
+                    <td style="text-align: right;">{{toCurrency(this.priceReal)}}</td>
+                    <td style="text-align: right;">{{toCurrency(this.priceMin)}}</td>
                 </tr>
                 {{/each}}
+
+                {{#each charges}}
+                <tr>
+                    <td>{{this.description}}</td>
+                    <td style="text-align: right;">{{toCurrency(this.priceReal)}}</td>
+                    <td style="text-align: right;">{{toCurrency(this.priceMin)}}</td>
+                </tr>
+                {{/each}}
+
                 <tr>
                     <td>Totale</td>
-                    <td style="text-align: right;">{{total.priceReal}}</td>
-                    <td style="text-align: right;">{{total.priceMin}}</td>
+                    <td style="text-align: right;">{{toCurrency(total.priceReal)}}</td>
+                    <td style="text-align: right;">{{toCurrency(total.priceMin)}}</td>
                 </tr>
                 <tr style="display: {{showExchange}}">
-                    <td>Valore di acquisto permuta</td>
-                    <td style="text-align: right;">{{exchange.priceReal}}</td>
-                    <td style="text-align: right;">{{exchange.priceMin}}</td>
+                    <td>Valutazione della permuta</td>
+                    <td style="text-align: right;">{{toCurrency(exchange.priceReal)}}</td>
+                    <td style="text-align: right;">{{toCurrency(exchange.priceMin)}}</td>
                 </tr>
                 <tr style="display: {{showExchange}}">
                     <td>Nuovo totale</td>
-                    <td style="text-align: right;">{{newTotal.priceReal}}</td>
-                    <td style="text-align: right;">{{newTotal.priceMin}}</td>
+                    <td style="text-align: right;">{{toCurrency(newTotal.priceReal)}}</td>
+                    <td style="text-align: right;">{{toCurrency(newTotal.priceMin)}}</td>
+                </tr>
+
+                <tr>
+                    <td colspan="3">-</td>
+                </tr>
+
+                <tr>
+                    <td>PREZZO OFFERTO</td>
+                    <td colspan="2" style="text-align: right;">{{toCurrency(offeredPrice)}}</td>
+                </tr>
+                <tr>
+                    <td>VN%</td>
+                    <td colspan="2" style="text-align: right;">{{toPercentage(vn)}}</td>
                 </tr>
             </table>
         </div>
         <div class="mdl-dialog__actions">
             <button type="button" class="mdl-button close" onclick="this.form.close()">CHIUDI</button>
+            <button type="button" class="mdl-button close" onclick="this.form.download()">SCARICA</button>
         </div>
     </form>
 </dialog>

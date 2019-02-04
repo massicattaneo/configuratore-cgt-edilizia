@@ -3,7 +3,7 @@ const path = require('path');
 const sizeOf = require('image-size');
 const loc = require('../static/localization/system/it.json');
 const { calculateTotal, isOutsource } = require('../shared');
-const { addHeader, getLongDate, toCurrency } = require('./addHeader');
+const { addHeader, getLongDate, toCurrency, getClientAddress } = require('./addHeader');
 
 module.exports = function createPdfOrder(res, budget, dbx, user) {
     const doc = new PdfDoc();
@@ -33,7 +33,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .text('Spett.le', spettMarginLeft);
     doc.y += 5;
     doc.text(budget.client.name || '', spettMarginLeft)
-        .text(budget.client.address || '', spettMarginLeft);
+        .text(getClientAddress(budget.client), spettMarginLeft);
     pos = 154;
 
     /** Date */
@@ -104,7 +104,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
 
 
     budget.equipment.forEach((eqId, index) => {
-        const eq = dbx.equipements.find(e => e.id === eqId);
+        const eq = dbx.equipements.find(e => e.id === eqId) || {};
         pos += index === 0 ? 10 : 60;
         if (doc.y > 630) {
             doc.addPage();

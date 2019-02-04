@@ -1,0 +1,89 @@
+<div style="padding: 6px;">
+    <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+        <input value="{{salecharges.transport}}" class="mdl-currency-usd__input" type="text" id="salecharges_transport"
+               onkeyup="this.form.updateSaleCharges('transport', this.value)">
+        <label class="mdl-currency-usd__label" for="salecharges_transport">TRASPORTO</label>
+        <div class="mdl-currency-usd__symbol">€</div>
+        <span class="mdl-currency-usd__error">#.##</span>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input value="{{salecharges.leasingCharge}}" onkeyup="this.form.updateSaleCharges('leasingCharge', this.value)"
+               class="mdl-textfield__input" type="text" id="salecharges_leasing_charge">
+        <label class="mdl-textfield__label" for="salecharges_leasing_charge">
+            ONERE FINANZIAMENTO LEASING (%)
+        </label>
+    </div>
+    <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+        <input value="{{salecharges.directFinancingCharge}}" class="mdl-currency-usd__input" type="text" id="salecharges_direct_financing_charge"
+               onkeyup="this.form.updateSaleCharges('directFinancingCharge', this.value)">
+        <label class="mdl-currency-usd__label" for="salecharges_direct_financing_charge">ONERE FINANZIAMENTO DIRETTO</label>
+        <div class="mdl-currency-usd__symbol">€</div>
+        <span class="mdl-currency-usd__error">#.##</span>
+    </div>
+    <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+        <input value="{{salecharges.promotionalCampaign}}" class="mdl-currency-usd__input" type="text" id="salecharges_promotional_campaign"
+               onkeyup="this.form.updateSaleCharges('promotionalCampaign', this.value)">
+        <label class="mdl-currency-usd__label" for="salecharges_promotional_campaign">CAMPAGNA PROMOZIONALE</label>
+        <div style="width: 40px;" class="mdl-currency-usd__symbol">€ -</div>
+        <span class="mdl-currency-usd__error">#.##</span>
+    </div>
+    <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+        <input value="{{salecharges.unconditionalDiscount}}" class="mdl-currency-usd__input" type="text" id="salecharges_unconditional_discount"
+               onkeyup="this.form.updateSaleCharges('unconditionalDiscount', this.value)">
+        <label class="mdl-currency-usd__label" for="salecharges_unconditional_discount">ABBUONO INCONDIZIONATO</label>
+        <div class="mdl-currency-usd__symbol">€</div>
+        <span class="mdl-currency-usd__error">#.##</span>
+    </div>
+    <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+        <input value="{{salecharges.cuttingOff}}" class="mdl-currency-usd__input" type="text" id="salecharges_cutting_off"
+               onkeyup="this.form.updateSaleCharges('cuttingOff', this.value)">
+        <label class="mdl-currency-usd__label" for="salecharges_cutting_off">1° TAGLIANDO</label>
+        <div class="mdl-currency-usd__symbol">€</div>
+        <span class="mdl-currency-usd__error">#.##</span>
+    </div>
+
+    <table class="alternate-table" width="100%">
+    {{#each customCharges}}
+    <tr>
+        <td>{{this.description}}</td>
+        <td width="70px" style="text-align: right">{{toCurrency(this.amount)}}</td>
+        <td width="50px"><button type="button"
+                    onclick="this.form.removeCustomCharge({{this.id}})"
+                    class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">
+            <i class="material-icons">delete</i>
+        </button>
+        </td>
+    </tr>
+    {{/each}}
+    </table>
+
+    <fieldset style="border: 1px solid #ae0d0e;padding: 5px;">
+        <legend>ALTRI ONERI</legend>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="text" id="salecharges_custom_description" />
+            <label class="mdl-textfield__label" for="salecharges_custom_description">
+                DESCRIZIONE
+            </label>
+        </div>
+        <div class="mdl-currency-usd mdl-js-currency-usd mdl-currency-usd--floating-label">
+            <input class="mdl-currency-usd__input" type="text" id="salecharges_custom_amount">
+            <label class="mdl-currency-usd__label" for="salecharges_custom_amount">VALORE</label>
+            <div class="mdl-currency-usd__symbol">€</div>
+            <span class="mdl-currency-usd__error">#.##</span>
+        </div>
+        <button type="button"
+                onclick="this.form.addCustomCharge()"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">
+            AGGIUNGI ONERE
+        </button>
+    </fieldset>
+
+    <hr/>
+    <div style="text-align: center">
+        <button type="button"
+                onclick="this.form.step('summarys', 'salecharges')"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">
+            PROSEGUI
+        </button>
+    </div>
+</div>

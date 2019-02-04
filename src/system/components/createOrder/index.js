@@ -1,7 +1,6 @@
 import { HtmlView } from 'gml-html';
 import template from './template.html';
 import orderTpl from './order.html';
-import vehicleSummary from './vehicleSummary.html';
 import filesTpl from './files.html';
 import * as style from './style.scss';
 import {
@@ -11,8 +10,10 @@ import {
     isOutsource
 } from '../../../../web-app-deploy/shared';
 import { RetryRequest } from '../../../../modules/gml-http-request';
+import { showPriceSummaryList } from '../../utils';
+import priceSummaryTpl from '../vehicles/priceSummary.html';
 
-export default async function ({ locale, system, thread }) {
+export default async function ({ locale, system, thread, gos }) {
     const view = HtmlView(template, style, locale.get());
     let subView;
     let budget;
@@ -123,6 +124,27 @@ export default async function ({ locale, system, thread }) {
                 }, 100);
             };
 
+            form.previewBudget = function (table, id) {
+                window.open(`/api/pdf/budget/${table}/${id}`);
+            };
+
+            form.modifyBudget = function (table, id) {
+                const item = Object.assign({}, system.store[table].find(i => i._id === id));
+                if (table === 'vehiclebudgets') {
+                    item.id = item._id;
+                    delete item._id;
+                    delete item.photo;
+                    delete item.validity;
+                    gos.vehicles.updateFromItem(item);
+                    system.navigateTo('/it/configuratore-macchine?redirect=createOrder');
+                } else {
+                    item.id = item._id;
+                    delete item._id;
+                    gos.equipments.updateFromItem(item);
+                    system.navigateTo('/it/configuratore-attrezzature?redirect=createOrder');
+                }
+            };
+
             form.save = async function (table, id) {
                 if (!store.price) return system.throw('missingOrderPrice');
                 if (!store.deliveryDate) return system.throw('missingDeliveryDate');
@@ -140,6 +162,11 @@ export default async function ({ locale, system, thread }) {
                 system.navigateTo(locale.get('urls.orders.href'));
             };
 
+            form.showPriceList = function (table, id) {
+                if (table !== 'vehiclebudgets') return;
+                const budget = Object.assign({}, system.store[table].find(i => i._id === id));
+                showPriceSummaryList(system, budget, budget.salecharges, budget.exchange, budget.summary, store.price, priceSummaryTpl);
+            };
         }
         if (subView && subView.get('files')) {
             subView.clear('files').appendTo('files', filesTpl, [], { files: store.files });
