@@ -20,7 +20,7 @@ function sDisplay(id) {
 }
 
 import { calculateTotal, emptyLeasing, emptyVehicleSaleCharge } from '../../../../web-app-deploy/shared';
-import { showPriceSummaryList } from '../../utils';
+import { calculateChargesPriceMin, showPriceSummaryList } from '../../utils';
 
 export default async function ({ locale, system, thread, gos }) {
     const view = HtmlView(template, style, locale.get());
@@ -73,9 +73,12 @@ export default async function ({ locale, system, thread, gos }) {
     function checkPrice() {
         const el = document.getElementById('v_summary_price');
         if (el && system.store.userAuth <= 1) {
+            const priceReal = calculateTotal(store, system.db, 'priceReal');
             const priceMin = calculateTotal(store, system.db, 'priceMin');
+            const { totalChargesMin } = calculateChargesPriceMin(salecharges, priceReal, priceMin, exchange);
+
             el.style.backgroundColor = 'rgba(0,255,0,0.2)';
-            if (priceMin > Number(summary.price)) {
+            if ((priceMin + totalChargesMin) > Number(summary.price)) {
                 el.style.backgroundColor = 'rgba(255,0,0,0.2)';
             }
         }

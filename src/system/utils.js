@@ -37,8 +37,7 @@ export function flatten(array) {
     return array.reduce((acc, i) => acc.concat(flatten(i)), []);
 }
 
-export function showPriceSummaryList(system, store, salecharges, exchange, summary, offeredPrice, priceSummaryTpl) {
-    window.event.stopPropagation();
+export function calculateChargesPriceMin(salecharges, priceReal, priceMin, exchange) {
     const mapping = {
         transport: 'Trasporto',
         leasingCharge: 'Onere finanziamento leasing',
@@ -47,11 +46,6 @@ export function showPriceSummaryList(system, store, salecharges, exchange, summa
         unconditionalDiscount: 'Abbuono incondizionato',
         cuttingOff: '1° tagliando'
     };
-    const version = system.db.versions
-        .find(v => v.id === store.version);
-    const eq = store.equipment.map(id => system.db.equipements.find(e => e.id === id));
-    const priceReal = calculateTotal(store, system.db, 'priceReal');
-    const priceMin = calculateTotal(store, system.db, getPriceType(system.store.userAuth));
     const charges = flatten(Object.keys(salecharges)
         .map(key => {
             if (key === 'customCharges') {
@@ -65,8 +59,8 @@ export function showPriceSummaryList(system, store, salecharges, exchange, summa
             } else if (key === 'leasingCharge') {
                 return {
                     description: mapping[key],
-                    priceReal: salecharges[key] * priceReal / 100,
-                    priceMin: salecharges[key] * priceMin / 100
+                    priceReal: Number(salecharges[key].replace(',', '.')) * priceReal / 100,
+                    priceMin: Number(salecharges[key].replace(',', '.')) * priceMin / 100
                 };
             } else if (key === 'promotionalCampaign') {
                 return {
@@ -89,6 +83,17 @@ export function showPriceSummaryList(system, store, salecharges, exchange, summa
 
     const totalChargesReal = charges.reduce((a, b) => a + Number(b.priceReal), 0);
     const totalChargesMin = charges.reduce((a, b) => a + Number(b.priceMin), 0);
+    return { charges, totalChargesReal, totalChargesMin };
+}
+
+export function showPriceSummaryList(system, store, salecharges, exchange, summary, offeredPrice, priceSummaryTpl) {
+    window.event.stopPropagation();
+    const version = system.db.versions
+        .find(v => v.id === store.version);
+    const eq = store.equipment.map(id => system.db.equipements.find(e => e.id === id));
+    const priceReal = calculateTotal(store, system.db, 'priceReal');
+    const priceMin = calculateTotal(store, system.db, getPriceType(system.store.userAuth));
+    const { charges, totalChargesReal, totalChargesMin } = calculateChargesPriceMin(salecharges, priceReal, priceMin, exchange);
 
     const { modalView } = createModal(priceSummaryTpl, {
         vehicle: {
@@ -118,12 +123,19 @@ export function showPriceSummaryList(system, store, salecharges, exchange, summa
         charges
     });
     modalView.get('form').download = function () {
-        const csvContent = [].slice
+        const allData = [].slice
             .call(modalView.get('table').getElementsByTagName('tr'))
             .filter(i => i.style.display !== 'none')
-            .map(tr => `${[].slice.call(tr.children)
-                .map(i => `"${i.innerText.replace('€', '').replace('&nbsp;', '')}"`).join(',')}`);
-        const encodedUri = encodeURI(`data:text/csv;charset=utf-8,${csvContent.join('\r\n')}`);
-        window.open(encodedUri);
+            .map(tr => [].slice.call(tr.children).map(i => i.innerText));
+        const columns = flatten(allData.splice(0,1));
+        const data = allData.map(item => {
+            return columns.reduce((acc, key, index) => {
+                acc[key] = item[index];
+                return acc;
+            }, {})
+        });
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), 'sommario');
+        XLSX.writeFile(wb, `SOMMARIO_PREZZI.xlsx`);
     };
 }

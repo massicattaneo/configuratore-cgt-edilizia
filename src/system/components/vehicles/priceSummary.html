@@ -34,6 +34,12 @@
                     <td style="text-align: right;">{{toCurrency(total.priceReal)}}</td>
                     <td style="text-align: right;">{{toCurrency(total.priceMin)}}</td>
                 </tr>
+
+                <tr>
+                    <td>VN%</td>
+                    <td colspan="2" style="text-align: right;">{{toPercentage(vn)}}</td>
+                </tr>
+
                 <tr style="display: {{showExchange}}">
                     <td>Valutazione della permuta</td>
                     <td style="text-align: right;">{{toCurrency(exchange.priceReal)}}</td>
@@ -53,10 +59,7 @@
                     <td>PREZZO OFFERTO</td>
                     <td colspan="2" style="text-align: right;">{{toCurrency(offeredPrice)}}</td>
                 </tr>
-                <tr>
-                    <td>VN%</td>
-                    <td colspan="2" style="text-align: right;">{{toPercentage(vn)}}</td>
-                </tr>
+
             </table>
         </div>
         <div class="mdl-dialog__actions">

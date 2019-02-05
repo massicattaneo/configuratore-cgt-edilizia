@@ -140,6 +140,14 @@ const stockMachinesDataStructure = {
     mso: 'Ordine Fornitore',
     manufactureDate: 'Anno/Mese Costr.Macch.',
     availability: 'Disponibilit',
+    state: 'Stato',
+    commented: { column: 'Commento', convert: item => item ? 'SI' : 'NO' },
+    specifications: {
+        column: 'Caratteristica 1', convert: (item, ret, row, db) => {
+            return [row[`Caratteristica 1`], row[`Caratteristica 2`], row[`Caratteristica 3`],
+                row[`Caratteristica 4`], row[`Caratteristica 5`], row[`Caratteristica 6`]].join(', ');
+        }
+    },
     expectedEntryDate: { column: 'Data Prevista Entrata Merce', convert: convertAmericanDate },
     positioning: 'Presente in Magazzino'
 };
@@ -246,7 +254,10 @@ module.exports = function (mongo) {
         console.log('/****** parsing CGT EDILIZIA DROPBOX DATABASE');
         db.familys = parse('Famiglia Macchine', familyDataStructure).filter(({ id }) => id.indexOf('-') === -1);
         db.models = parse('Modelli', modeldataStructure);
-        db.vehicleAvailability = parse('vehicleAvailability', stockMachinesDataStructure).filter(item => item.mso);
+        db.vehicleAvailability = parse('vehicleAvailability', stockMachinesDataStructure).filter(item => item.mso)
+            .filter(i => i.state.toUpperCase() !== 'IMPEGNATA PER VENDITA'
+                || i.state.toUpperCase() !== 'OPZIONATA PER NOLEGGIO'
+                || i.state.toUpperCase() !== 'OPZIONATA PER VENDITA');
         db.versions = parse('Listino macchine', versionDataStructure);
         db.equipements = parse('Listino attrezz. SSL-CTL-CWL', equipementDataStructure);
         db.equipements.push(...parse('Listino attrezzature MHE', equipementDataStructure));
@@ -570,7 +581,7 @@ async function getRetailersListFromDropBox(dbx) {
 }
 
 async function getNavisionDatabaseFromDropBox(dbx) {
-    const fileData = await dbx.filesDownload({ path: '/APPS/configuratore-cgt-edilizia/Estrazione_ZDispo/navision.xlsx' });
+    const fileData = await dbx.filesDownload({ path: '/APPS/configuratore-cgt-edilizia/Estrazione_ZDispo/ZDISPO.xlsx' });
     const read_opts = {
         type: '', //base64, binary, string, buffer, array, file
         raw: false, //If true, plain text parsing will not parse values **

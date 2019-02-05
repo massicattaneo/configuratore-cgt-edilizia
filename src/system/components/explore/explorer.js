@@ -2,6 +2,7 @@ import headTpl from './head.html';
 import { createModal, flatten } from '../../utils';
 import editTpl from './edit.html';
 import { RetryRequest } from '../../../../modules/gml-http-request';
+import { Node } from '../../../../modules/gml-html';
 
 function getValue(item, key, keyAppendix, what) {
     return what === 'key' ? `${keyAppendix}${key}` || '' : item[key].toString();
@@ -17,20 +18,12 @@ function reduceObject(item, what = 'value', keyAppendix = '') {
         .map(key => isObject(item[key]) ? reduceObject(item[key], what, `${keyAppendix}${key}.`) : `${getValue(item, key, keyAppendix, what)}`);
 }
 
-function escape(string) {
-    return string.toString().replace(/"/g, '\'').replace(/\n/g, '').replace(/\r/g, '').replace(/\t/g, '')
-}
-
-function escapeEnd(string) {
-    return string.replace(/\\",/g, '.",')
-}
-
 function getColumnItem(item, col) {
     const keys = col.split('.');
     const value = keys.reduce((acc, key) => {
         return acc[key] || {};
     }, item);
-    return value instanceof Object ? '' : escape(value);
+    return value instanceof Object ? '' : value;
 }
 
 export default function ({ template, itemTemplate, filters }, data, tableName, Window, system) {
@@ -154,12 +147,16 @@ export default function ({ template, itemTemplate, filters }, data, tableName, W
                 .filter((o, i, a) => a.indexOf(o) === i)
                 .sort((a, b) => a.localeCompare(b));
 
-            const csvContent = [columns.join(',')].concat(table.map(item => {
-                return columns.map(col => `"${getColumnItem(item, col)}"`).join(',');
-            }));
+            const csvContent = table.map(function (item) {
+                return columns.reduce((acc, col) => {
+                    acc[col] = getColumnItem(item, col);
+                    return acc;
+                }, {});
+            });
 
-            const encodedUri = encodeURI(`data:text/csv;charset=utf-8,${escapeEnd(csvContent.join('\r\n'))}`);
-            window.open(encodedUri);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), tableName);
+            XLSX.writeFile(wb, `ESTRAZIONE_${new Date().formatDay('dd_mm_yy', [])}.xlsx`);
         };
         if (search) {
             filterText = search;
