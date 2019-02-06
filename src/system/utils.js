@@ -120,7 +120,8 @@ export function showPriceSummaryList(system, store, salecharges, exchange, summa
         },
         offeredPrice,
         vn: ((offeredPrice - (priceMin + totalChargesMin)) / (priceMin + totalChargesMin)) * 100,
-        charges
+        charges,
+        showVN: Number(system.store.userAuth) <= 1 ? 'table-row' : 'none'
     });
     modalView.get('form').download = function () {
         const allData = [].slice
