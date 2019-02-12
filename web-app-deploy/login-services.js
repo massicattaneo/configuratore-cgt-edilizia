@@ -47,8 +47,9 @@ module.exports = function ({ app, mongo, dropbox, mailer, bruteforce, requiresLo
                 user,
                 vehiclebudgets: vehiclebudgets.map(i => {
                     const equipment = i.equipment.filter(id => dbx.equipements.find(e => e.id === id));
+                    const vehicleExist = dbx.versions.find(v => v.id === i.version)
                     return Object.assign(i, {
-                        equipment, outdated : equipment.length !== i.equipment.length
+                        equipment, outdated : (!vehicleExist) || equipment.length !== i.equipment.length
                     });
                 }),
                 equipmentbudgets: equipmentbudgets.map(i => {
