@@ -142,20 +142,8 @@ export default function ({ template, itemTemplate, filters }, data, tableName, W
             }
         };
         form.save = function () {
-            const columns = flatten(table
-                .reduce((a, i) => a.concat(reduceObject(i, 'key')), []))
-                .filter((o, i, a) => a.indexOf(o) === i)
-                .sort((a, b) => a.localeCompare(b));
-
-            const csvContent = table.map(function (item) {
-                return columns.reduce((acc, col) => {
-                    acc[col] = getColumnItem(item, col);
-                    return acc;
-                }, {});
-            });
-
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), tableName);
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(table), tableName);
             XLSX.writeFile(wb, `ESTRAZIONE_${new Date().formatDay('dd_mm_yy', [])}.xlsx`);
         };
         if (search) {

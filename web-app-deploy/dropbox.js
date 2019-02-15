@@ -141,7 +141,7 @@ const stockMachinesDataStructure = {
     manufactureDate: 'Anno/Mese Costr.Macch.',
     availability: 'Disponibilit',
     state: 'Stato',
-    commented: { column: 'Commento', convert: item => item ? 'SI' : 'NO' },
+    commented: { column: 'Commento', convert: item => item ? item : 'No' },
     specifications: {
         column: 'Caratteristica 1', convert: (item, ret, row, db) => {
             return [row[`Caratteristica 1`], row[`Caratteristica 2`], row[`Caratteristica 3`],
@@ -552,6 +552,7 @@ function parse(sheetName, data) {
 async function getDbFromDropBox(dbx) {
     const ret = {};
     const fileData = await dbx.filesDownload({ path: '/APPS/configuratore-cgt-edilizia/db.xlsx' });
+    // const fileData = await dbx.filesDownload({ path: '/APPS/configuratore-cgt-edilizia/db - in elaborazione.xlsx' });
     const read_opts = {
         type: '', //base64, binary, string, buffer, array, file
         raw: false, //If true, plain text parsing will not parse values **
