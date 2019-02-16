@@ -124,12 +124,7 @@ const equipementDataStructure = {
     priceOutsource: { column: 'Prezzo concessionario', convert: convertCurrency },
     priceOriginalOutsource: { column: 'Prezzo concessionario', convert: convertCurrency },
     priceCGT: { column: 'Prezzo CGT', convert: convertCurrency },
-    familys: {
-        column: 'Famiglia macchine', convert: function (string) {
-            if (!string) console.log(...arguments);
-            return string ? string.split('-') : [];
-        }
-    },
+    familys: { column: 'Famiglia macchine', convert: string => string.split('-') },
     equipmentFamily: 'Famiglia attrezzature',
     constructorId: 'Costruttore',
     time: 'Tempi da fabbrica',
