@@ -65,7 +65,7 @@ module.exports = {
     },
     emptyVehicleSaleCharge: function emptyVehicleSaleCharge() {
         return {
-            transport: 500,
+            transport: '',
             leasingCharge: '',
             directFinancingCharge: '',
             promotionalCampaign: '',

@@ -20,9 +20,10 @@ export default async function ({ system, gos, locale }) {
                 .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
                 .filter(i => !i.ordered)
                 .map(b => {
+                    const photoItem = (system.db.models.find(m => m.id === b.model) || {src: '/assets/images/no-image.jpg'});
                     return Object.assign({
                         validity: b.summary.validity,
-                        photo: `${system.db.models.find(m => m.id === b.model).src}?v=${system.info().version}`,
+                        photo: `${photoItem.src}?v=${system.info().version}`,
                         clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
                         disabled: b.client.name ? '' : 'disabled="disabled"',
                         versionName: (system.db.versions.find(v => v.id === b.version) || {name: '*********'}).name
