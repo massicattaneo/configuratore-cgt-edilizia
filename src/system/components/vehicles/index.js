@@ -19,8 +19,13 @@ function sDisplay(id) {
     return id ? 'display: block;' : 'display: none;';
 }
 
-import { calculateTotal, emptyLeasing, emptyVehicleSaleCharge } from '../../../../web-app-deploy/shared';
-import { calculateChargesPriceMin, showPriceSummaryList } from '../../utils';
+import {
+    calculateChargesPriceMin,
+    calculateTotal,
+    emptyLeasing,
+    emptyVehicleSaleCharge
+} from '../../../../web-app-deploy/shared';
+import { showPriceSummaryList } from '../../utils';
 
 export default async function ({ locale, system, thread, gos }) {
     const view = HtmlView(template, style, locale.get());

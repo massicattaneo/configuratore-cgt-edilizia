@@ -1,6 +1,7 @@
 const XLSX = require('xlsx');
 const fs = require('fs');
 const shared = require('../shared');
+const { toCurrency, toPercentage } = require('../pdf/addHeader');
 
 module.exports = {
     createVehicleCgteXlsx: function (budget, dbx, order, user, xlsxPath) {
@@ -54,6 +55,20 @@ module.exports = {
         });
         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), 'Attrezzature');
 
+        const priceSummaryList = shared.createPriceSummaryList(dbx, user.userAuth, budget, budget.summary.price);
+        const priceSummaryListJson = [
+            ['DESCRIZIONE', 'LISTINO', 'MINIMO'],
+            ['Macchina', toCurrency(priceSummaryList.vehicle.priceReal), toCurrency(priceSummaryList.vehicle.priceMin)]
+        ]
+            .concat(priceSummaryList.equipments.map(({ name, priceReal, priceMin }) => [name, toCurrency(priceReal), toCurrency(priceMin)]))
+            .concat(priceSummaryList.charges.map(({ description, priceReal, priceMin }) => [description, toCurrency(priceReal), toCurrency(priceMin)]))
+            .concat([['Totale', toCurrency(priceSummaryList.total.priceReal), toCurrency(priceSummaryList.total.priceMin)]])
+            .concat(priceSummaryList.showVN === 'none' ? [[]] : [['VN%', '', toPercentage(priceSummaryList.vn)]])
+            .concat(priceSummaryList.showExchange === 'none' ? [[]] : [['Valutazione della permuta', toCurrency(priceSummaryList.exchange.priceReal), toCurrency(priceSummaryList.exchange.priceMin)]])
+            .concat(priceSummaryList.showExchange === 'none' ? [[]] : [['Nuovo totale', toCurrency(priceSummaryList.newTotal.priceReal), toCurrency(priceSummaryList.newTotal.priceMin)]])
+            .concat([['PREZZO OFFERTO', '', toCurrency(priceSummaryList.offeredPrice)]]);
+
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(priceSummaryListJson), 'Riepilogo Prezzi');
         /* generate buffer */
         const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
@@ -116,7 +131,10 @@ module.exports = {
             { CAMPO: 'Cliente', VALORE: budget.client.name },
             { CAMPO: 'Campagna', VALORE: order.outsource.campaign },
             { CAMPO: `Prezzo ${outsource ? 'acquisto' : 'vendita'}`, VALORE: order.price },
-            { CAMPO: `Prezzo minimo ${outsource ? 'acquisto' : 'vendita'} (TOTALE)`, VALORE: shared.calculateEqTotal(budget, dbx, shared.getPriceType(user.userAuth)) },
+            {
+                CAMPO: `Prezzo minimo ${outsource ? 'acquisto' : 'vendita'} (TOTALE)`,
+                VALORE: shared.calculateEqTotal(budget, dbx, shared.getPriceType(user.userAuth))
+            },
             { CAMPO: 'Trasporto', VALORE: order.outsource.transport },
             { CAMPO: 'Pagamento', VALORE: order.outsource.payment },
             { CAMPO: `Data ${outsource ? 'acquisto' : 'vendita'}`, VALORE: order.created.substr(0, 10) },
