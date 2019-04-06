@@ -6,7 +6,7 @@ import * as style from './style.scss';
 import {
     calculateEqOfferedTotal,
     calculateEqTotal,
-    calculateTotal,
+    calculateTotal, getPriceType,
     isOutsource
 } from '../../../../web-app-deploy/shared';
 import { RetryRequest } from '../../../../modules/gml-http-request';
@@ -60,6 +60,9 @@ export default async function ({ locale, system, thread, gos }) {
             const priceOffered = isVehicle
                 ? budget.summary.price || calculateTotal(budget, system.db, 'priceReal')
                 : calculateEqOfferedTotal(budget, system.db);
+            const priceMin = isVehicle
+                ? calculateTotal(budget, system.db, getPriceType(userAuth))
+                : calculateEqTotal(budget, system.db, getPriceType(userAuth));
             subView = view.clear().appendTo('', orderTpl, [], {
                 version: version,
                 family: family,
@@ -69,10 +72,11 @@ export default async function ({ locale, system, thread, gos }) {
                 showExtendedOrder: (userAuth <= 1 && isVehicle) ? 'inline-block' : 'none',
                 showOutsource: (isOutsource(userAuth)) ? 'inline-block' : 'none',
                 exchange: budget.exchange,
+                offeredPriceLabel: `return ${isOutsource(userAuth)} ? 'PREZZO CONCESSIONARIO' : 'PREZZO OFFERTO'`,
                 priceReal: isVehicle
                     ? calculateTotal(budget, system.db, 'priceReal')
                     : calculateEqTotal(budget, system.db),
-                priceOffered: priceOffered,
+                priceOffered: isOutsource(userAuth) ? priceMin : priceOffered,
                 budget,
                 table,
                 id,

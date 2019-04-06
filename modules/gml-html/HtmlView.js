@@ -83,6 +83,9 @@ const myParsers = {
     },
     YesNo: function (d) {
         return d ? 'SI' : 'NO'
+    },
+    fn: function (d) {
+        return new Function(d)();
     }
 };
 
