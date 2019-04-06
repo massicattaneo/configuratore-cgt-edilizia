@@ -21,7 +21,7 @@ function sDisplay(id) {
 
 import {
     calculateChargesPriceMin,
-    calculateTotal,
+    calculateTotal, convertNumber,
     emptyLeasing,
     emptyVehicleSaleCharge
 } from '../../../../web-app-deploy/shared';
@@ -320,7 +320,7 @@ export default async function ({ locale, system, thread, gos }) {
 
     form.addCustomCharge = function () {
         const description = document.getElementById('salecharges_custom_description').value;
-        const amount = Number(document.getElementById('salecharges_custom_amount').value);
+        const amount = Number(convertNumber(document.getElementById('salecharges_custom_amount').value));
         if (!description) system.throw('missing-salecharges-custom-description-description');
         if (!amount) system.throw('missing-salecharges-custom-description-amount');
         salecharges.customCharges.push({
