@@ -390,16 +390,19 @@ function getOrderEmail(userAuth) {
         };
     }
 
-    schedule.scheduleJob('0 3 * * *', function () {
-        dropbox.backUpMongoDb();
-        rimraf(`${__dirname}/temp`, function () {
-            if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
+    if (!isDeveloping) {
+        schedule.scheduleJob('0 3 * * *', function () {
+            dropbox.backUpMongoDb();
+            rimraf(`${__dirname}/temp`, function () {
+                if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
+            });
         });
-    });
 
-    schedule.scheduleJob('* * /4 * *', function () {
-        dropbox.updateNavision();
-    });
+        schedule.scheduleJob('* * /4 * *', function () {
+            dropbox.updateNavision();
+        });
+    }
+
 
 
 
