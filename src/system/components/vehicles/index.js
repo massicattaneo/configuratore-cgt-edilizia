@@ -397,6 +397,7 @@ export default async function ({ locale, system, thread, gos }) {
             model: models.find(f => f.id === model),
             family: familys.find(f => f.id === family),
             version: versions.find(f => f.id === version),
+            showNextButton: `return ${system.store.userAuth === 2} ? 'none' : ''`,
             equipment,
             summary,
             price: calculateTotal({ version, equipment }, system.db),

@@ -183,7 +183,12 @@ export default async function ({ system, locale, gos }) {
             return e;
         });
         const summaryTitle = system.toCurrency(summaryItems.reduce((tot, i) => tot + Number(i.offeredPrice || i.priceReal), 0));
-        updateSummarys([{ id: 0, summary, items: summaryItems }], true, step, summaryTitle);
+        updateSummarys([{
+            id: 0,
+            summary,
+            showNextButton: `return ${system.store.userAuth === 2} ? 'none' : ''`,
+            items: summaryItems
+        }], true, step, summaryTitle);
         const leasingTitle = leasing.loanPrice ? `IMPORTO FINANZIAMENTO: ${system.toCurrency(leasing.loanPrice)}` : 'NESSUN LEASING';
         updateLeasings([{ id: 0, leasing}], true, step, leasingTitle);
         const updateButton = id && system.store.equipmentbudgets.find(i => !i.ordered && i._id === id);
