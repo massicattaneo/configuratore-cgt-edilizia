@@ -1,5 +1,6 @@
 const PdfDoc = require('pdfkit');
 const path = require('path');
+const fs = require('fs');
 const sizeOf = require('image-size');
 const loc = require('../static/localization/system/it.json');
 const { calculateTotal, isOutsource } = require('../shared');
@@ -111,8 +112,8 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             pos = 40;
         }
 
-        if (eq.src) {
-            const imagePath = path.resolve(`${__dirname}/..${eq.src}`);
+        const imagePath = path.resolve(`${__dirname}/..${eq.src}`);
+        if (fs.existsSync(imagePath)) {
             const dimensions = sizeOf(imagePath);
             const maxHeight = 50, maxWidth = 90;
             const ratio = maxWidth / maxHeight;
