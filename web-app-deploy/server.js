@@ -397,10 +397,6 @@ function getOrderEmail(userAuth) {
                 if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
             });
         });
-
-        schedule.scheduleJob('* * /4 * *', function () {
-            dropbox.updateNavision();
-        });
     }
 
 

@@ -254,7 +254,8 @@ module.exports = function (mongo) {
         console.log('/****** parsing CGT EDILIZIA DROPBOX DATABASE');
         db.familys = parse('Famiglia Macchine', familyDataStructure).filter(({ id }) => id.indexOf('-') === -1);
         db.models = parse('Modelli', modeldataStructure);
-        db.vehicleAvailability = parse('vehicleAvailability', stockMachinesDataStructure).filter(item => item.mso)
+        db.vehicleAvailability = parse('vehicleAvailability', stockMachinesDataStructure)
+            .filter(item => item.foa)
             .filter(i => i.state.toUpperCase() !== 'IMPEGNATA PER VENDITA'
                 || i.state.toUpperCase() !== 'OPZIONATA PER NOLEGGIO'
                 || i.state.toUpperCase() !== 'OPZIONATA PER VENDITA');
@@ -425,13 +426,6 @@ module.exports = function (mongo) {
                 }
             }
         });
-    };
-
-    obj.updateNavision = async function () {
-        console.log('UPDATING NAVISION');
-        Object.assign(originalDb, await getNavisionDatabaseFromDropBox(dbx));
-        db.vehicleAvailability = parse('vehicleAvailability', stockMachinesDataStructure).filter(item => item.mso);
-        console.log('UPDATING NAVISION ENDED');
     };
 
     obj.uniqueTempFile = uniqueTempFile;
