@@ -255,7 +255,8 @@ module.exports = function (mongo) {
         db.familys = parse('Famiglia Macchine', familyDataStructure).filter(({ id }) => id.indexOf('-') === -1);
         db.models = parse('Modelli', modeldataStructure);
         db.vehicleAvailability = parse('vehicleAvailability', stockMachinesDataStructure)
-            .filter(item => item.foa)
+            .filter(item => item.serialNumber)
+            .filter(item => item.description.indexOf('--------') === -1)
             .filter(i => i.state.toUpperCase() !== 'IMPEGNATA PER VENDITA'
                 || i.state.toUpperCase() !== 'OPZIONATA PER NOLEGGIO'
                 || i.state.toUpperCase() !== 'OPZIONATA PER VENDITA');
