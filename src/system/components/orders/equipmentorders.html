@@ -12,6 +12,14 @@
                     <li class="mdl-menu__item"><fieldset
                             class="mdl-color-text--grey-700"
                             style="display: block;"
+                            onclick="this.form.download('equipmentorders', '{{this._id}}')">SCARICA DATI ORDINE</fieldset></li>
+                    <li class="mdl-menu__item"><fieldset
+                            class="mdl-color-text--grey-700"
+                            style="display: block;"
+                            onclick="this.form.preview('equipmentbudgets', '{{this.budgetId}}')">VISUALIZZA PREVENTIVO</fieldset></li>
+                    <li class="mdl-menu__item"><fieldset
+                            class="mdl-color-text--grey-700"
+                            style="display: block;"
                             onclick="this.form.delete('equipmentorders', '{{this._id}}')">ELIMINA</fieldset></li>
                 </ul>
             </div>

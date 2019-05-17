@@ -48,6 +48,19 @@ function getOrderEmail(userAuth) {
     return email;
 }
 
+function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
+    const attachments = [];
+    if (table === 'vehicleorders') {
+        if (isOutsource(user.userAuth))
+            attachments.push(...createVehicleOutsourceXlsx(budget, dbx, order, user, xlsxPath));
+        else
+            attachments.push(...createVehicleCgteXlsx(budget, dbx, order, user, xlsxPath));
+    } else {
+        attachments.push(...createEquipmentXlsx(budget, dbx, order, user, xlsxPath));
+    }
+    return attachments;
+}
+
 (async function () {
     const { store, db } = await mongo.connect();
     const bruteforce = new ExpressBrute(store, {
@@ -355,14 +368,7 @@ function getOrderEmail(userAuth) {
             const budget = await mongo.rest.update(table.replace('orders', 'budgets'), req.body.budgetId, { ordered: true }, req.session);
             const xlsxPath = dropbox.uniqueTempFile('xlsx');
             const attachments = [];
-            if (table === 'vehicleorders') {
-                if (isOutsource(user.userAuth))
-                    attachments.push(...createVehicleOutsourceXlsx(budget, dbx, order, user, xlsxPath));
-                else
-                    attachments.push(...createVehicleCgteXlsx(budget, dbx, order, user, xlsxPath));
-            } else {
-                attachments.push(...createEquipmentXlsx(budget, dbx, order, user, xlsxPath));
-            }
+            attachments.push(...getOrderExcel(table, user, budget, dbx, order, xlsxPath));
             attachments.push(...(await dropbox.getAttachments(table, budget, order)));
             const email = getOrderEmail(req.session.userAuth);
             if (order.emailMe === 'on')
@@ -371,6 +377,23 @@ function getOrderEmail(userAuth) {
             if (!isDeveloping)
                 dropbox.updload(createOrderXlsName(order, user), fs.readFileSync(xlsxPath), '/Ordini');
             res.send(order);
+        });
+
+    app.get('/api/order/:table/:id',
+        requiresLogin,
+        async function (req, res) {
+            const table = req.params.table;
+            const id = req.params.id;
+            const userId = req.session.userId;
+            const userAuth = req.session.userAuth;
+            const user = (await mongo.rest.get('users', `_id=${userId}`, { userId, userAuth }))[0];
+            const dbx = await dropbox.getDb(null, user);
+            const order = (await mongo.rest.get(table, `_id=${id}`, { userId, userAuth }))[0];
+            const budget = (await mongo.rest.get(table.replace('orders', 'budgets'), `_id=${order.budgetId}`, { userId, userAuth }))[0];
+            const xlsxPath = dropbox.uniqueTempFile('xlsx');
+
+            const [excel] = getOrderExcel(table, user, budget, dbx, order, xlsxPath);
+            res.sendFile(excel.path);
         });
 
     let callback;
@@ -398,8 +421,6 @@ function getOrderEmail(userAuth) {
             });
         });
     }
-
-
 
 
     app.get('*', callback);

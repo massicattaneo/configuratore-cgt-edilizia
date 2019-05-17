@@ -20,7 +20,7 @@ export default async function ({ system, gos, locale }) {
                 .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
                 .map(o => {
                     const b = system.store.vehiclebudgets.find(r => r._id === o.budgetId);
-                    const find = system.db.models.find(m => m.id === b.model) || {src: '/assets/images/no-image.jpg'};
+                    const find = system.db.models.find(m => m.id === b.model) || { src: '/assets/images/no-image.jpg' };
                     return Object.assign({
                         validity: b.summary.validity,
                         photo: `${find.src}?v=${system.info().version}`,
@@ -42,6 +42,14 @@ export default async function ({ system, gos, locale }) {
             view.clear('vehicleorders').appendTo('vehicleorders', vehicleordersTpl, [], { vehicleorders: vb });
             view.clear('equipmentorders').appendTo('equipmentorders', equipmentordersTpl, [], { equipmentorders: eb });
         });
+
+    view.get().preview = function (table, id) {
+        window.open(`/api/pdf/budget/${table}/${id}`);
+    };
+
+    view.get().download = function (table, id) {
+        window.open(`/api/order/${table}/${id}`);
+    };
 
     view.get().delete = async function (table, id) {
         if (confirm('SEI SICURO DI VOLER ELIMINARE QUESTO ORDINE?')) {
