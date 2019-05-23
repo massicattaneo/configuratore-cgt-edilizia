@@ -119,7 +119,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             .stroke('black')
             .font('Helvetica-Bold')
             .text('PREZZO DI LISTINO', marginLeft + 20, (pos += 8))
-            .text(toCurrency(calculateEqTotal(budget, dbx)), marginLeft + 250, pos, { align: 'right', width: 200 });
+            .text(`${toCurrency(calculateEqTotal(budget, dbx))} + IVA`, marginLeft + 250, pos, { align: 'right', width: 200 });
     }
 
     pos += 20;
@@ -128,7 +128,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .stroke('black')
         .font('Helvetica-Bold')
         .text('PREZZO NETTO A VOI RISERVATO', marginLeft + 20, (pos += 8))
-        .text(toCurrency(calculateEqOfferedTotal(budget, dbx)), marginLeft + 250, pos, { align: 'right', width: 200 });
+        .text(`${toCurrency(calculateEqOfferedTotal(budget, dbx))} + IVA`, marginLeft + 250, pos, { align: 'right', width: 200 });
 
     if (budget.summary.notes) {
         pos += 40;

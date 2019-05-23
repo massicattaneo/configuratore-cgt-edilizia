@@ -157,7 +157,7 @@ module.exports = {
         };
     },
     createPriceSummaryList: function createPriceSummaryList(db, userAuth, store, offeredPrice) {
-        const { salecharges, exchange } = store;
+        const { salecharges = {}, exchange = {} } = store;
         const version = db.versions
             .find(v => v.id === store.version);
         const eq = store.equipment.map(id => db.equipements.find(e => e.id === id));

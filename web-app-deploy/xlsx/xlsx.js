@@ -15,9 +15,9 @@ module.exports = {
             { CAMPO: 'PERMUTA', VALORE: '' },
             { CAMPO: 'Data vendita', VALORE: order.exchange.date },
             { CAMPO: 'Documenti permuta', VALORE: order.exchange.documents },
-            { CAMPO: 'Valore ritiro', VALORE: order.exchange.value },
-            { CAMPO: 'Valore acquisto', VALORE: order.exchange.cost },
-            { CAMPO: 'Super valutazione', VALORE: order.exchange.cost - order.exchange.value },
+            { CAMPO: 'Valore ritiro', VALORE: (order.exchange.value) || '' },
+            { CAMPO: 'Valore acquisto', VALORE: (order.exchange.cost) || '' },
+            { CAMPO: 'Super valutazione', VALORE: (order.exchange.cost - order.exchange.value) || '' },
             { CAMPO: 'Data prevista consegna macchina', VALORE: order.deliveryDate },
             { CAMPO: 'Dichiarazione per sollevamento', VALORE: order.exchange.declaration },
             { CAMPO: 'Targatura', VALORE: order.exchange.plate },
@@ -27,7 +27,7 @@ module.exports = {
             { CAMPO: '', VALORE: '' },
 
             { CAMPO: 'Prezzo vendita (esclusa la permuta)', VALORE: order.price },
-            { CAMPO: 'Prezzo al netto della permuta', VALORE: order.price - order.exchange.cost },
+            { CAMPO: 'Prezzo al netto della permuta', VALORE: (order.price - order.exchange.cost) || '' },
             {
                 CAMPO: 'Venditore',
                 VALORE: `${user.name} ${user.surname} ${retailer.name ? ` - ${retailer.name}` : ''}`
