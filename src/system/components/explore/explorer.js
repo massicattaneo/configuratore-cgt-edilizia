@@ -26,7 +26,7 @@ function getColumnItem(item, col) {
     return value instanceof Object ? '' : value;
 }
 
-export default function ({ template, itemTemplate, filters }, data, tableName, Window, system) {
+export default function ({ template, itemTemplate, headerTemplate, filters }, data, tableName, Window, system) {
     const obj = {};
     let index = 0;
     let content;
@@ -83,7 +83,7 @@ export default function ({ template, itemTemplate, filters }, data, tableName, W
 
     obj.start = function (search = '') {
         content = Window.content(template, [], {});
-        head = Window.head(headTpl, [], {});
+        head = Window.head(headerTemplate || headTpl, [], {});
         Array.from(content.get().getElementsByTagName('th')).forEach(function (el) {
             el.addEventListener('click', obj.sort);
             el.style.cursor = 'pointer';
@@ -146,6 +146,9 @@ export default function ({ template, itemTemplate, filters }, data, tableName, W
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(table), tableName);
             XLSX.writeFile(wb, `ESTRAZIONE_${new Date().formatDay('dd_mm_yy', [])}.xlsx`);
         };
+        form.get = function (url) {
+            window.open(url);
+        }
         if (search) {
             filterText = search;
             filter();

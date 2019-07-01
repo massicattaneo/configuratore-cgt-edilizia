@@ -14,6 +14,7 @@ import equipmentordersItemTpl from './templates/equipmentordersItem.html';
 
 import vehicleAvailabilityTpl from './templates/vehiclesAvailability.html';
 import vehicleAvailabilityItemTpl from './templates/vehiclesAvailabilityItem.html';
+import vehicleAvailabilityHeaderTpl from './templates/vehiclesAvailabilityHeader.html';
 
 import versionsTpl from './templates/versions.html';
 import versionsItemTpl from './templates/versionsItem.html';
@@ -56,6 +57,7 @@ const templates = {
     vehicleAvailability: {
         template: vehicleAvailabilityTpl,
         itemTemplate: vehicleAvailabilityItemTpl,
+        headerTemplate: vehicleAvailabilityHeaderTpl,
         filters: ['model', 'description']
     }
 };

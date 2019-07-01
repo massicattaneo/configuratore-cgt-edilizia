@@ -7,7 +7,12 @@ const sizeOf = require('image-size');
 
 
 module.exports = function createPdfOrder(res, budget, dbx, user) {
-    const doc = new PdfDoc();
+    const doc = new PdfDoc({
+        info: {
+            Title: `OFFERTA NUOVA ATTREZZATURA - ${budget.client.name || ''}`,
+            Author: 'CGT EDILIZIA'
+        }
+    });
     const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
 
     doc.pipe(res);

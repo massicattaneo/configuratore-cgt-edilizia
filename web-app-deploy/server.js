@@ -1,3 +1,10 @@
+String.prototype.padLeft = function (size, char) {
+    if (size === 0) {
+        return '';
+    }
+    return (Array(size + 1).join(char) + this).slice(-size);
+};
+
 const path = require('path');
 const express = require('express');
 const port = process.env.PORT || 8093;
@@ -15,6 +22,7 @@ const compression = require('compression');
 const createPdfVehicleBudget = require('./pdf/createPdfVehicleBudget');
 const createPdfEquipmentBudget = require('./pdf/createPdfEquipmentBudget');
 const createPdfLeasingBudget = require('./pdf/createPdfLeasingBudget');
+const createPdfVehicleAvailability = require('./pdf/createPdfVehicleAvailability');
 const createPdfPriceList = require('./pdf/createPdfPriceList');
 const https = require('https');
 const dropbox = require('./dropbox')(mongo);
@@ -176,6 +184,13 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
             const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
             const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
             createPdfLeasingBudget(res, Object.assign({ leasing: {} }, budget), await dropbox.getDb(req.session.userAuth, user), user);
+        });
+
+    app.get('/api/pdf/vehicleAvailability',
+        requiresLogin,
+        async function (req, res) {
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
+            createPdfVehicleAvailability(res, await dropbox.getDb(req.session.userAuth, user));
         });
 
     app.get('/api/price-list/',

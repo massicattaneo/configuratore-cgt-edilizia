@@ -6,7 +6,12 @@ const { isOutsource, calculateLeasing, convertNumber } = require('../shared');
 const { addHeader, getLongDate, toCurrency, toPercentage, getClientAddress } = require('./addHeader');
 
 module.exports = function createPdfOrder(res, budget, dbx, user) {
-    const doc = new PdfDoc();
+    const doc = new PdfDoc({
+        info: {
+            Title: `CALCOLO FINANZIAMENTO LEASING - ${budget.client.name || ''}`,
+            Author: 'CGT EDILIZIA'
+        }
+    });
     const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
 
     doc.pipe(res);

@@ -106,6 +106,7 @@ module.exports = function createPdfOrder(res, models, dbx, includeMin, includeTy
         return maxY;
     }
 
+    const title = 'LISTINO PREZZI CGT Edilizia';
     const doc = new PdfDoc({
         bufferPages: true,
         margins: {
@@ -113,6 +114,10 @@ module.exports = function createPdfOrder(res, models, dbx, includeMin, includeTy
             left: marginLeft,
             bottom: 40,
             right: marginLeft
+        },
+        info: {
+            Title: title,
+            Author: 'CGT EDILIZIA'
         }
     });
     doc.pipe(res);
@@ -123,7 +128,7 @@ module.exports = function createPdfOrder(res, models, dbx, includeMin, includeTy
     doc
         .fontSize(28)
         .font('Helvetica-Bold')
-        .text('LISTINO PREZZI CGT Edilizia', { align: 'center' });
+        .text(title, { align: 'center' });
 
     doc.y = 100;
     doc
