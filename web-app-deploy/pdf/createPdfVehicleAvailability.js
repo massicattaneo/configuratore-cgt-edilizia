@@ -19,12 +19,15 @@ const globalize = require('../static/localization/globalize/it.json');
 function groupByModels(array, models) {
     return array.reduce(function (grouped, item) {
         const model1 = item.model;
-        const model = models.find(m => model1.indexOf(m.name) !== -1) || { name: model1, noModel: true };
-        grouped[model.name] = grouped[model.name] || {
+        const model = models.find(m => model1.indexOf(m.name) !== -1) || {};
+        grouped[model1] = grouped[model1] || {
             items: [],
-            model
+            model: {
+                name: model1,
+                src: model.src
+            }
         };
-        grouped[model.name].items.push(item);
+        grouped[model1].items.push(item);
         return grouped;
     }, {});
 }
@@ -35,8 +38,9 @@ function groupByMonths(items) {
             const date = new Date();
             date.setDate(1);
             date.setHours(12, 0, 0, 0);
-            date.setMonth(date.getMonth() + sum + 1);
-            const dateString = `${date.getFullYear()}-${date.getMonth().toString().padLeft(2, '0')}-01T00:00:00`;
+            date.setMonth(date.getMonth() + sum);
+            const dateString = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padLeft(2, '0')}-01T00:00:00`;
+            console.log(dateString);
             return new Date((new Date(dateString)).getTime() - 1000);
         }))
         .concat(new Date('2200-01-01'))
@@ -47,6 +51,22 @@ function groupByMonths(items) {
                 return time < timestamp && (index === 0 || time >= array[index - 1]);
             }).length;
         });
+}
+
+function addTitle(doc, y) {
+    const today = new Date();
+    doc.rect(marginLeft, y, docWidth, 20).fill(primaryBackColor);
+    doc.image(path.resolve(`${__dirname}/../static/assets/images/cgt.png`), marginLeft + 5, y + 2, { width: 60 });
+    y += 6;
+    doc.fontSize(9);
+    doc.fill('#FFFFFF').text('MOD', 100, y);
+    doc.fill('#FFFFFF').text('STOCK', 250, y);
+    for (let i = 0; i < 5; i++) {
+        doc.fill('#FFFFFF').text(globalize[`month_${(today.getMonth() + i) % 12}`].substr(0, 3).toUpperCase(), 290 + (i * 40), y);
+    }
+    doc.fill('#FFFFFF').text('IN ARRIVO', 490, y);
+    doc.fill('#FFFFFF').text('TOT', 550, y);
+    return y + 6;
 }
 
 module.exports = function (res, { vehicleAvailability, models }) {
@@ -75,26 +95,19 @@ module.exports = function (res, { vehicleAvailability, models }) {
     const groups = groupByModels(vehicleAvailability, models);
     const sortedList = Object.keys(groups).map(g => groups[g]).sort((a, b) => a.model.name.localeCompare(b.model.name));
 
-    let y = doc.y;
-    doc.rect(marginLeft, y, docWidth, 20).fill(primaryBackColor);
-    doc.image(path.resolve(`${__dirname}/../static/assets/images/cgt.png`), marginLeft + 5, y + 2, { width: 60 });
-    y += 6;
-    doc.fontSize(9);
-    doc.fill('#FFFFFF').text('MOD', 100, y);
-    doc.fill('#FFFFFF').text('STOCK', 250, y);
-    for (let i = 0; i < 5; i++) {
-        doc.fill('#FFFFFF').text(globalize[`month_${(today.getMonth() + i) % 12}`].substr(0, 3).toUpperCase(), 290 + (i * 40), y);
-    }
-    doc.fill('#FFFFFF').text('IN ARRIVO', 490, y);
-    doc.fill('#FFFFFF').text('TOT', 550, y);
+    let y = addTitle(doc, doc.y);
 
-    y += 6;
     const colors = ['#FFFFFF', '#CCCCCC'];
     let previousImage;
     let previousStart;
     let previousCount = 0;
     sortedList.forEach(function (group, index) {
         y += 11;
+
+        if (doc.y > docHeight) {
+            doc.addPage();
+            y = addTitle(doc, doc.y) + 11;
+        }
 
         if (group.model.src) {
             if (group.model.src !== previousImage && previousStart !== group.model.name[0]) {
@@ -109,6 +122,7 @@ module.exports = function (res, { vehicleAvailability, models }) {
                     .image(path.resolve(`${__dirname}/..${group.model.src}`), marginLeft, y, { width: 70 });
             }
         }
+
         previousCount++;
         const counters = groupByMonths(group.items);
         doc.rect(100, y - 2, 440, 11).fill(colors[index % 2]);
@@ -120,7 +134,7 @@ module.exports = function (res, { vehicleAvailability, models }) {
         doc.fill('#000000').text(group.items.length, 550, y);
     });
 
-    y = docHeight;
+    y = doc.y + 20;
     doc.rect(100, y - 2, 490, 11).fill(blueColors[0]);
     doc.fill('#000000').text('TOTALE', 100, y);
     const counters = sortedList.map(group => groupByMonths(group.items)).reduce((tot, arr) => tot.map((s, i) => s + arr[i]), [0, 0, 0, 0, 0, 0, 0]);
