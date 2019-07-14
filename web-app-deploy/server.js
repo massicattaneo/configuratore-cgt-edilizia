@@ -246,11 +246,10 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
         const type = req.params.type;
         switch (type) {
         case 'order-delete':
-            if (!isDeveloping)
-                mailer.send(createTemplate(type, {
-                    email: getOrderEmail(req.session.userAuth),
-                    order: req.body.order
-                }));
+            mailer.send(createTemplate(type, {
+                email: getOrderEmail(req.session.userAuth),
+                order: req.body.order
+            }));
             break;
         }
         res.send('ok');
@@ -404,7 +403,10 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
             const user = (await mongo.rest.get('users', `_id=${userId}`, { userId, userAuth }))[0];
             const dbx = await dropbox.getDb(null, user);
             const order = (await mongo.rest.get(table, `_id=${id}`, { userId, userAuth }))[0];
-            const budget = (await mongo.rest.get(table.replace('orders', 'budgets'), `_id=${order.budgetId}`, { userId, userAuth }))[0];
+            const budget = (await mongo.rest.get(table.replace('orders', 'budgets'), `_id=${order.budgetId}`, {
+                userId,
+                userAuth
+            }))[0];
             const xlsxPath = dropbox.uniqueTempFile('xlsx');
 
             const [excel] = getOrderExcel(table, user, budget, dbx, order, xlsxPath);

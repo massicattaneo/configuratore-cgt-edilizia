@@ -7,26 +7,27 @@ import { RetryRequest } from 'gml-http-request';
 import { canCreateOrder } from '../../../../web-app-deploy/shared';
 
 
-
 export default async function ({ system, gos, locale }) {
     const view = HtmlView(template, style);
 
     rx.connect({
         vehiclebudgets: () => system.store.vehiclebudgets,
-        equipmentbudgets: () => system.store.equipmentbudgets,
+        equipmentbudgets: () => system.store.equipmentbudgets
     }, function ({ vehiclebudgets, equipmentbudgets }) {
         if (system.store.logged) {
             const vb = vehiclebudgets
                 .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
                 .filter(i => !i.ordered)
                 .map(b => {
-                    const photoItem = (system.db.models.find(m => m.id === b.model) || {src: '/assets/images/no-image.jpg'});
+                    const photoItem = (system.db.models.find(m => m.id === b.model) || { src: '/assets/images/no-image.jpg' });
                     return Object.assign({
                         validity: b.summary.validity,
                         photo: `${photoItem.src}?v=${system.info().version}`,
                         clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
                         disabled: b.client.name ? '' : 'disabled="disabled"',
-                        versionName: (system.db.versions.find(v => v.id === b.version) || {name: '*********'}).name
+                        versionName: (system.db.versions.find(v => v.id === b.version)
+                            || system.db.getVersion(b.created).versions.find(v => v.id === b.version)
+                            || { name: '*********' }).name
                     }, b);
                 });
             const eb = equipmentbudgets
@@ -47,7 +48,7 @@ export default async function ({ system, gos, locale }) {
                         showMenuItem: e.outdated ? 'none' : 'block',
                         showOutdated: !e.outdated ? 'none' : 'block',
                         showCreateOrder: (!e.outdated && canCreateOrder(system.store.userAuth)) ? 'block' : 'none'
-                    })),
+                    }))
             });
             view.clear('equipmentbudgets').appendTo('equipmentbudgets', equipmentbudgetsTpl, [], {
                 equipmentbudgets: eb.map(e => Object.assign(e,
@@ -55,7 +56,7 @@ export default async function ({ system, gos, locale }) {
                         showMenuItem: e.outdated ? 'none' : 'block',
                         showOutdated: !e.outdated ? 'none' : 'block',
                         showCreateOrder: (!e.outdated && canCreateOrder(system.store.userAuth)) ? 'block' : 'none'
-                    })),
+                    }))
             });
             componentHandler.upgradeDom();
         }

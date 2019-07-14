@@ -1,6 +1,15 @@
+function updateDbForOldVersions(system) {
+    system.db.getVersion = function (date) {
+        const timestamp = new Date(date).getTime();
+        if (timestamp > system.db.timestamp) return system.db;
+        return system.db.olds.find(d => timestamp > d.timestamp);
+    };
+}
+
 export default async function ({ system, thread, gos }) {
     let status = await getStatus();
     system.db = await thread.execute('db-get', { url: '/all' });
+    updateDbForOldVersions(system);
 
     system.store = rx.create({
         logged: status.logged,
@@ -49,6 +58,7 @@ export default async function ({ system, thread, gos }) {
         .subscribe(async function ({ logged }) {
             const { user, vehiclebudgets, equipmentbudgets, vehicleorders, equipmentorders } = await getStatus();
             system.db = await thread.execute('db-get', { url: '/all' });
+            updateDbForOldVersions(system);
             system.store.email = user.email;
             system.store.userAuth = user.userAuth;
             system.store.user = user;

@@ -124,7 +124,7 @@ const equipementDataStructure = {
     priceOutsource: { column: 'Prezzo concessionario', convert: convertCurrency },
     priceOriginalOutsource: { column: 'Prezzo concessionario', convert: convertCurrency },
     priceCGT: { column: 'Prezzo CGT', convert: convertCurrency },
-    familys: { column: 'Famiglia macchine', convert: string => string.split('-') },
+    familys: { column: 'Famiglia macchine', convert: string => (string || '').split('-') },
     equipmentFamily: 'Famiglia attrezzature',
     constructorId: 'Costruttore',
     time: 'Tempi da fabbrica',
@@ -266,6 +266,24 @@ module.exports = function (mongo) {
         db.equipements.push(...parse('Listino attrezzature BHL', equipementDataStructure));
         db.equipements = db.equipements.filter(i => i.code !== 'T').filter(i => i.code !== 'F');
         db.codes = codes;
+        db.timestamp = originalDb.timestamp;
+        db.olds = originalDb.olds.map(function ({ db, timestamp }) {
+            const ret = {};
+            ret.familys = parse('Famiglia Macchine', familyDataStructure, db).filter(({ id }) => id.indexOf('-') === -1);
+            ret.models = parse('Modelli', modeldataStructure, db);
+            ret.versions = parse('Listino macchine', versionDataStructure, db);
+            ret.equipements = parse('Listino attrezz. SSL-CTL-CWL', equipementDataStructure, db);
+            ret.equipements.push(...parse('Listino attrezzature MHE', equipementDataStructure, db));
+            ret.equipements.push(...parse('Listino attrezzature BHL', equipementDataStructure, db));
+            ret.equipements = ret.equipements.filter(i => i.code !== 'T').filter(i => i.code !== 'F');
+            ret.timestamp = timestamp;
+            return ret;
+        });
+        db.getVersion = function (date) {
+            const timestamp = new Date(date).getTime();
+            if (timestamp > db.timestamp) return db;
+            return db.olds.find(d => timestamp > d.timestamp);
+        };
         db.retailers = parse('Concessionari', retailersDataStructure);
         console.log(`/****** finished parsing CGT EDILIZIA DROPBOX DATABASE in ${(Date.now() - start) / 1000}s`);
         start = Date.now();
@@ -530,8 +548,8 @@ function downloadFile(dbx, path) {
         });
 }
 
-function parse(sheetName, data) {
-    return originalDb[sheetName].map(function (row) {
+function parse(sheetName, data, theDb = originalDb) {
+    return theDb[sheetName].map(function (row) {
         return Object.keys(data).reduce(function (ret, otherKey) {
             let datum = data[otherKey];
             if (!(datum instanceof Object)) {
@@ -546,6 +564,29 @@ function parse(sheetName, data) {
 
 async function getDbFromDropBox(dbx) {
     const ret = {};
+    const dbs = await dbx.filesListFolder({ path: `/APPS/configuratore-cgt-edilizia/Listini` })
+        .then(function (array) {
+            return Promise.all(array.entries.map(function (item) {
+                const ds = item.name.match(/db_([^.]*)\.xlsx/)[1];
+                const timestamp = new Date(`20${ds[0]}${ds[1]}-${ds[2]}${ds[3]}-${ds[4]}${ds[5]}`).getTime();
+                return dbx
+                    .filesDownload({ path: `/APPS/configuratore-cgt-edilizia/Listini/${item.name}` })
+                    .then((fileData) => {
+                        const db = {};
+                        const read_opts = {
+                            type: '', //base64, binary, string, buffer, array, file
+                            raw: false, //If true, plain text parsing will not parse values **
+                            sheetRows: 0 //If >0, read the first sheetRows rows **
+                        };
+                        const workbook = XLSX.read(fileData.fileBinary, read_opts);
+                        workbook.SheetNames.forEach(function (name) {
+                            const workSheet = workbook.Sheets[name];
+                            db[name] = XLSX.utils.sheet_to_json(workSheet);
+                        });
+                        return { db, timestamp };
+                    });
+            }));
+        });
     const fileData = await dbx.filesDownload({ path: '/APPS/configuratore-cgt-edilizia/db.xlsx' });
     // const fileData = await dbx.filesDownload({ path: '/APPS/configuratore-cgt-edilizia/db - in elaborazione.xlsx' });
     const read_opts = {
@@ -558,7 +599,11 @@ async function getDbFromDropBox(dbx) {
         const workSheet = workbook.Sheets[name];
         ret[name] = XLSX.utils.sheet_to_json(workSheet);
     });
-    return ret;
+    dbs.sort((a, b) => b.timestamp - a.timestamp);
+    const resolved = dbs[0].db;
+    resolved.timestamp = dbs[0].timestamp;
+    resolved.olds = dbs.slice(1);
+    return resolved;
 }
 
 async function getRetailersListFromDropBox(dbx) {

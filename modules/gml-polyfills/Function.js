@@ -75,6 +75,8 @@ Function.prototype.debouncePromise = function () {
                 return callback(...arguments).then(function (a) {
                     can = true;
                     return a;
+                }).catch(function () {
+                    can = true;
                 });
             }
         }
