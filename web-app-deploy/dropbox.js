@@ -231,6 +231,14 @@ async function appendBudgetsOrders(db, mongo, user) {
     });
 }
 
+function getDbVersion(db) {
+    return function (date) {
+        const timestamp = new Date(date).getTime();
+        if (timestamp > db.timestamp) return db;
+        return Object.assign({}, db.olds.find(d => timestamp > d.timestamp), {retailers: db.retailers});
+    };
+}
+
 module.exports = function (mongo) {
     const obj = {};
     const dbx = new Dropbox({ accessToken: privateInfo.accessToken });
@@ -267,23 +275,19 @@ module.exports = function (mongo) {
         db.equipements = db.equipements.filter(i => i.code !== 'T').filter(i => i.code !== 'F');
         db.codes = codes;
         db.timestamp = originalDb.timestamp;
-        db.olds = originalDb.olds.map(function ({ db, timestamp }) {
+        db.olds = originalDb.olds.map(function ({ db: thisDb, timestamp }) {
             const ret = {};
-            ret.familys = parse('Famiglia Macchine', familyDataStructure, db).filter(({ id }) => id.indexOf('-') === -1);
-            ret.models = parse('Modelli', modeldataStructure, db);
-            ret.versions = parse('Listino macchine', versionDataStructure, db);
-            ret.equipements = parse('Listino attrezz. SSL-CTL-CWL', equipementDataStructure, db);
-            ret.equipements.push(...parse('Listino attrezzature MHE', equipementDataStructure, db));
-            ret.equipements.push(...parse('Listino attrezzature BHL', equipementDataStructure, db));
+            ret.familys = parse('Famiglia Macchine', familyDataStructure, thisDb).filter(({ id }) => id.indexOf('-') === -1);
+            ret.models = parse('Modelli', modeldataStructure, thisDb);
+            ret.versions = parse('Listino macchine', versionDataStructure, thisDb);
+            ret.equipements = parse('Listino attrezz. SSL-CTL-CWL', equipementDataStructure, thisDb);
+            ret.equipements.push(...parse('Listino attrezzature MHE', equipementDataStructure, thisDb));
+            ret.equipements.push(...parse('Listino attrezzature BHL', equipementDataStructure, thisDb));
             ret.equipements = ret.equipements.filter(i => i.code !== 'T').filter(i => i.code !== 'F');
             ret.timestamp = timestamp;
             return ret;
         });
-        db.getVersion = function (date) {
-            const timestamp = new Date(date).getTime();
-            if (timestamp > db.timestamp) return db;
-            return db.olds.find(d => timestamp > d.timestamp);
-        };
+        db.getVersion = getDbVersion(db);
         db.retailers = parse('Concessionari', retailersDataStructure);
         console.log(`/****** finished parsing CGT EDILIZIA DROPBOX DATABASE in ${(Date.now() - start) / 1000}s`);
         start = Date.now();
@@ -293,9 +297,13 @@ module.exports = function (mongo) {
         db.specialOffers = await getDropboxSpecialOffers(dbx);
         console.log(`/****** finished parsing DOWNLOADING IMAGES FROM DROPBOX in ${(Date.now() - start) / 1000}s`);
         Object.assign(dbUA1, JSON.parse(JSON.stringify(db)));
+        dbUA1.getVersion = getDbVersion(dbUA1);
         Object.assign(dbUA2, JSON.parse(JSON.stringify(db)));
+        dbUA2.getVersion = getDbVersion(dbUA2);
         Object.assign(dbUA3, JSON.parse(JSON.stringify(db)));
+        dbUA3.getVersion = getDbVersion(dbUA3);
         Object.assign(dbUA4, JSON.parse(JSON.stringify(db)));
+        dbUA4.getVersion = getDbVersion(dbUA4);
         removeReference(dbUA1, ['priceOutsource', 'priceCGT', 'priceOriginalOutsource']);
         removeReference(dbUA2, ['priceCGT', 'priceOutsource', 'priceOriginalOutsource']);
         removeReference(dbUA3, ['priceCGT', 'priceMin']);
@@ -316,19 +324,24 @@ module.exports = function (mongo) {
         return o;
     }
 
-    obj.getDb = async function (userAuth = 0, user = { discount: 0 }) {
+    obj.getDb = async function (userAuth = 0, user = { discount: 0 }, timestamp) {
         const ua = Number(userAuth);
         switch (ua) {
         case 0:
-            return await appendBudgetsOrders(await appendEquipments(db, mongo, 'CGTE'), mongo, user);
+            const useDb = timestamp ? db.getVersion(timestamp) : db;
+            return await appendBudgetsOrders(await appendEquipments(useDb, mongo, 'CGTE'), mongo, user);
         case 1:
-            return await appendBudgetsOrders(await appendEquipments(dbUA1, mongo, 'CGTE'), mongo, user);
+            const useDb1 = timestamp ? dbUA1.getVersion(timestamp) : dbUA1;
+            return await appendBudgetsOrders(await appendEquipments(useDb1, mongo, 'CGTE'), mongo, user);
         case 2:
-            return await appendBudgetsOrders(await appendEquipments(dbUA2, mongo, 'CGT'), mongo, user);
+            const useDb2 = timestamp ? dbUA2.getVersion(timestamp) : dbUA3;
+            return await appendBudgetsOrders(await appendEquipments(useDb2, mongo, 'CGT'), mongo, user);
         case 3:
-            return await appendBudgetsOrders(changeDiscounts(await appendEquipments(dbUA3, mongo, user.organization), user), mongo, user);
+            const useDb3 = timestamp ? dbUA3.getVersion(timestamp) : dbUA3;
+            return await appendBudgetsOrders(changeDiscounts(await appendEquipments(useDb3, mongo, user.organization), user), mongo, user);
         case 4:
-            return await appendBudgetsOrders(changeDiscounts(await appendEquipments(dbUA4, mongo, user.organization), user), mongo, user);
+            const useDb4 = timestamp ? dbUA4.getVersion(timestamp) : dbUA4;
+            return await appendBudgetsOrders(changeDiscounts(await appendEquipments(useDb4, mongo, user.organization), user), mongo, user);
         }
     };
 

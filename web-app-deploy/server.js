@@ -167,12 +167,13 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
         async function (req, res) {
             const table = req.params.table;
             const id = req.params.id;
+            const timestamp = Number(req.query.timestamp);
             const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
             const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
             if (table === 'vehiclebudgets') {
-                createPdfVehicleBudget(res, budget, await dropbox.getDb(req.session.userAuth, user), user);
+                createPdfVehicleBudget(res, budget, await dropbox.getDb(req.session.userAuth, user, timestamp), user);
             } else if (table === 'equipmentbudgets') {
-                createPdfEquipmentBudget(res, budget, await dropbox.getDb(req.session.userAuth, user), user);
+                createPdfEquipmentBudget(res, budget, await dropbox.getDb(req.session.userAuth, user, timestamp), user);
             }
         });
 

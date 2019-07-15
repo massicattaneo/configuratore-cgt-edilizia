@@ -115,7 +115,9 @@ export default async function ({ system, gos, locale }) {
     };
 
     form.preview = async function (table, id) {
-        window.open(`/api/pdf/budget/${table}/${id}`);
+        const budget = system.store[table].find(i => i._id === id);
+        const timestamp = budget.outdated ? `?timestamp=${new Date(budget.created).getTime()}` : '';
+        window.open(`/api/pdf/budget/${table}/${id}${timestamp}`);
     };
 
     form.previewLeasing = async function (table, id) {

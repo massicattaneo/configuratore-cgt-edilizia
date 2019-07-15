@@ -58,7 +58,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .text(`${loc.dbx.families[budget.family]} CATERPILLAR, MODELLO`, marginLeft, (pos += 30), { align: 'center' });
 
     const startRect = (pos += 20);
-    const budgetVersion = dbx.versions.find(m => m.id === budget.version) || {name: '', description: ''};
+    const budgetVersion = dbx.versions.find(m => m.id === budget.version) || { name: '', description: '' };
     doc
         .text(budgetVersion.name, marginLeft, (pos += 10), { align: 'center' })
         .font('Helvetica')
@@ -71,9 +71,11 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .rect(55, startRect, 500, (pos = doc.y + 10) - startRect)
         .stroke('red');
 
-    doc
-        .image(path.resolve(`${__dirname}/..${dbx.versions.find(v => v.id === budget.version).src}`),
-            (docWidth - 400) / 2, (pos += 10), { width: 300 });
+    const imagePath = `${__dirname}/..${dbx.versions.find(v => v.id === budget.version).src}`;
+    if (fs.existsSync(imagePath))
+        doc
+            .image(path.resolve(imagePath),
+                (docWidth - 400) / 2, (pos += 10), { width: 300 });
 
     doc
         .fontSize(8)
@@ -171,7 +173,10 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             .stroke('black')
             .font('Helvetica-Bold')
             .text('PREZZO DI LISTINO', marginLeft + 20, (pos += 8))
-            .text(`${toCurrency(calculateTotal(budget, dbx))} + IVA`, marginLeft + 250, pos, { align: 'right', width: 200 });
+            .text(`${toCurrency(calculateTotal(budget, dbx))} + IVA`, marginLeft + 250, pos, {
+                align: 'right',
+                width: 200
+            });
     }
 
     pos += 20;
