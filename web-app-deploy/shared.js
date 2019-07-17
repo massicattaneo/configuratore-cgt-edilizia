@@ -193,5 +193,16 @@ module.exports = {
             showVN: Number(userAuth) <= 1 ? 'table-row' : 'none'
         };
     },
-    calculateChargesPriceMin: calculateChargesPriceMin
+    calculateChargesPriceMin: calculateChargesPriceMin,
+    isBudgetOutdated: function (table, budget, db) {
+        if (table === 'vehiclebudgets') {
+            const equipment = budget.equipment.filter(id => db.equipements.find(e => e.id === id));
+            const vehicleExist = db.versions.find(v => v.id === budget.version);
+            return (!vehicleExist) || equipment.length !== budget.equipment.length;
+        } else if (table === 'equipmentbudgets') {
+            const equipment = budget.equipment.filter(id => db.equipements.find(e => e.id === id));
+            return equipment.length !== budget.equipment.length
+        }
+
+    }
 };

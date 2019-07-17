@@ -1,7 +1,7 @@
 const PdfDoc = require('pdfkit');
 const path = require('path');
 const fs = require('fs');
-const { calculateEqTotal, calculateEqOfferedTotal, isOutsource } = require('../shared');
+const { calculateEqTotal, calculateEqOfferedTotal, isOutsource, isBudgetOutdated } = require('../shared');
 const { addHeader, getLongDate, toCurrency, getClientAddress } = require('./addHeader');
 const sizeOf = require('image-size');
 
@@ -13,7 +13,8 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             Author: 'CGT EDILIZIA'
         }
     });
-    const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
+    const db = isBudgetOutdated('equipmentbudgets', budget, dbx) ? dbx.getVersion(budget.created) : dbx;
+    const retailer = db.retailers.find(r => r.id === user.organization) || {};
 
     doc.pipe(res);
 
@@ -29,7 +30,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
     const marginLeft = 30;
     const bodyLineHeight = 14;
     const spettMarginLeft = 300;
-    let pos = addHeader(user, doc, dbx);
+    let pos = addHeader(user, doc, db);
 
     /** SPETT.LE */
     doc.y = 110;
@@ -64,7 +65,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .fontSize(10);
 
     budget.equipment.forEach((eqId, index) => {
-        const eq = dbx.equipements.find(e => e.id === eqId) || {};
+        const eq = db.equipements.find(e => e.id === eqId) || {};
         pos += index === 0 ? 30 : 60;
         if (doc.y > 630) {
             doc.addPage();
@@ -124,7 +125,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             .stroke('black')
             .font('Helvetica-Bold')
             .text('PREZZO DI LISTINO', marginLeft + 20, (pos += 8))
-            .text(`${toCurrency(calculateEqTotal(budget, dbx))} + IVA`, marginLeft + 250, pos, { align: 'right', width: 200 });
+            .text(`${toCurrency(calculateEqTotal(budget, db))} + IVA`, marginLeft + 250, pos, { align: 'right', width: 200 });
     }
 
     pos += 20;
@@ -133,7 +134,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .stroke('black')
         .font('Helvetica-Bold')
         .text('PREZZO NETTO A VOI RISERVATO', marginLeft + 20, (pos += 8))
-        .text(`${toCurrency(calculateEqOfferedTotal(budget, dbx))} + IVA`, marginLeft + 250, pos, { align: 'right', width: 200 });
+        .text(`${toCurrency(calculateEqOfferedTotal(budget, db))} + IVA`, marginLeft + 250, pos, { align: 'right', width: 200 });
 
     if (budget.summary.notes) {
         pos += 40;

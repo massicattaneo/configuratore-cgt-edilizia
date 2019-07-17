@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const sizeOf = require('image-size');
 const loc = require('../static/localization/system/it.json');
-const { calculateTotal, isOutsource } = require('../shared');
+const { calculateTotal, isOutsource, isBudgetOutdated } = require('../shared');
 const { addHeader, getLongDate, toCurrency, getClientAddress } = require('./addHeader');
 
 module.exports = function createPdfOrder(res, budget, dbx, user) {
@@ -13,7 +13,8 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             Author: 'CGT EDILIZIA'
         }
     });
-    const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
+    const db = isBudgetOutdated('vehiclebudgets', budget, dbx) ? dbx.getVersion(budget.created) : dbx;
+    const retailer = db.retailers.find(r => r.id === user.organization) || {};
 
     doc.pipe(res);
 
@@ -29,7 +30,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
     const marginLeft = 30;
     const bodyLineHeight = 14;
     const spettMarginLeft = 300;
-    let pos = addHeader(user, doc, dbx);
+    let pos = addHeader(user, doc, db);
 
     /** SPETT.LE */
     doc.y = 110;
@@ -58,7 +59,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .text(`${loc.dbx.families[budget.family]} CATERPILLAR, MODELLO`, marginLeft, (pos += 30), { align: 'center' });
 
     const startRect = (pos += 20);
-    const budgetVersion = dbx.versions.find(m => m.id === budget.version) || { name: '', description: '' };
+    const budgetVersion = db.versions.find(m => m.id === budget.version) || { name: '', description: '' };
     doc
         .text(budgetVersion.name, marginLeft, (pos += 10), { align: 'center' })
         .font('Helvetica')
@@ -71,7 +72,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .rect(55, startRect, 500, (pos = doc.y + 10) - startRect)
         .stroke('red');
 
-    const imagePath = `${__dirname}/..${dbx.versions.find(v => v.id === budget.version).src}`;
+    const imagePath = `${__dirname}/..${db.versions.find(v => v.id === budget.version).src}`;
     if (fs.existsSync(imagePath))
         doc
             .image(path.resolve(imagePath),
@@ -83,7 +84,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
 
     doc.addPage();
 
-    pos = addHeader(user, doc, dbx);
+    pos = addHeader(user, doc, db);
 
     doc
         .rect(marginLeft, (pos += 40), (docWidth - (marginLeft * 2)), 24)
@@ -113,7 +114,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
 
 
     budget.equipment.forEach((eqId, index) => {
-        const eq = dbx.equipements.find(e => e.id === eqId) || {};
+        const eq = db.equipements.find(e => e.id === eqId) || {};
         pos += index === 0 ? 10 : 60;
         if (doc.y > 630) {
             doc.addPage();
@@ -173,7 +174,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
             .stroke('black')
             .font('Helvetica-Bold')
             .text('PREZZO DI LISTINO', marginLeft + 20, (pos += 8))
-            .text(`${toCurrency(calculateTotal(budget, dbx))} + IVA`, marginLeft + 250, pos, {
+            .text(`${toCurrency(calculateTotal(budget, db))} + IVA`, marginLeft + 250, pos, {
                 align: 'right',
                 width: 200
             });
@@ -185,7 +186,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
         .stroke('black')
         .font('Helvetica-Bold')
         .text('PREZZO NETTO A VOI RISERVATO', marginLeft + 20, (pos += 8))
-        .text(`${toCurrency(budget.summary.price || calculateTotal(budget, dbx))} + IVA`, marginLeft + 250, pos, {
+        .text(`${toCurrency(budget.summary.price || calculateTotal(budget, db))} + IVA`, marginLeft + 250, pos, {
             align: 'right',
             width: 200
         });
