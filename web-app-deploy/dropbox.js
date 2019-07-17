@@ -189,7 +189,7 @@ function removeReference(obj, array) {
 }
 
 async function appendEquipments(db, mongo, userFamily) {
-    return Object.assign({}, db, {
+    const dbRet = Object.assign({}, db, {
         equipements: db.equipements.concat(
             (await mongo.rest.get('equipments', `userFamily=${userFamily}`, { userAuth: 0 }))
                 .filter(item => !item.isDeleted)
@@ -198,12 +198,14 @@ async function appendEquipments(db, mongo, userFamily) {
                 })
         )
     });
+    dbRet.getVersion = getDbVersion(dbRet);
+    return dbRet;
 }
 
 async function appendBudgetsOrders(db, mongo, user) {
     const userAuth = 0;
     const users = await mongo.getAllUsers();
-    return Object.assign({}, db, {
+    const dbRet = Object.assign({}, db, {
         vehiclebudgets: (await mongo.rest.get('vehiclebudgets', Number(user.userAuth) ? `userId=${user._id}` : '', { userAuth }))
             .filter(item => !item.isDeleted)
             .map(item => Object.assign(item, {
@@ -229,6 +231,8 @@ async function appendBudgetsOrders(db, mongo, user) {
                 user: users.find(u => u._id.toString() === item.userId.toString())
             }))
     });
+    dbRet.getVersion = getDbVersion(dbRet);
+    return dbRet;
 }
 
 function getDbVersion(db) {
