@@ -261,7 +261,7 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
             if (isLogged(req)) {
                 const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
                 res.send(await dropbox.getDb(req.session.userAuth, user));
-            } else
+            } else {
                 res.send({
                     codes: [],
                     equipements: [],
@@ -272,6 +272,7 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
                         return { id, name };
                     })
                 });
+            }
         });
 
     app.post('/api/upload',

@@ -580,7 +580,6 @@ function parse(sheetName, data, theDb = originalDb) {
 }
 
 async function getDbFromDropBox(dbx) {
-    const ret = {};
     const dbs = await dbx.filesListFolder({ path: `/APPS/configuratore-cgt-edilizia/Listini` })
         .then(function (array) {
             return Promise.all(array.entries.map(function (item) {
@@ -604,18 +603,6 @@ async function getDbFromDropBox(dbx) {
                     });
             }));
         });
-    const fileData = await dbx.filesDownload({ path: '/APPS/configuratore-cgt-edilizia/db.xlsx' });
-    // const fileData = await dbx.filesDownload({ path: '/APPS/configuratore-cgt-edilizia/db - in elaborazione.xlsx' });
-    const read_opts = {
-        type: '', //base64, binary, string, buffer, array, file
-        raw: false, //If true, plain text parsing will not parse values **
-        sheetRows: 0 //If >0, read the first sheetRows rows **
-    };
-    const workbook = XLSX.read(fileData.fileBinary, read_opts);
-    workbook.SheetNames.forEach(function (name) {
-        const workSheet = workbook.Sheets[name];
-        ret[name] = XLSX.utils.sheet_to_json(workSheet);
-    });
     dbs.sort((a, b) => b.timestamp - a.timestamp);
     const resolved = dbs[0].db;
     resolved.timestamp = dbs[0].timestamp;
