@@ -143,12 +143,24 @@ export default function ({ template, itemTemplate, headerTemplate, filters }, da
         };
         form.save = function () {
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(table), tableName);
+            const flatten = JSON.parse(JSON.stringify(table));
+            flatten.forEach(item => {
+                Object.keys(item).forEach(key => {
+                    if (item[key] instanceof Object) {
+                        Object.keys(item[key]).forEach(key2 => {
+                            if (item[key][key2])
+                                item[`${key}.${key2}`] = item[key][key2];
+                        });
+                    }
+                });
+            });
+
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(flatten), tableName);
             XLSX.writeFile(wb, `ESTRAZIONE_${new Date().formatDay('dd_mm_yy', [])}.xlsx`);
         };
         form.get = function (url) {
             window.open(url);
-        }
+        };
         if (search) {
             filterText = search;
             filter();
