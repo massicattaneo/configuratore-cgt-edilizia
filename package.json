@@ -51,7 +51,7 @@
         "nodeJs-zip": "^1.0.4",
         "nodemailer": "^4.4.1",
         "nodemon": "^1.18.9",
-        "open": "0.0.5",
+        "open": "6.0.0",
         "path": "^0.12.7",
         "pdfkit": "^0.8.3",
         "qrcode": "^1.2.0",
