@@ -32,7 +32,9 @@ function convertCurrency(string) {
 }
 
 function mapCompatibility(codice, item, row, db) {
-    return db.models.map(({ id }) => {
+    return db.models.map((model) => {
+        const { id = '' } = model;
+        if (!id) console.warn('MODEL WITHOUT ID', model);
         let modelIdNoSpace = id.replace(/\s/g, '').trim();
         const code = row[` ${modelIdNoSpace} `];
         return code ? { id, code } : null;
@@ -67,7 +69,7 @@ const versionDataStructure = {
     id: 'identificatore',
     name: 'Codice',
     modelId: 'Modello',
-    description: { column: 'Macchina', convert: string => string.replace('\n', '') },
+    description: { column: 'Macchina', convert: string => (string || '').replace('\n', '') },
     info: {
         column: 'Informazioni', convert: string => (string || '')
             .replace('\n', '').split('|').map(i => i.trim())
@@ -164,7 +166,7 @@ function getDropboxSpecialOffers(dbx) {
             return responses.reduce(function (arr, response, index) {
                 return arr.concat(...response.entries.map(({ name, id }) => {
                     return {
-                        name: name.replace(/_/g, ' '), id,
+                        name: (name || '').replace(/_/g, ' '), id,
                         userAuth: userAuths[index], href: `${paths[index]}/${name}`
                     };
                 }));
@@ -239,7 +241,7 @@ function getDbVersion(db) {
     return function (date) {
         const timestamp = new Date(date).getTime();
         if (timestamp > db.timestamp) return db;
-        return Object.assign({}, db.olds.find(d => timestamp > d.timestamp), {retailers: db.retailers});
+        return Object.assign({}, db.olds.find(d => timestamp > d.timestamp), { retailers: db.retailers });
     };
 }
 
@@ -354,7 +356,7 @@ module.exports = function (mongo) {
         if (table === 'vehiclebudgets') {
             const version = db.versions.find(v => v.id === budget.version);
             if (version.depliants) {
-                const url = `/APPS/configuratore-cgt-edilizia/${version.depliants.replace(/\\/g, '/')}.pdf`;
+                const url = `/APPS/configuratore-cgt-edilizia/${(version.depliants || '').replace(/\\/g, '/')}.pdf`;
                 const pdfSpecs = uniqueTempFile();
                 await dbx.filesDownload({ path: url })
                     .catch(e => mailer.internalError(url))
@@ -364,7 +366,7 @@ module.exports = function (mongo) {
                     });
             }
             if (version.attachment) {
-                const url = `/APPS/configuratore-cgt-edilizia/${version.attachment.replace(/\\/g, '/')}.pdf`;
+                const url = `/APPS/configuratore-cgt-edilizia/${(version.attachment || '').replace(/\\/g, '/')}.pdf`;
                 const pdfSpecs = uniqueTempFile();
                 await dbx.filesDownload({ path: url })
                     .catch(e => mailer.internalError(url))
@@ -380,7 +382,7 @@ module.exports = function (mongo) {
                 .filter(e => e.depliants);
             if (eqDepliants.length) {
                 await Promise.all(eqDepliants.map(async function (eq) {
-                    const url = `/APPS/configuratore-cgt-edilizia/${eq.depliants.replace(/\\/g, '/')}.pdf`;
+                    const url = `/APPS/configuratore-cgt-edilizia/${(eq.depliants || '').replace(/\\/g, '/')}.pdf`;
                     const pdfSpecs = uniqueTempFile();
                     await dbx.filesDownload({ path: url })
                         .catch(e => mailer.internalError(url))
@@ -488,7 +490,7 @@ async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
 
     const images = await Promise.all(filter
         .map(function (image) {
-            const url = `/APPS/configuratore-cgt-edilizia/${image.replace(/\\/g, '/')}.jpg`;
+            const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
             return dbx.filesDownload({ path: url })
                 .catch(function (e) {
                     console.log(url);
@@ -497,7 +499,7 @@ async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
 
     const images2 = await Promise.all(filter2
         .map(function (image) {
-            const url = `/APPS/configuratore-cgt-edilizia/${image.replace(/\\/g, '/')}.jpg`;
+            const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
             return dbx.filesDownload({ path: url })
                 .catch(function (e) {
                     console.log(url);
@@ -506,7 +508,7 @@ async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
 
     const images3 = await Promise.all(filter3
         .map(function (image) {
-            const url = `/APPS/configuratore-cgt-edilizia/${image.replace(/\\/g, '/')}.jpg`;
+            const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
             return dbx.filesDownload({ path: url })
                 .catch(function (e) {
                     console.log(url);
@@ -554,7 +556,8 @@ async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
 
     models.forEach(function (model) {
         const version = versions.find(v => v.modelId === model.id);
-        model.src = version.src;
+        if (!version) console.log('NO VERSION FOUND FOR MODEL', model);
+        model.src = version ? version.src : '';
     });
 }
 
