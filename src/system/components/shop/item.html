@@ -1,0 +1,20 @@
+<form #form name="{{formName}}" type="button" class="mdl-card mdl-cell mdl-cell--4-col mdl-shadow--2dp">
+    <div class="mdl-card__title mdl-color--grey-700 mdl-color-text--white">
+        {{name}}<div style="font-size: 10px;">REF: {{id}}</div>
+    </div>
+    {{#each images}}
+        <img src="/dpx-photos{{this}}?v={{system.version}}" style="max-width: 100%"/>
+    {{/each}}
+    <div class="mdl-layout__content" style="padding: 10px;font-size: 12px;">
+        {{genders}}
+        {{sizes}}
+        TIPOLOGIA: {{type}}
+        <br/>
+        <i>{{description}}</i>
+    </div>
+    <button type="button"
+            onclick="this.form.addToCart()"
+            class="mdl-button mdl-color--accent mdl-color-text--accent-contrast">
+        AGGIUNGI AL CARRELLO
+    </button>
+</form>

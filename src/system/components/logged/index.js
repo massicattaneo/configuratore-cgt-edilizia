@@ -2,7 +2,7 @@ import { HtmlView } from 'gml-html';
 import template from './template.html';
 import * as style from './style.scss';
 import { RetryRequest } from '../../../../modules/gml-http-request';
-import { isOutsource, isOutsourceDirection } from '../../../../web-app-deploy/shared';
+import { isOutsource, isWorkshop, isOutsourceDirection } from '../../../../web-app-deploy/shared';
 
 export default async function ({ locale, system, thread }) {
     const view = HtmlView('<form enctype="multipart/form-data"/>', []);
@@ -38,6 +38,7 @@ export default async function ({ locale, system, thread }) {
         .filter(s => s && s.logged)
         .subscribe(function () {
             const variables = Object.assign({
+                showWorkshop: isWorkshop(system.store.user.type) ? 'table-row' : 'none',
                 showOrganization: isOutsource(system.store.user.type) ? 'table-row' : 'none',
                 user: system.store.user,
                 showDiscount: isOutsourceDirection(system.store.user.type) ? 'block' : 'none',

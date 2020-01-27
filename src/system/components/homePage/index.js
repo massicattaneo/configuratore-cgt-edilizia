@@ -2,9 +2,21 @@ import { HtmlView } from 'gml-html';
 import template from './template.html';
 import adminTpl from './admin.html';
 import noAdminTpl from './noAdmin.html';
+import workshopTpl from './workshop.html';
 import * as style from './style.scss';
 import { RetryRequest } from '../../../../modules/gml-http-request';
 import { isOutsource } from '../../../../web-app-deploy/shared';
+
+function getOrganizationSelect(item, system) {
+    if (item.workshop) return `${item.workshop}`;
+    return `<select style="width: 180px;" onchange="this.form.updateRetailer('${item._id}', this.value)"
+                        ${isOutsource(item.type) ? '' : 'disabled'}>
+                    <option value=""></option>
+                    ${system.db.retailers.map(r =>
+        `<option ${r.id === item.organization ? 'selected' : ''} 
+                            value="${r.id}">${r.name}</option>`).join('')}
+                </select>`;
+}
 
 export default async function ({ locale, system }) {
     const view = HtmlView(template);
@@ -129,26 +141,23 @@ export default async function ({ locale, system }) {
                     <option value="2" ${u.userAuth.toString() === '2' ? 'selected' : ''}>CGT</option>
                     <option value="3" ${u.userAuth.toString() === '3' ? 'selected' : ''}>CONCESSIONARIO DIREZIONE</option>
                     <option value="4" ${u.userAuth.toString() === '4' ? 'selected' : ''}>CONCESSIONARIO COMMERCIALE</option>
+                    <option value="5" ${u.userAuth.toString() === '5' ? 'selected' : ''}>OFFICINA</option>
                 </select>`,
                     activeSelect: `<select onchange="this.form.active('${u._id}', this.value)">
                     <option value="0" ${u.active === false ? 'selected' : ''}>DISATTIVO</option>
                     <option value="1" ${u.active === true ? 'selected' : ''}>ATTIVO</option>
                 </select>`,
-                    organizationSelect: `<select style="width: 180px;" onchange="this.form.updateRetailer('${u._id}', this.value)"
-                        ${isOutsource(u.type) ? '' : 'disabled'}>
-                    <option value=""></option>
-                    ${system.db.retailers.map(r =>
-                        `<option ${r.id === u.organization ? 'selected' : ''} 
-                            value="${r.id}">${r.name}</option>`).join('')}
-                </select>`
+                    organizationSelect: getOrganizationSelect(u, system)
                 }, u));
             const orders = ['created', 'name', 'surname', 'organization'].reduce((ret, key) => {
                 const item = {};
-                item[`sort_${key}`] = model.order === key ? `mdl-data-table__header--sorted-${model.ascending ? 'ascending': 'descending'}` : '';
+                item[`sort_${key}`] = model.order === key ? `mdl-data-table__header--sorted-${model.ascending ? 'ascending' : 'descending'}` : '';
                 return Object.assign(ret, item);
             }, {});
             content = view.clear('list').appendTo('list', adminTpl, style, Object.assign({ users: us }, orders));
-        } else {
+        } else if (userAuth !== undefined && userAuth.toString() === '5') {
+            view.appendTo('list', workshopTpl, style, locale.get());
+        } else if (userAuth !== undefined) {
             view.appendTo('list', noAdminTpl, style, locale.get());
         }
     }

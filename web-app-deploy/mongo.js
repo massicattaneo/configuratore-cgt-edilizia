@@ -55,7 +55,7 @@ module.exports = function (isDeveloping) {
         });
     };
 
-    obj.insertUser = function ({ email, password, tel = '', surname, type, organization, name, lang, discount = 0 }) {
+    obj.insertUser = function ({ email, password, tel = '', surname, type, organization = '', workshop = '', name, lang, discount = 0 }) {
         return new Promise(function (resolve, rej) {
             db.collection('users').find({ email }).toArray(function (err, result) {
                 if (err) return rej(new Error('generic'));
@@ -70,6 +70,7 @@ module.exports = function (isDeveloping) {
                     activationCode,
                     type,
                     organization,
+                    workshop,
                     surname,
                     name,
                     tel,

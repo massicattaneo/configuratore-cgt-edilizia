@@ -12,6 +12,15 @@
                 <!--<label class="mdl-textfield__label" for="search">Enter your query...</label>-->
             <!--</div>-->
         <!--</div>-->
+        <div #carticon style="position: relative;">
+            <em #cartnotify></em>
+            <a onclick="window.navigate(this,event)"
+               href="{{urls.cart.href}}"
+               class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="header_cart">
+                <i class="material-icons">shopping_cart</i>
+            </a>
+        </div>
+
         <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="hdrbtn">
             <i class="material-icons">more_vert</i>
         </button>

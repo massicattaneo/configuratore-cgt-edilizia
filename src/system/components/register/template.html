@@ -49,16 +49,33 @@
                            onclick="this.form.changeOrg()"/>
                 </span>
             </div>
+            <div class="mdl-list__item">
+                <label class="mdl-list__item-primary-content" for="list-option-4">
+                    <i class="material-icons mdl-list__item-avatar">person</i>
+                    {{register.types.4.label}}
+                </label>
+                <span class="mdl-list__item-secondary-action">
+                    <input type="radio" id="list-option-4" class="mdl-radio__button"
+                           name="type" value="{{register.types.4.value}}"
+                           onclick="this.form.changeOrg()"/>
+                </span>
+            </div>
 
             <div #organization class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <select class="mdl-textfield__input"
                         id="organization" name="organization">
                     <option value=""></option>
                     {{#each organizations}}
-                        <option value="{{this.id}}">{{this.name}}</option>
+                    <option value="{{this.id}}">{{this.name}}</option>
                     {{/each}}
                 </select>
                 <label class="mdl-textfield__label" for="organization">{{register.organization}}</label>
+            </div>
+            <div #workshop class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="workshop">
+                    <label class="mdl-textfield__label" for="workshop">{{register.workshop}}</label>
+                </div>
             </div>
         </div>
 

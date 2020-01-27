@@ -11,6 +11,8 @@ export default async function ({ system, thread, gos }) {
     system.db = await thread.execute('db-get', { url: '/all' });
     updateDbForOldVersions(system);
 
+    if (!status.logged) system.setStorage({ cart: [] });
+
     system.store = rx.create({
         logged: status.logged,
         email: status.user.email,
@@ -21,7 +23,8 @@ export default async function ({ system, thread, gos }) {
         vehicleorders: status.vehicleorders,
         equipmentorders: status.equipmentorders,
         loading: false,
-        hasLogged: status.logged
+        hasLogged: status.logged,
+        cart: system.getStorage('cart') || []
     });
 
     system.initStorage({
@@ -78,5 +81,5 @@ export default async function ({ system, thread, gos }) {
     system.updateDb = function () {
         gos.vehicles.updateDb();
         gos.equipments.updateDb();
-    }
+    };
 }

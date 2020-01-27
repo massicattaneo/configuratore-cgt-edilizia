@@ -1,0 +1,26 @@
+<form #wrapper>
+    <div #sentorder>
+
+    </div>
+    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" width="100%">
+        <thead>
+        <tr>
+            <th width="50px">&nbsp;</th>
+            <th style="text-align: left">PRODOTTO</th>
+            <th>QUANTITA</th>
+        </tr>
+        </thead>
+        <tbody #items>
+        </tbody>
+    </table>
+    <div #shoplink style="text-align: center; margin-top: 20px">
+        <a onclick="window.navigate(this,event)" href="/it/shop">VAI AL NEGOZIO ONLINE</a>
+    </div>
+    <div #sendorder style="text-align: center; margin-top: 20px">
+        <button type="button"
+                onclick="this.form.save(this)"
+                class="mdl-button mdl-color--accent mdl-color-text--accent-contrast mdl-cell--6-col mdl-cell--order-12-phone">
+            INVIA ORDINE
+        </button>
+    </div>
+</form>

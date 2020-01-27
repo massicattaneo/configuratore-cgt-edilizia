@@ -3,9 +3,10 @@ const types = {
     1: 'CGT EDILIZIA',
     2: 'CGT',
     3: 'CONCESSIONARIO DIREZIONE',
-    4: 'CONCESSIONARIO COMMERCIALE'
+    4: 'CONCESSIONARIO COMMERCIALE',
+    5: 'OFFICINA'
 };
-module.exports = function({grayColor, type, tel, email, organization, name, primaryColor, host, activationCode, footer}) {
+module.exports = function({grayColor, type, tel, email, organization = '', workshop = '', name, primaryColor, host, activationCode, footer}) {
     return `
     <div style="font-family: Arial; color: ${grayColor}">
         <h1>UTENTE:</h1>
@@ -15,7 +16,7 @@ module.exports = function({grayColor, type, tel, email, organization, name, prim
                     ORGANIZZAZIONE:
                 </td>
                 <td>
-                    ${types[type]} ${organization !== '' ? `- ${organization}` : ''}
+                    ${types[type]} ${organization !== '' ? `- ${organization}` : ''} ${workshop !== '' ? `- ${workshop}` : ''}
                 </td>
             </tr>
             <tr>
@@ -69,6 +70,11 @@ module.exports = function({grayColor, type, tel, email, organization, name, prim
                 <li>
                     <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=4&activationCode=${activationCode}">
                         Concessionario Commerciale
+                    </a>
+                </li>
+                <li>
+                    <a style="color:${primaryColor}" href="${host}${confirmRegistrationUrl}?userAuth=5&activationCode=${activationCode}">
+                        Officina
                     </a>
                 </li>
             </ul>

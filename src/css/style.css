@@ -119,3 +119,22 @@ table.alternate-table.blocks td::before {
 table.alternate-table.blocks td:last-child {
     border-bottom: 0;
 }
+
+.scale-up {
+    animation: scale-up 0.5s ease-out;
+}
+
+@keyframes scale-up {
+    50% {
+        transform: scale(2, 2);
+        opacity: 0;
+    }
+    99% {
+        transform: scale(0.001, 0.001);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(0.001, 0.001);
+        opacity: 1;
+    }
+}

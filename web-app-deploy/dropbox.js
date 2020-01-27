@@ -4,12 +4,14 @@ const DropboxTeam = require('dropbox').DropboxTeam;
 const Dropbox = require('dropbox').Dropbox;
 const XLSX = require('xlsx');
 const fs = require('fs');
+const { getEmptyDb } = require('./shared');
 const originalDb = {};
-const db = {};
+const db = getEmptyDb();
 const dbUA1 = {};
 const dbUA2 = {};
 const dbUA3 = {};
 const dbUA4 = {};
+const dbUA5 = getEmptyDb();
 const path = require('path');
 const access = require('./private/mongo-db-access');
 const backup = require('mongodb-backup');
@@ -154,6 +156,45 @@ const stockMachinesDataStructure = {
     positioning: 'Presente in Magazzino'
 };
 
+const shopItemsDataStructure = {
+    id: {
+        column: 'codice', convert: (item, ret, row, db) => {
+            return `${item}-${(row['prodotto'] || '').trim().replace(/\s/g, '_')}`;
+        }
+    },
+    name: { column: 'nome', convert: (item = '', ret, row) => `${(row['codice'] || '').trim()} ${item}`.trim() },
+    product: { column: 'prodotto', convert: (item = '') => item },
+    type: { column: 'tipologia', convert: (item = '') => item },
+    clothing: { column: 'vestiario', convert: (item = '') => item },
+    sizes: { column: 'taglia', convert: (item = '') => item },
+    genders: { column: 'genere', convert: (item = '') => item ? item.split(',').map(item => item.trim()) : [] },
+    description: { column: 'descrizione', convert: (item = '') => item },
+    images: {
+        column: 'immagini', convert: (item = '', ret, row) => {
+            return item.split(',')
+                .map(item => item.trim())
+                .filter(i => i)
+                .map(item => `/shop_images/${row['prodotto'].trim()}/${item}`);
+        }
+    }
+};
+
+const shopProductsDataStructure = {
+    id: 'codice',
+    product: { column: 'prodotto', convert: (item = '') => item },
+    seller: { column: 'venditore', convert: (item = '') => item },
+    emails: { column: 'email', convert: (item = '') => item.split(',').map(item => item.trim()) }
+};
+
+const shopSizesDataStructure = {
+    product: { column: 'prodotto', convert: (item = '') => item },
+    clothing: { column: 'vestiario', convert: (item = '') => item },
+    sizes: { column: 'none', convert: () => [] },
+    sizesNumbers: { column: 'none', convert: () => [] },
+    genders: { column: 'genere', convert: (item = '') => item },
+    unit: { column: 'misura', convert: (item = '') => item }
+};
+
 function getDropboxSpecialOffers(dbx) {
     const paths = ['Venditori CGT Edilizia', 'CGT', 'Concessionari'];
     return Promise.all([
@@ -204,6 +245,14 @@ async function appendEquipments(db, mongo, userFamily) {
     return dbRet;
 }
 
+async function appendShopOrders(db, mongo) {
+    const dbRet = Object.assign({}, db, {
+        shoporders: await mongo.rest.get('shoporders', ``, { userAuth: 0 })
+    });
+    dbRet.getVersion = getDbVersion(dbRet);
+    return dbRet;
+}
+
 async function appendBudgetsOrders(db, mongo, user) {
     const userAuth = 0;
     const users = await mongo.getAllUsers();
@@ -249,13 +298,17 @@ module.exports = function (mongo) {
     const obj = {};
     const dbx = new Dropbox({ accessToken: privateInfo.accessToken });
     obj.init = async function () {
-
         /** create directories */
         if (!fs.existsSync(`${__dirname}/temp`)) fs.mkdirSync(`${__dirname}/temp`);
         if (!fs.existsSync(`${__dirname}/dpx-photos`)) fs.mkdirSync(`${__dirname}/dpx-photos`);
+        if (!fs.existsSync(`${__dirname}/dpx-photos/shop_images`)) fs.mkdirSync(`${__dirname}/dpx-photos/shop_images`);
 
-        console.log('/****** downloading CGT EDILIZIA DROPBOX DATABASE');
         let start = Date.now();
+        console.log('/****** downloading/parsing CGT EDILIZIA SHOP DATABASE');
+        const { shopSizes, shopItems, shopProducts } = await getShopDatabase(dbx);
+        console.log(`/****** finished downloading/parsing CGT EDILIZIA SHOP DATABASE in ${(Date.now() - start) / 1000}s`);
+        console.log('/****** downloading CGT EDILIZIA DROPBOX DATABASE');
+        start = Date.now();
         console.log(`/****** finished downloading CGT EDILIZIA DROPBOX DATABASE in ${(Date.now() - start) / 1000}s`);
         Object.assign(originalDb, await getDbFromDropBox(dbx));
         Object.assign(originalDb, await getRetailersListFromDropBox(dbx));
@@ -266,6 +319,7 @@ module.exports = function (mongo) {
         // Object.assign(originalDb, await getFromJSON());
         // fs.writeFileSync('./db.json', JSON.stringify(originalDb));
         console.log('/****** parsing CGT EDILIZIA DROPBOX DATABASE');
+        Object.assign(db, { shopSizes, shopItems, shopProducts })
         db.familys = parse('Famiglia Macchine', familyDataStructure).filter(({ id }) => id.indexOf('-') === -1);
         db.models = parse('Modelli', modeldataStructure);
         db.vehicleAvailability = parse('vehicleAvailability', stockMachinesDataStructure)
@@ -310,6 +364,7 @@ module.exports = function (mongo) {
         dbUA3.getVersion = getDbVersion(dbUA3);
         Object.assign(dbUA4, JSON.parse(JSON.stringify(db)));
         dbUA4.getVersion = getDbVersion(dbUA4);
+        Object.assign(dbUA5, { shopSizes, shopItems });
         removeReference(dbUA1, ['priceOutsource', 'priceCGT', 'priceOriginalOutsource']);
         removeReference(dbUA2, ['priceCGT', 'priceOutsource', 'priceOriginalOutsource']);
         removeReference(dbUA3, ['priceCGT', 'priceMin']);
@@ -335,7 +390,8 @@ module.exports = function (mongo) {
         switch (ua) {
         case 0:
             const useDb = timestamp ? db.getVersion(timestamp) : db;
-            return await appendBudgetsOrders(await appendEquipments(useDb, mongo, 'CGTE'), mongo, user);
+            const ret = await appendBudgetsOrders(await appendEquipments(useDb, mongo, 'CGTE'), mongo, user);
+            return await appendShopOrders(ret, mongo);
         case 1:
             const useDb1 = timestamp ? dbUA1.getVersion(timestamp) : dbUA1;
             return await appendBudgetsOrders(await appendEquipments(useDb1, mongo, 'CGTE'), mongo, user);
@@ -348,6 +404,8 @@ module.exports = function (mongo) {
         case 4:
             const useDb4 = timestamp ? dbUA4.getVersion(timestamp) : dbUA4;
             return await appendBudgetsOrders(changeDiscounts(await appendEquipments(useDb4, mongo, user.organization), user), mongo, user);
+        case 5:
+            return dbUA5;
         }
     };
 
@@ -580,6 +638,91 @@ function parse(sheetName, data, theDb = originalDb) {
             return ret;
         }, {});
     });
+}
+
+async function getShopDatabase(dbx) {
+    return downloadFile(dbx, 'merchandising/database.xlsx')
+        .then(async function (fileData) {
+            const db = {};
+            const read_opts = { type: '', raw: false, sheetRows: 0 };
+            const workbook = XLSX.read(fileData.fileBinary, read_opts);
+            workbook.SheetNames.forEach(function (name) {
+                const workSheet = workbook.Sheets[name];
+                db[name] = XLSX.utils.sheet_to_json(workSheet);
+            });
+            const shopSizes = parse('taglia', shopSizesDataStructure, db);
+            const sizes = db.taglia.map(row => {
+                return Object
+                    .keys(row)
+                    .filter(key => !['prodotto', 'genere', 'vestiario', 'misura'].includes(key))
+                    .map(key => row[key]);
+            });
+            shopSizes.forEach((size, index) => {
+                const items = sizes[index].map(i => i.split(':')[0]);
+                const transforms = sizes[index].map(i => (i.split(':'))[1] || '');
+                size.sizes.push(...items);
+                size.sizesNumbers.push(...transforms);
+            });
+            const shopProducts = parse('prodotto', shopProductsDataStructure, db);
+            shopProducts.forEach(function ({ product }) {
+                if (!fs.existsSync(`${__dirname}/dpx-photos/shop_images/${product}`)) fs.mkdirSync(`${__dirname}/dpx-photos/shop_images/${product}`);
+            });
+            const shopItems = parse('articolo', shopItemsDataStructure, db);
+            shopItems.forEach(function (item) {
+                if (item.sizes && item.sizes.indexOf(',') !== -1) {
+                    item.sizes = item.sizes.split(',').reduce((acc, i, index) => {
+                        return Object.assign(acc, { [item.genders[index]]: i });
+                    }, {});
+                } else if (item.sizes) {
+                    item.sizes = { [item.genders[0]]: item.sizes };
+                } else {
+                    item.sizes = {};
+                }
+
+                if (item.sizes) {
+                    Object.keys(item.sizes)
+                        .filter(key => item.sizes[key].indexOf('/') !== -1)
+                        .forEach(key => {
+                            const { unit } = shopSizes
+                                .find(i => i.genders === key && i.clothing === item.clothing && i.product === item.product) || { unit: '' };
+                            item.sizes[key] = item.sizes[key].split('/').map(i => `${i.trim()}${unit}`);
+                        });
+                    Object.keys(item.sizes)
+                        .filter(key => item.sizes[key].indexOf('-') !== -1)
+                        .forEach(key => {
+                            const [from, to] = item.sizes[key].split('-');
+                            const { sizes } = shopSizes
+                                .find(i => i.genders === key && i.clothing === item.clothing && i.product === item.product) || { sizes: [] };
+                            item.sizes[key] = sizes.filter((s, i, a) => i >= a.indexOf(from) && i <= a.indexOf(to));
+                        });
+                }
+            });
+
+            const allImages = shopItems.reduce((acc, item) => {
+                return acc.concat(item.images.map(imagePath => ({ imagePath })));
+            }, []);
+
+            const images = await Promise.all(allImages
+                .map(function ({ imagePath }) {
+                    if (fs.existsSync(`${__dirname}/dpx-photos/shop_images${imagePath}`)) return '';
+                    const url = `/APPS/configuratore-cgt-edilizia/merchandising${imagePath}`;
+                    return dbx.filesDownload({ path: url })
+                        .catch(function (e) {
+                            console.log('NOT FOUND', url);
+                        });
+                }));
+
+            images.forEach(function (image, index) {
+                if (image && image.fileBinary) {
+                    const { imagePath } = allImages[index];
+                    const filePath = `/dpx-photos${imagePath}`;
+                    console.warn(filePath);
+                    fs.writeFileSync(`${__dirname}${filePath}`, image.fileBinary, { encoding: 'binary' });
+                }
+            });
+
+            return { shopSizes, shopItems, shopProducts };
+        });
 }
 
 async function getDbFromDropBox(dbx) {

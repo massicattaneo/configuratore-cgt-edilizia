@@ -62,12 +62,15 @@ const myParsers = {
         const date = new Date(d);
         return date.formatDay('dddd dd/mm/yyyy', ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato']);
     },
+    stringifyShopItem: function (shopItem) {
+        return `${shopItem.name}`;
+    },
     formatShortDate: function (d) {
         const date = new Date(d);
         return date.formatDay('dd/mm/yyyy', []);
     },
     toPercentage: function (d) {
-        return `${Number(d).toFixed(2)}%`
+        return `${Number(d).toFixed(2)}%`;
     },
     formatTime: function (d) {
         const date = new Date(d);
@@ -79,10 +82,10 @@ const myParsers = {
         return 'display: block;';
     },
     checked: function (d) {
-        return d ? 'checked' : ''
+        return d ? 'checked' : '';
     },
     YesNo: function (d) {
-        return d ? 'SI' : 'NO'
+        return d ? 'SI' : 'NO';
     },
     fn: function (d) {
         return new Function(d)();

@@ -1,6 +1,6 @@
 {
     "name": "configuratore-cgt-edilizia",
-    "version": "1.0.83",
+    "version": "1.0.84",
     "description": "CONFIGURATORE CGT EDILIZIA",
     "main": "./src/index.hbs",
     "private": true,

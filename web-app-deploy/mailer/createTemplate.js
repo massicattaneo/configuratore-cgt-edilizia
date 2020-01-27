@@ -6,6 +6,8 @@ const active = require('./templates/active');
 const budget = require('./templates/budget');
 const order = require('./templates/order');
 const orderDelete = require('./templates/orderDelete');
+const shopOrder = require('./templates/shopOrder');
+const shopOrderForSeller = require('./templates/shopOrderForSeller');
 const webmail = require('../private/webmail');
 const emailsAddresses = require('../private/emails');
 
@@ -66,6 +68,22 @@ module.exports = function (type, emailParams) {
             subject: `ERRORE NEL DATABASE`,
             text: '', // plain text body
             html: `CONTROLLA QUESTO: ${emailParams.message}`,
+            attachments: []
+        };
+    case 'confirm-shop-order':
+        return {
+            to: email,
+            subject: `ORDINE NEGOZIO CONFERMATO`,
+            text: '', // plain text body
+            html: shopOrder(params),
+            attachments: []
+        };
+    case 'confirm-shop-order-to-sellers':
+        return {
+            to: email,
+            subject: `ORDINE CGT`,
+            text: '', // plain text body
+            html: shopOrderForSeller(params),
             attachments: []
         };
     }

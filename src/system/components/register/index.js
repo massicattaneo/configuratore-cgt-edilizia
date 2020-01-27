@@ -2,7 +2,7 @@ import { HtmlView } from 'gml-html';
 import template from './template.html';
 import * as style from './style.scss';
 import registerDone from './register-done.html';
-import { isOutsource } from '../../../../web-app-deploy/shared';
+import { isOutsource, isWorkshop } from '../../../../web-app-deploy/shared';
 
 const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const telRegEx = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
@@ -17,6 +17,8 @@ export default async function ({ locale, system, thread }) {
         if (this.type.value === '') error({ text: 'missingOrganizationType', focus: '' });
         if (isOutsource(this.type.value) && this.organization.value === '')
             error({ text: 'missingOrganizationName', focus: 'organization' });
+        if (isWorkshop(this.type.value) && this.workshop.value === '')
+            error({ text: 'missingWorkshopName', focus: 'workshop' });
         if (this.name.value === '') error({ text: 'missingName', focus: 'name' });
         if (this.surname.value === '') error({ text: 'missingSurname', focus: 'surname' });
         if (this.email.value === '') error({ text: 'missingEmail', focus: 'email' });
@@ -28,6 +30,7 @@ export default async function ({ locale, system, thread }) {
     };
 
     form.changeOrg = function () {
+        view.get('workshop').style.display = isWorkshop(form.type.value) ? 'block' : 'none';
         view.get('organization').style.display = isOutsource(form.type.value) ? 'block' : 'none';
     };
 
@@ -51,6 +54,7 @@ export default async function ({ locale, system, thread }) {
             lang: system.info().lang,
             type: form.type.value,
             discount: 0,
+            workshop: isWorkshop(form.type.value) ? form.workshop.value : '',
             organization: isOutsource(form.type.value) ? form.organization.value : ''
         });
         system.store.loading = false;

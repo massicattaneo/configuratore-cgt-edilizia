@@ -1,0 +1,12 @@
+<tr>
+    <td data-label="NOME: ">{{user.name}}&nbsp;</td>
+    <td data-label="COGNOME: ">{{user.surname}}&nbsp;</td>
+    <td data-label="ARTICOLI: ">
+        {{#each cart}}
+            {{this.quantity}} x {{stringifyShopItem(this.shopItem)}} ({{this.seller}}) <br/>
+        {{/each}}
+    </td>
+    <td style="display: none;" data-label="EMAIL: "><a style="color: #ae0d0e" href="mailto:{{user.email}}">{{user.email}}</a> </td>
+    <td style="display: none;" data-label="OFFICINA: ">{{workshop}}&nbsp;</td>
+    <td style="display: none;" data-label="CONCESSIONARIO: ">{{retailer.name}}&nbsp;</td>
+</tr>

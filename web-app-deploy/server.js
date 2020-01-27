@@ -37,7 +37,7 @@ const privateInfo = require('./private/privateInfo.json');
 const { createVehicleCgteXlsx, createVehicleOutsourceXlsx, createEquipmentXlsx } = require('./xlsx/xlsx');
 const schedule = require('node-schedule');
 const rimraf = require('rimraf');
-const { isOutsource, createOrderXlsName } = require('./shared');
+const { isOutsource, createOrderXlsName, getEmptyDb } = require('./shared');
 const emailsAddresses = require('./private/emails');
 
 function noCache(req, res, next) {
@@ -260,18 +260,15 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
         async function (req, res) {
             if (isLogged(req)) {
                 const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
-                res.send(await dropbox.getDb(req.session.userAuth, user));
+                const retValue = await dropbox.getDb(req.session.userAuth, user);
+                delete retValue.shopProducts;
+                res.send(retValue);
             } else {
-                res.send({
-                    codes: [],
-                    equipements: [],
-                    familys: [],
-                    models: [],
-                    versions: [],
+                res.send(Object.assign(getEmptyDb(), {
                     retailers: (await dropbox.getDb()).retailers.map(({ id, name }) => {
                         return { id, name };
                     })
-                });
+                }));
             }
         });
 
@@ -412,6 +409,53 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
 
             const [excel] = getOrderExcel(table, user, budget, dbx, order, xlsxPath);
             res.sendFile(excel.path);
+        });
+
+    app.post('/api/shop/order',
+        requiresLogin,
+        async function (req, res) {
+            const userId = req.session.userId;
+            const userAuth = req.session.userAuth;
+            const user = (await mongo.rest.get('users', `_id=${userId}`, { userId, userAuth }))[0];
+            const dbx = await dropbox.getDb(null, user);
+            const cart = req.body.map(function ({ id, gender, size, quantity }) {
+                const shopItem = dbx.shopItems.find(i => i.id === id);
+                const { seller, emails } = dbx.shopProducts.find(i => i.product === shopItem.product);
+                return Object.assign({}, { shopItem, seller, emails, gender, size, quantity });
+            });
+            const retailer = dbx.retailers.find(r => r.id === user.organization);
+            const userToInsert = {
+                email: user.email,
+                tel: user.tel,
+                name: user.name,
+                surname: user.surname,
+                workshop: user.workshop,
+                retailer: retailer ? { name: retailer.name, address: retailer.address } : {}
+            };
+            const shopOrder = await mongo.rest.insert('shoporders', { user: userToInsert, cart });
+            mailer.send(createTemplate('confirm-shop-order', {
+                email: [req.session.email, emailsAddresses.shopOrders],
+                user,
+                shopOrder
+            }));
+            shopOrder.cart.reduce(function (acc, item) {
+                const { seller, emails } = item;
+                const find = acc.find(i => i.seller === seller);
+                if (find) {
+                    find.cart.push(item);
+                    return acc;
+                }
+                return acc.concat({ seller, emails, cart: [item] });
+            }, []).forEach(function ({ seller, emails, cart }) {
+                mailer.send(createTemplate('confirm-shop-order-to-sellers', {
+                    email: emailsAddresses.shopOrders,
+                    // email: emails,
+                    user,
+                    seller,
+                    shopOrder: { cart }
+                }));
+            });
+            res.send(shopOrder);
         });
 
     let callback;

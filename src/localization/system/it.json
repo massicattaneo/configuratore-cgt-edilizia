@@ -13,6 +13,7 @@
     "missingPassword": "Aggiungi la password",
     "missingOrganizationType": "Seleziona il tipo di organizzazione a cui appartieni",
     "missingOrganizationName": "Seleziona il nome del concessionario a cui appartieni",
+    "missingWorkshopName": "Inserisci il nome della tua officina",
     "malformedEmail": "L'indirizzo email non é in un formato valido",
     "malformedTel": "Il numero di telefono non é in un formato valido",
     "missingUser": "L'indirizzo email non corrisponde a nessuna utenza.",
@@ -138,6 +139,16 @@
       "href": "/it/esplora",
       "title": "ESPLORA",
       "menu": "ESPLORA"
+    },
+    "shop": {
+      "href": "/it/shop",
+      "title": "NEGOZIO ONLINE",
+      "menu": "NEGOZIO ONLINE"
+    },
+    "cart": {
+      "href": "/it/cart",
+      "title": "CARRELLO",
+      "menu": "CARRELLO"
     }
   },
   "tables": {
@@ -147,7 +158,8 @@
     "ordini-macchine": "vehicleorders",
     "offerte-attrezzature": "equipmentbudgets",
     "ordini-attrezzature": "equipmentorders",
-    "disponibilita-macchine": "vehicleAvailability"
+    "disponibilita-macchine": "vehicleAvailability",
+    "ordini-negozio": "shoporders"
   },
   "menuHeader": {
     "userNotLogged": "UTENTE...",
@@ -156,12 +168,14 @@
   "register": {
     "typeTitle": "NOME ORGANIZZAZIONE:",
     "types": [
-      {"label": "CGT EDILIZIA", "value": 1},
-      {"label": "CGT", "value": 2},
-      {"label": "CONCESSIONARIO - DIREZIONE", "value": 3},
-      {"label": "CONCESSIONARIO - COMMERCIALE", "value": 4}
+      { "label": "CGT EDILIZIA", "value": 1 },
+      { "label": "CGT", "value": 2 },
+      { "label": "CONCESSIONARIO - DIREZIONE", "value": 3 },
+      { "label": "CONCESSIONARIO - COMMERCIALE", "value": 4 },
+      { "label": "OFFICINA", "value": 5 }
     ],
     "organization": "NOME CONCESSIONARIO",
+    "workshop": "NOME OFFICINA",
     "infoTitle": "I TUOI DATI:",
     "name": "NOME",
     "discount": "PROFITTO",

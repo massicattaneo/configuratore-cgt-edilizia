@@ -1,0 +1,14 @@
+<nav #wrapper class="cgt-navigation mdl-navigation">
+    <a class="mdl-navigation__link"  onclick="window.navigate(this, event)" href="{{urls.homePage.href}}">
+        <i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>
+        {{urls.homePage.menu}}
+    </a>
+    <a class="mdl-navigation__link"  onclick="window.navigate(this, event)" href="{{urls.logged.href}}">
+        <i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">account_box</i>
+        {{urls.logged.menu}}
+    </a>
+    <a class="mdl-navigation__link" onclick="window.navigate(this, event)" href="{{urls.shop.href}}">
+        <i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">storefront</i>
+        {{urls.shop.menu}}
+    </a>
+</nav>

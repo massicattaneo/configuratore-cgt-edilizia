@@ -1,15 +1,18 @@
+import { getEmptyDb } from '../../../web-app-deploy/shared';
+
 export default async function ({ system, wait }) {
     const { url, email, password, lang } = this;
     try {
         const req = RetryRequest(`/api/db${url}`, { headers: { 'Content-Type': 'application/json' } });
         try {
             const res = await req.get(JSON.stringify({ email, password, lang }));
-            return JSON.parse(res.responseText);
+            const parse = JSON.parse(res.responseText);
+            return parse;
         } catch (e) {
-            return { familys: [], models: [], versions: [], equipements: [] }
+            return getEmptyDb();
         }
 
     } catch (e) {
-        system.throw(e.responseText)
+        system.throw(e.responseText);
     }
 }

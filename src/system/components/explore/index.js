@@ -6,6 +6,8 @@ import vehiclebudgetsTpl from './templates/vehiclebudgets.html';
 import vehiclebudgetsItemTpl from './templates/vehiclebudgetsItem.html';
 import vehicleordersTpl from './templates/vehicleorders.html';
 import vehicleordersItemTpl from './templates/vehicleordersItem.html';
+import shoprdersTpl from './templates/shoporders.html';
+import shopordersItemTpl from './templates/shopordersItem.html';
 
 import equipmentbudgetsTpl from './templates/equipmentbudgets.html';
 import equipmentbudgetsItemTpl from './templates/equipmentbudgetsItem.html';
@@ -42,6 +44,11 @@ const templates = {
     vehicleorders: {
         template: vehicleordersTpl,
         itemTemplate: vehicleordersItemTpl,
+        filters: ['user.surname & user.name']
+    },
+    shoporders: {
+        template: shoprdersTpl,
+        itemTemplate: shopordersItemTpl,
         filters: ['user.surname & user.name']
     },
     equipmentbudgets: {
@@ -102,6 +109,14 @@ export default async function ({ locale, system, thread }) {
         icon: 'calendar_today',
         href: '/it/esplora/disponibilita-macchine'
     }).get());
+    if (system.store.userAuth && system.store.userAuth.toString() === '0') {
+        view.get('icons').appendChild(Icon({
+            title: 'ORDINI NEGOZIO',
+            icon: 'storefront',
+            href: '/it/esplora/ordini-negozio'
+        }).get());
+    }
+
 
     view.destroy = function () {
 

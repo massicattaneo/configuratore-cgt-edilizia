@@ -8,3 +8,21 @@
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
+#cartnotify {
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  width: 20px;
+  height: 20px;
+  display: block;
+  z-index: 1;
+  left: auto;
+  border-radius: 10px;
+  background: rgb(255, 205, 17);
+  font-size: 15px;
+  color: #ae0d0e;
+  line-height: 19px;
+  text-align: center;
+  font-style: normal;
+}

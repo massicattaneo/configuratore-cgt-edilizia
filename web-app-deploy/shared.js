@@ -100,10 +100,13 @@ module.exports = {
         if (ua === 3) return true;
         return false;
     },
-    isOutsource: function isOutsource(value) {
+    isOutsource: function (value) {
         return value.toString() === '3' || value.toString() === '4';
     },
-    isOutsourceDirection: function isOutsource(value) {
+    isWorkshop: function (value) {
+        return value.toString() === '5';
+    },
+    isOutsourceDirection: function (value) {
         return value.toString() === '3';
     },
     formatOrderNumber: function (order) {
@@ -201,8 +204,30 @@ module.exports = {
             return (!vehicleExist) || equipment.length !== budget.equipment.length;
         } else if (table === 'equipmentbudgets') {
             const equipment = budget.equipment.filter(id => db.equipements.find(e => e.id === id));
-            return equipment.length !== budget.equipment.length
+            return equipment.length !== budget.equipment.length;
         }
 
+    },
+    getEmptyDb: function () {
+        const emptyDb = {
+            codes: [],
+            familys: [],
+            models: [],
+            versions: [],
+            equipements: [],
+            olds: [],
+            retailers: [],
+            specialOffers: [],
+            vehicleAvailability: [],
+            vehiclebudgets: [],
+            equipmentbudgets: [],
+            vehicleorders: [],
+            equipmentorders: [],
+            timestamps: Date.now(),
+            shopSizes: [],
+            shopItems: [],
+            shoporders: []
+        };
+        return Object.assign({ getVersion: () => emptyDb }, emptyDb);
     }
 };
