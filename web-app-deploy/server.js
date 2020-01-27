@@ -86,7 +86,7 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
     app.use(session({
         cookie: { path: '/', httpOnly: true, secure: false, maxAge: Date.now() + (30 * 24 * 60 * 60 * 1000) },
         secret: privateInfo.sessionSecret,
-        resave: true,
+        resave: false,
         saveUninitialized: false,
         store: new MongoStore({
             db: db
@@ -415,8 +415,7 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
         requiresLogin,
         async function (req, res) {
             const userId = req.session.userId;
-            const userAuth = req.session.userAuth;
-            const user = (await mongo.rest.get('users', `_id=${userId}`, { userId, userAuth }))[0];
+            const user = (await mongo.rest.get('users', `_id=${userId}`, { userId, userAuth: 0 }))[0];
             const dbx = await dropbox.getDb(null, user);
             const cart = req.body.map(function ({ id, gender, size, quantity }) {
                 const shopItem = dbx.shopItems.find(i => i.id === id);
@@ -432,7 +431,7 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
                 workshop: user.workshop,
                 retailer: retailer ? { name: retailer.name, address: retailer.address } : {}
             };
-            const shopOrder = await mongo.rest.insert('shoporders', { user: userToInsert, cart });
+            const shopOrder = await mongo.rest.insert('shoporders', { user: userToInsert, cart, userId });
             mailer.send(createTemplate('confirm-shop-order', {
                 email: [req.session.email, emailsAddresses.shopOrders],
                 user,

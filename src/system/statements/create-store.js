@@ -16,7 +16,7 @@ export default async function ({ system, thread, gos }) {
     system.store = rx.create({
         logged: status.logged,
         email: status.user.email,
-        userAuth: status.user.userAuth,
+        userAuth: (status.user.userAuth === undefined || status.user.userAuth === null) ? '' : status.user.userAuth,
         user: status.user,
         vehiclebudgets: status.vehiclebudgets,
         equipmentbudgets: status.equipmentbudgets,

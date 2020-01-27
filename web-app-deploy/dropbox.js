@@ -245,9 +245,10 @@ async function appendEquipments(db, mongo, userFamily) {
     return dbRet;
 }
 
-async function appendShopOrders(db, mongo) {
+async function appendShopOrders(db, mongo, user) {
+    const userAuth = 0;
     const dbRet = Object.assign({}, db, {
-        shoporders: await mongo.rest.get('shoporders', ``, { userAuth: 0 })
+        shoporders: await mongo.rest.get('shoporders', Number(user.userAuth) ? `userId=${user._id}` : '', { userAuth })
     });
     dbRet.getVersion = getDbVersion(dbRet);
     return dbRet;
@@ -390,22 +391,26 @@ module.exports = function (mongo) {
         switch (ua) {
         case 0:
             const useDb = timestamp ? db.getVersion(timestamp) : db;
-            const ret = await appendBudgetsOrders(await appendEquipments(useDb, mongo, 'CGTE'), mongo, user);
-            return await appendShopOrders(ret, mongo);
+            const ret0 = await appendBudgetsOrders(await appendEquipments(useDb, mongo, 'CGTE'), mongo, user);
+            return await appendShopOrders(ret0, mongo, user);
         case 1:
             const useDb1 = timestamp ? dbUA1.getVersion(timestamp) : dbUA1;
-            return await appendBudgetsOrders(await appendEquipments(useDb1, mongo, 'CGTE'), mongo, user);
+            const ret1 = await appendBudgetsOrders(await appendEquipments(useDb1, mongo, 'CGTE'), mongo, user);
+            return await appendShopOrders(ret1, mongo, user);
         case 2:
             const useDb2 = timestamp ? dbUA2.getVersion(timestamp) : dbUA3;
-            return await appendBudgetsOrders(await appendEquipments(useDb2, mongo, 'CGT'), mongo, user);
+            const ret2 = await appendBudgetsOrders(await appendEquipments(useDb2, mongo, 'CGT'), mongo, user);
+            return await appendShopOrders(ret2, mongo, user);
         case 3:
             const useDb3 = timestamp ? dbUA3.getVersion(timestamp) : dbUA3;
-            return await appendBudgetsOrders(changeDiscounts(await appendEquipments(useDb3, mongo, user.organization), user), mongo, user);
+            const ret3 = await appendBudgetsOrders(changeDiscounts(await appendEquipments(useDb3, mongo, user.organization), user), mongo, user);
+            return await appendShopOrders(ret3, mongo, user);
         case 4:
             const useDb4 = timestamp ? dbUA4.getVersion(timestamp) : dbUA4;
-            return await appendBudgetsOrders(changeDiscounts(await appendEquipments(useDb4, mongo, user.organization), user), mongo, user);
+            const ret4 = await appendBudgetsOrders(changeDiscounts(await appendEquipments(useDb4, mongo, user.organization), user), mongo, user);
+            return await appendShopOrders(ret4, mongo, user);
         case 5:
-            return dbUA5;
+            return await appendShopOrders(dbUA5, mongo, user);
         }
     };
 

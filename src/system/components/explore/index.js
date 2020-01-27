@@ -24,6 +24,7 @@ import * as style from './style.scss';
 import Icon from '../icon/Icon';
 import Window from '../window/window';
 import Explorer from './explorer';
+import { isWorkshop } from '../../../../web-app-deploy/shared';
 
 const templates = {
     versions: {
@@ -74,42 +75,46 @@ export default async function ({ locale, system, thread }) {
     const view = HtmlView(template, style, locale.get());
     view.style(system.deviceInfo().deviceType);
     view.clear('icons');
-    view.get('icons').appendChild(Icon({
-        title: 'MACCHINE',
-        icon: 'folder',
-        href: '/it/esplora/macchine'
-    }).get());
-    view.get('icons').appendChild(Icon({
-        title: 'ATTREZZATURE',
-        icon: 'folder',
-        href: '/it/esplora/attrezzature'
-    }).get());
-    view.get('icons').appendChild(Icon({
-        title: 'OFFERTE MACCHINE',
-        icon: 'assignment',
-        href: '/it/esplora/offerte-macchine'
-    }).get());
-    view.get('icons').appendChild(Icon({
-        title: 'OFFERTE ATTREZZATURE',
-        icon: 'assignment',
-        href: '/it/esplora/offerte-attrezzature'
-    }).get());
-    view.get('icons').appendChild(Icon({
-        title: 'ORDINI MACCHINE',
-        icon: 'assignment_turned_in',
-        href: '/it/esplora/ordini-macchine'
-    }).get());
-    view.get('icons').appendChild(Icon({
-        title: 'ORDINI ATTREZZATURE',
-        icon: 'assignment_turned_in',
-        href: '/it/esplora/ordini-attrezzature'
-    }).get());
-    view.get('icons').appendChild(Icon({
-        title: 'DISPONIBILITÁ MACCHINE',
-        icon: 'calendar_today',
-        href: '/it/esplora/disponibilita-macchine'
-    }).get());
-    if (system.store.userAuth && system.store.userAuth.toString() === '0') {
+
+    if (!isWorkshop(system.store.userAuth)) {
+        view.get('icons').appendChild(Icon({
+            title: 'MACCHINE',
+            icon: 'folder',
+            href: '/it/esplora/macchine'
+        }).get());
+        view.get('icons').appendChild(Icon({
+            title: 'ATTREZZATURE',
+            icon: 'folder',
+            href: '/it/esplora/attrezzature'
+        }).get());
+        view.get('icons').appendChild(Icon({
+            title: 'OFFERTE MACCHINE',
+            icon: 'assignment',
+            href: '/it/esplora/offerte-macchine'
+        }).get());
+        view.get('icons').appendChild(Icon({
+            title: 'OFFERTE ATTREZZATURE',
+            icon: 'assignment',
+            href: '/it/esplora/offerte-attrezzature'
+        }).get());
+        view.get('icons').appendChild(Icon({
+            title: 'ORDINI MACCHINE',
+            icon: 'assignment_turned_in',
+            href: '/it/esplora/ordini-macchine'
+        }).get());
+        view.get('icons').appendChild(Icon({
+            title: 'ORDINI ATTREZZATURE',
+            icon: 'assignment_turned_in',
+            href: '/it/esplora/ordini-attrezzature'
+        }).get());
+        view.get('icons').appendChild(Icon({
+            title: 'DISPONIBILITÁ MACCHINE',
+            icon: 'calendar_today',
+            href: '/it/esplora/disponibilita-macchine'
+        }).get());
+    }
+
+    if (isWorkshop(system.store.userAuth) || system.store.userAuth.toString() === '0') {
         view.get('icons').appendChild(Icon({
             title: 'ORDINI NEGOZIO',
             icon: 'storefront',
