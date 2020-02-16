@@ -398,15 +398,14 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
             const id = req.params.id;
             const userId = req.session.userId;
             const userAuth = req.session.userAuth;
-            const user = (await mongo.rest.get('users', `_id=${userId}`, { userId, userAuth }))[0];
-            const dbx = await dropbox.getDb(null, user);
+            const user = (await mongo.rest.get('users', `_id=${userId}`, { userId, userAuth: 0 }))[0];
             const order = (await mongo.rest.get(table, `_id=${id}`, { userId, userAuth }))[0];
+            const dbx = await dropbox.getDb(null, user, new Date(order.created).getTime());
             const budget = (await mongo.rest.get(table.replace('orders', 'budgets'), `_id=${order.budgetId}`, {
                 userId,
                 userAuth
             }))[0];
             const xlsxPath = dropbox.uniqueTempFile('xlsx');
-
             const [excel] = getOrderExcel(table, user, budget, dbx, order, xlsxPath);
             res.sendFile(excel.path);
         });

@@ -73,7 +73,10 @@ function calculateChargesPriceMin(salecharges, priceReal, priceMin, exchange) {
 
 function calculateTotal(budget, db, priceType = 'priceReal') {
     const version = db.versions.find(v => v.id === budget.version);
-    const eqs = budget.equipment.reduce((tot, id) => tot + db.equipements.find(e => e.id === id)[priceType], 0);
+    const eqs = budget.equipment.reduce((tot, id) => {
+        const t = db.equipements.find(e => e.id === id) || { [priceType]: 0 };
+        return tot + t[priceType];
+    }, 0);
     return version ? version[priceType] + eqs : 0;
 }
 
@@ -109,8 +112,9 @@ module.exports = {
     isOutsourceDirection: function (value) {
         return value.toString() === '3';
     },
-    formatOrderNumber: function (order) {
-        return `${order.progressive.year}_${order.progressive.code}_${order.progressive.number}`;
+    formatOrderNumber: function ({ progressive = {} } = {}) {
+        const { year, code, number } = progressive;
+        return `${year}_${code}_${number}`;
     },
     emptyLeasing: function emptyLeasing() {
         return {
@@ -161,9 +165,8 @@ module.exports = {
     },
     createPriceSummaryList: function createPriceSummaryList(db, userAuth, store, offeredPrice) {
         const { salecharges = {}, exchange = {} } = store;
-        const version = db.versions
-            .find(v => v.id === store.version);
-        const eq = store.equipment.map(id => db.equipements.find(e => e.id === id));
+        const version = db.versions.find(v => v.id === store.version) || {};
+        const eq = store.equipment.map(id => db.equipements.find(e => e.id === id) || {});
         const priceReal = calculateTotal(store, db, 'priceReal');
         const priceMin = calculateTotal(store, db, getPriceType(userAuth));
         const { charges, totalChargesReal, totalChargesMin } = calculateChargesPriceMin(salecharges, priceReal, priceMin, exchange);
@@ -172,10 +175,10 @@ module.exports = {
                 priceReal: version.priceReal,
                 priceMin: version[getPriceType(userAuth)]
             },
-            equipments: eq.map(e => Object.assign({
-                name: e.name,
-                priceReal: e.priceReal,
-                priceMin: e[getPriceType(userAuth)]
+            equipments: eq.map(equip => Object.assign({
+                name: equip.name,
+                priceReal: equip.priceReal,
+                priceMin: equip[getPriceType(userAuth)]
             })),
             total: {
                 priceReal: priceReal + totalChargesReal,

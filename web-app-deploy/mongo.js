@@ -121,7 +121,7 @@ module.exports = function (isDeveloping) {
 
 
     obj.getAllUsers = async function () {
-        return await db.collection('users').find().toArray()
+        return await db.collection('users').find().toArray();
     };
 
     obj.recoverPassword = function (data) {
@@ -179,13 +179,13 @@ module.exports = function (isDeveloping) {
         });
     };
 
-    obj.getOrderProgressive = async function ({ userAuth, organization, surname, _id }, {retailers}) {
+    obj.getOrderProgressive = async function ({ userAuth, organization, surname, _id }, { retailers }) {
         const year = (new Date()).getFullYear();
         const ua = Number(userAuth);
         const thisYearStart = ObjectID.createFromTime(new Date(`${year}-01-01 00:00:01`).getTime() / 1000);
         const sort = { sort: { $natural: -1 } };
         if (ua === 3 || ua === 4) {
-            const {code} = retailers.find(r => r.id === organization);
+            const { code } = retailers.find(r => r.id === organization);
             const vOrder = ((await db.collection('vehicleorders')
                 .findOne({ _id: { '$gte': thisYearStart }, 'progressive.code': code }, sort)) || {})
                 .progressive || { number: 0, year };
@@ -202,7 +202,10 @@ module.exports = function (isDeveloping) {
             const eOrder = ((await db.collection('equipmentorders')
                 .findOne({ userAuth: { $in: [2] }, _id: { '$gte': thisYearStart } }, sort)) || {})
                 .progressive || { number: 0, year };
-            if (vOrder.number >= eOrder.number) return Object.assign(vOrder, { number: vOrder.number + 1, code: 'CGT' });
+            if (vOrder.number >= eOrder.number) return Object.assign(vOrder, {
+                number: vOrder.number + 1,
+                code: 'CGT'
+            });
             return Object.assign(eOrder, { number: eOrder.number + 1, code: 'CGT' });
         } else {
             const vOrder = ((await db.collection('vehicleorders')
@@ -301,7 +304,6 @@ module.exports = function (isDeveloping) {
                 if (userAuth.toString() !== '0') {
                     find.userId = getObjectId(userId);
                 }
-                console.log(find, clean(o));
                 db
                     .collection(table)
                     .findOneAndUpdate(

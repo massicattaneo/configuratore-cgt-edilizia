@@ -44,6 +44,7 @@ export default async function ({ locale, system, thread }) {
         cart.forEach(item => {
             const storeItem = system.db.shopItems.find(i => i.id === item.id);
             view.appendTo('items', itemTemplate, [], {
+                system: locale.get('system'),
                 id: item.id,
                 src: storeItem.images.length ? storeItem.images[0] : '/../assets/images/no-image.jpg',
                 quantity: item.quantity,

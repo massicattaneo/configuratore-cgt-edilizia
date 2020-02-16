@@ -1,15 +1,15 @@
 <tr>
-    <td style="width: 50px; padding: 0;"><img src="/dpx-photos{{src}}" width="50px"/></td>
+    <td style="width: 50px; padding: 0;"><img src="/dpx-photos{{src}}?v={{system.version}}" width="50px"/></td>
     <td style="white-space: pre-wrap; padding-left: 10px;" class="mdl-data-table__cell--non-numeric">{{title}}</td>
     <td style="padding-right: 10px;">
         <div style="float:right">
             <button type="button"
                     onclick="this.form.subtract('{{id}}', '{{gender}}', '{{size}}')"
-                    class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--accent">-</button>
+                    class="mdl-button mdl-js-button mdl-button--icon mdl-color--accent">-</button>
             <span>{{quantity}}</span>
             <button type="button"
                     onclick="this.form.add('{{id}}', '{{gender}}', '{{size}}')"
-                    class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--accent">+</button>
+                    class="mdl-button mdl-js-button mdl-button--icon mdl-color--accent">+</button>
         </div>
     </td>
 </tr>

@@ -7,10 +7,11 @@ module.exports = {
     createVehicleCgteXlsx: function (budget, dbx, order, user, xlsxPath) {
         const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
         const orderNumber = shared.formatOrderNumber(order);
+        const version = dbx.versions.find(v => v.id === budget.version) || {};
         const orderDetails = XLSX.utils.json_to_sheet([
             { CAMPO: 'Numero ordine', VALORE: orderNumber },
             { CAMPO: 'Cliente', VALORE: budget.client.name },
-            { CAMPO: 'Modello macchina', VALORE: dbx.versions.find(v => v.id === budget.version).name },
+            { CAMPO: 'Modello macchina', VALORE: version.name },
             { CAMPO: 'Stato macchina', VALORE: 'Nuova' },
             { CAMPO: 'PERMUTA', VALORE: '' },
             { CAMPO: 'Data vendita', VALORE: order.exchange.date },
@@ -42,7 +43,7 @@ module.exports = {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, orderDetails, 'Dettaglio Ordine');
         const data = budget.equipment.map(eId => {
-            const eq = dbx.equipements.find(e => e.id === eId);
+            const eq = dbx.equipements.find(e => e.id === eId) || {};
             return {
                 'Codice Articolo': eq.code,
                 'Descrizione Articolo': eq.name,
@@ -82,15 +83,17 @@ module.exports = {
     createVehicleOutsourceXlsx: function (budget, dbx, order, user, xlsxPath) {
         const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
         const orderNumber = shared.formatOrderNumber(order);
+        const outsource = order.outsource || {};
+        const version = dbx.versions.find(v => v.id === budget.version) || {};
         const orderDetails = XLSX.utils.json_to_sheet([
             { CAMPO: 'Numero ordine', VALORE: orderNumber },
             { CAMPO: 'Cliente', VALORE: budget.client.name },
-            { CAMPO: 'Modello macchina', VALORE: dbx.versions.find(v => v.id === budget.version).name },
+            { CAMPO: 'Modello macchina', VALORE: version.name },
             { CAMPO: 'Stato macchina', VALORE: 'Nuova' },
-            { CAMPO: 'Campagna', VALORE: order.outsource.campaign },
+            { CAMPO: 'Campagna', VALORE: outsource.campaign },
             { CAMPO: 'Prezzo Acquisto', VALORE: order.price },
-            { CAMPO: 'Trasporto', VALORE: order.outsource.transport },
-            { CAMPO: 'Pagamento', VALORE: order.outsource.payment },
+            { CAMPO: 'Trasporto', VALORE: outsource.transport },
+            { CAMPO: 'Pagamento', VALORE: outsource.payment },
             { CAMPO: 'Data acquisto', VALORE: order.created.substr(0, 10) },
             { CAMPO: 'Data prevista consegna macchina', VALORE: order.deliveryDate },
             { CAMPO: 'Leasing', VALORE: order.leasing.on },
@@ -103,7 +106,7 @@ module.exports = {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, orderDetails, 'Dettaglio Ordine');
         const data = budget.equipment.map(eId => {
-            const eq = dbx.equipements.find(e => e.id === eId);
+            const eq = dbx.equipements.find(e => e.id === eId) || {};
             return {
                 'Codice Articolo': eq.code,
                 'Descrizione Articolo': eq.name
@@ -155,7 +158,7 @@ module.exports = {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, orderDetails, 'Dettaglio Ordine');
         const data = budget.equipment.map(eId => {
-            const eq = dbx.equipements.find(e => e.id === eId);
+            const eq = dbx.equipements.find(e => e.id === eId) || {};
             return {
                 'Codice Articolo': eq.code,
                 'Descrizione Articolo': eq.name,

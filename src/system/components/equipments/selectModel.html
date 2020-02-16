@@ -3,7 +3,7 @@
         <div class="mdl-dialog__content">
             {{#each familys}}
             <span class="mdl-list__item-secondary-action">
-              <label class="demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect" for="list-option-{{this.id}}">
+              <label class="demo-list-radio mdl-radio mdl-js-radio" for="list-option-{{this.id}}">
                 <input onchange="this.form.change('{{this.id}}')" type="radio" id="list-option-{{this.id}}" class="mdl-radio__button" name="options" value="{{this.id}}"/>
               </label>
             </span>

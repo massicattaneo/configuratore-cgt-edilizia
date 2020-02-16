@@ -38,7 +38,7 @@ function mapCompatibility(codice, item, row, db) {
         const { id = '' } = model;
         if (!id) console.warn('MODEL WITHOUT ID', model);
         let modelIdNoSpace = id.replace(/\s/g, '').trim();
-        const code = row[` ${modelIdNoSpace} `];
+        const code = row[` ${modelIdNoSpace} `] ||  row[`${modelIdNoSpace}`];
         return code ? { id, code } : null;
     }).filter(i => i);
 }

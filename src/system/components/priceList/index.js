@@ -63,7 +63,7 @@ export default async function ({ locale, system, thread }) {
                             checkboxes: system.db.models
                                 .filter(m => m.familyId === f.id)
                                 .map(m => `
-                                <label style="height: 80px;" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="${m.id}">
+                                <label style="height: 80px;" class="mdl-checkbox mdl-js-checkbox" for="${m.id}">
                                     <input value="${m.id}" type="checkbox" id="${m.id}" class="mdl-checkbox__input" name="models">
                                     <span class="mdl-checkbox__label">
                                         <img src="${m.src}?v=${system.info().version}" style="width: 80px"/>

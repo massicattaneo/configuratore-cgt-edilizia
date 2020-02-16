@@ -5,7 +5,7 @@ import * as style from './style.scss';
 
 function getGenders(item) {
     if (!item.genders.length) return '';
-    if (item.genders.length === 1) return `<fieldset name="genders-${item.id}">GENERE: ${item.genders[0]}</fieldset>`;
+    if (item.genders.length === 1) return `GENERE: <input style="border:none;font-size: 16px;color: #202020;" disabled name="genders-${item.id}" value="${item.genders[0]}" /><br/>`;
     return `
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
             <label class="mdl-textfield__label" for="exchange_documents">GENERE</label>
@@ -39,6 +39,7 @@ export default async function ({ locale, system, thread }) {
                 })
                 .forEach(item => {
                     const variables = Object.assign({}, item, {
+                        system: locale.get('system'),
                         formName: `shop-item-${item.id}`,
                         images: item.images.length ? item.images : ['/../assets/images/no-image.jpg'],
                         genders: getGenders(item),
