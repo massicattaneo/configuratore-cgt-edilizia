@@ -1,6 +1,7 @@
 import { HtmlView } from 'gml-html';
 import template from './template.html';
 import adminTemplate from './admin.html';
+import cgtTemplate from './cgt.html';
 import othersTemplate from './others.html';
 import workshop from './workshop.html';
 import * as style from './style.scss';
@@ -15,6 +16,8 @@ export default async function ({ locale, system }) {
             view.appendTo('wrapper', workshop, style, locale.get());
         } else if (system.store.userAuth !== undefined && system.store.userAuth.toString() === '0') {
             view.appendTo('wrapper', adminTemplate, style, locale.get());
+        } else if (system.store.userAuth !== undefined && system.store.userAuth.toString() === '2') {
+            view.appendTo('wrapper', cgtTemplate, style, locale.get());
         } else {
             view.appendTo('wrapper', othersTemplate, style, locale.get());
         }

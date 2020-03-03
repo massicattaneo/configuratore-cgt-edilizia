@@ -2,6 +2,7 @@ import { HtmlView } from 'gml-html';
 import template from './template.html';
 import adminTpl from './admin.html';
 import noAdminTpl from './noAdmin.html';
+import cgtTpl from './cgt.html';
 import workshopTpl from './workshop.html';
 import * as style from './style.scss';
 import { RetryRequest } from '../../../../modules/gml-http-request';
@@ -157,6 +158,8 @@ export default async function ({ locale, system }) {
             content = view.clear('list').appendTo('list', adminTpl, style, Object.assign({ users: us }, orders));
         } else if (userAuth !== undefined && userAuth.toString() === '5') {
             view.appendTo('list', workshopTpl, style, locale.get());
+        } else if (userAuth.toString() === '2') {
+            view.appendTo('list', cgtTpl, style, locale.get());
         } else if (userAuth !== undefined) {
             view.appendTo('list', noAdminTpl, style, locale.get());
         }

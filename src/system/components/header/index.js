@@ -6,7 +6,7 @@ export default async function ({ system, locale }) {
     const view = HtmlView(template, style, locale.get());
     view.style();
 
-    view.get('carticon').style.display = ['0', '5'].indexOf(system.store.userAuth.toString()) !== -1 ? 'block' : 'none';
+    view.get('carticon').style.display = ['2'].indexOf(system.store.userAuth.toString()) === -1 ? 'block' : 'none';
 
     rx.connect
         .partial({

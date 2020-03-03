@@ -114,13 +114,11 @@ export default async function ({ locale, system, thread }) {
         }).get());
     }
 
-    if (isWorkshop(system.store.userAuth) || system.store.userAuth.toString() === '0') {
-        view.get('icons').appendChild(Icon({
-            title: 'ORDINI NEGOZIO',
-            icon: 'storefront',
-            href: '/it/esplora/ordini-negozio'
-        }).get());
-    }
+    view.get('icons').appendChild(Icon({
+        title: 'ORDINI NEGOZIO',
+        icon: 'storefront',
+        href: '/it/esplora/ordini-negozio'
+    }).get());
 
 
     view.destroy = function () {
