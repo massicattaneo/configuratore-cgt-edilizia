@@ -247,6 +247,9 @@ module.exports = function (isDeveloping) {
     };
 
     obj.rest = {
+        count: function(table) {
+            return db.collection(table).count({});
+        },
         get: function (table, filter = '', { userId, userAuth }) {
             const find = {};
             const filters = filter.split('&');

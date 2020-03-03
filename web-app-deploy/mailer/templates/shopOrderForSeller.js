@@ -3,6 +3,7 @@ module.exports = function({grayColor, primaryColor, host, footer, table, shopOrd
     return `
     <div style="font-family: Arial; color: ${grayColor}">
         <p>Estimato ${seller}.</p>
+        <p>Numero ordine: ${shopOrder.orderNumber}</p>
         <p>Un nostro cliente ha ordinato i seguenti prodotti:</p>
         <table width="100%">
             <thead>

@@ -430,7 +430,11 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
                 workshop: user.workshop,
                 retailer: retailer ? { name: retailer.name, address: retailer.address } : {}
             };
-            const shopOrder = await mongo.rest.insert('shoporders', { user: userToInsert, cart, userId });
+            const count = await mongo.rest.count('shoporders');
+            const orderNumber = count.toString().padLeft(8, '0');
+            const shopOrder = await mongo.rest.insert('shoporders', {
+                user: userToInsert, cart, userId, orderNumber
+            });
             mailer.send(createTemplate('confirm-shop-order', {
                 email: [req.session.email, emailsAddresses.shopOrders],
                 user,
@@ -450,7 +454,7 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
                     // email: emails,
                     user,
                     seller,
-                    shopOrder: { cart }
+                    shopOrder: { cart, orderNumber }
                 }));
             });
             res.send(shopOrder);
