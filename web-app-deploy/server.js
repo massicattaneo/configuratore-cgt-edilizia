@@ -478,6 +478,7 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
             const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
             const token = req.headers['x-auth-token'];
             if (isDeveloping) return next();
+            if (token === privateInfo.adminToken) return next();
             if (!privateInfo.aliasIPs.includes(ip.toString())) return res.json({});
             if (token !== privateInfo.aliasToken.toString()) return res.json({});
             next();
