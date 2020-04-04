@@ -414,30 +414,35 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
         requiresLogin,
         async function (req, res) {
             const userId = req.session.userId;
-            const user = (await mongo.rest.get('users', `_id=${userId}`, { userId, userAuth: 0 }))[0];
-            const dbx = await dropbox.getDb(null, user);
+            const dbUser = (await mongo.rest.get('users', `_id=${userId}`, { userId, userAuth: 0 }))[0];
+            const dbx = await dropbox.getDb(null, dbUser);
             const cart = req.body.map(function ({ id, gender, size, quantity }) {
                 const shopItem = dbx.shopItems.find(i => i.id === id);
                 const { seller, emails } = dbx.shopProducts.find(i => i.product === shopItem.product);
                 return Object.assign({}, { shopItem, seller, emails, gender, size, quantity });
             });
-            const retailer = dbx.retailers.find(r => r.id === user.organization);
-            const userToInsert = {
-                email: user.email,
-                tel: user.tel,
-                name: user.name,
-                surname: user.surname,
-                workshop: user.workshop,
+            const retailer = dbx.retailers.find(r => r.id === dbUser.organization);
+            const user = {
+                email: dbUser.email,
+                tel: dbUser.tel,
+                name: dbUser.name,
+                surname: dbUser.surname,
+                workshop: dbUser.workshop,
                 retailer: retailer ? { name: retailer.name, address: retailer.address } : {}
             };
             const count = await mongo.rest.count('shoporders');
             const orderNumber = count.toString().padLeft(8, '0');
             const shopOrder = await mongo.rest.insert('shoporders', {
-                user: userToInsert, cart, userId, orderNumber
+                user, cart, userId, orderNumber
             });
             mailer.send(createTemplate('confirm-shop-order', {
                 email: [req.session.email, emailsAddresses.shopOrders],
-                user,
+                user: dbUser,
+                shopOrder
+            }));
+            mailer.send(createTemplate('confirm-shop-order-for-admin', {
+                email: [req.session.email, emailsAddresses.shopOrders],
+                user: dbUser,
                 shopOrder
             }));
             shopOrder.cart.reduce(function (acc, item) {
@@ -452,9 +457,9 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
                 mailer.send(createTemplate('confirm-shop-order-to-sellers', {
                     email: emailsAddresses.shopOrders,
                     // email: emails,
-                    user,
+                    user: dbUser,
                     seller,
-                    shopOrder: { cart, orderNumber }
+                    shopOrder: { cart, orderNumber, user }
                 }));
             });
             res.send(shopOrder);
