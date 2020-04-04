@@ -12,6 +12,7 @@ const dbUA2 = {};
 const dbUA3 = {};
 const dbUA4 = {};
 const dbUA5 = getEmptyDb();
+const dbUA6 = {};
 const path = require('path');
 const access = require('./private/mongo-db-access');
 const backup = require('mongodb-backup');
@@ -366,10 +367,13 @@ module.exports = function (mongo) {
         Object.assign(dbUA4, JSON.parse(JSON.stringify(db)));
         dbUA4.getVersion = getDbVersion(dbUA4);
         Object.assign(dbUA5, { shopSizes, shopItems });
+        Object.assign(dbUA6, JSON.parse(JSON.stringify(db)));
+        dbUA6.getVersion = getDbVersion(dbUA6);
         removeReference(dbUA1, ['priceOutsource', 'priceCGT', 'priceOriginalOutsource']);
         removeReference(dbUA2, ['priceCGT', 'priceOutsource', 'priceOriginalOutsource']);
         removeReference(dbUA3, ['priceCGT', 'priceMin']);
         removeReference(dbUA4, ['priceCGT', 'priceMin', 'priceOriginalOutsource']);
+        removeReference(dbUA6, ['priceReal', 'priceOutsource', 'priceCGT', 'priceMin', 'priceOriginalOutsource']);
     };
 
     function changeDiscounts(o, user) {
@@ -411,6 +415,8 @@ module.exports = function (mongo) {
             return await appendShopOrders(ret4, mongo, user);
         case 5:
             return await appendShopOrders(dbUA5, mongo, user);
+        case 6:
+            return dbUA6;
         }
     };
 

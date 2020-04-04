@@ -465,6 +465,32 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
             res.send(shopOrder);
         });
 
+    const ALIAS_MAPPING = {
+        familys: 'familys',
+        models: 'models',
+        versions: 'versions',
+        equipments: 'equipements',
+        compatibilityCodes: 'codes'
+    };
+    app.get('/api/alias/:table',
+        noCache,
+        (req, res, next) => {
+            const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            const token = req.headers['x-auth-token'];
+            if (isDeveloping) return next();
+            if (!privateInfo.aliasIPs.includes(ip.toString())) return res.json({});
+            if (token !== privateInfo.aliasToken.toString()) return res.json({});
+            next();
+        },
+        async (req, res) => {
+            const { table } = req.params;
+            const permittedTables = ['familys', 'models', 'versions', 'equipments', 'compatibilityCodes'];
+            if (!permittedTables.includes(table)) return res.json({});
+            const db = await dropbox.getDb(6);
+            const dbTable = ALIAS_MAPPING[table];
+            return res.json(db[dbTable]);
+        });
+
     let callback;
     if (isDeveloping) {
         callback = require('../webpack/dev-server')(app, express);
