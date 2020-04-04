@@ -3,9 +3,19 @@
         <input type="search" />
     </div>
     <div #searchwrapper>
-        <label>CERCA</label>
-        <div style="width: 228px;" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <input onkeyup="this.form.search(this)" class="mdl-textfield__input" type="text" id="shop-search">
+        <div style="padding:10px 0 0 0;" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <select onchange="this.form.search(this.form)" class="mdl-textfield__input" id="shop-filter" name="shop-filter">
+                <option value="">Tutti i prodotti</option>
+                {{#each categories}}
+                <option value="{{this}}">{{this}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input onkeyup="this.form.search(this.form)" class="mdl-textfield__input" type="text" id="shop-search" name="shop-search">
+            <label class="mdl-textfield__label" for="shop-search">
+                CERCA
+            </label>
         </div>
     </div>
 

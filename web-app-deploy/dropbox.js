@@ -39,7 +39,7 @@ function mapCompatibility(codice, item, row, db) {
         const { id = '' } = model;
         if (!id) console.warn('MODEL WITHOUT ID', model);
         let modelIdNoSpace = id.replace(/\s/g, '').trim();
-        const code = row[` ${modelIdNoSpace} `] ||  row[`${modelIdNoSpace}`];
+        const code = row[` ${modelIdNoSpace} `] || row[`${modelIdNoSpace}`];
         return code ? { id, code } : null;
     }).filter(i => i);
 }
@@ -165,6 +165,7 @@ const shopItemsDataStructure = {
     },
     name: { column: 'nome', convert: (item = '', ret, row) => `${(row['codice'] || '').trim()} ${item}`.trim() },
     product: { column: 'prodotto', convert: (item = '') => item },
+    subCategory: { column: 'sottocategoria', convert: (item = '') => item },
     type: { column: 'tipologia', convert: (item = '') => item },
     clothing: { column: 'vestiario', convert: (item = '') => item },
     sizes: { column: 'taglia', convert: (item = '') => item },
@@ -296,6 +297,17 @@ function getDbVersion(db) {
     };
 }
 
+function removeShopItemsByProduct(db, products) {
+    for (let i = 0; i < db.shopItems.length;) {
+        const item = db.shopItems[i];
+        if (!products.includes(item.product)) {
+            db.shopItems.splice(i, 1);
+        } else {
+            i++;
+        }
+    }
+}
+
 module.exports = function (mongo) {
     const obj = {};
     const dbx = new Dropbox({ accessToken: privateInfo.accessToken });
@@ -321,7 +333,7 @@ module.exports = function (mongo) {
         // Object.assign(originalDb, await getFromJSON());
         // fs.writeFileSync('./db.json', JSON.stringify(originalDb));
         console.log('/****** parsing CGT EDILIZIA DROPBOX DATABASE');
-        Object.assign(db, { shopSizes, shopItems, shopProducts })
+        Object.assign(db, { shopSizes, shopItems, shopProducts });
         db.familys = parse('Famiglia Macchine', familyDataStructure).filter(({ id }) => id.indexOf('-') === -1);
         db.models = parse('Modelli', modeldataStructure);
         db.vehicleAvailability = parse('vehicleAvailability', stockMachinesDataStructure)
@@ -370,6 +382,7 @@ module.exports = function (mongo) {
         Object.assign(dbUA6, JSON.parse(JSON.stringify(db)));
         dbUA6.getVersion = getDbVersion(dbUA6);
         removeReference(dbUA1, ['priceOutsource', 'priceCGT', 'priceOriginalOutsource']);
+        removeShopItemsByProduct(dbUA1, ['Bandiere']);
         removeReference(dbUA2, ['priceCGT', 'priceOutsource', 'priceOriginalOutsource']);
         removeReference(dbUA3, ['priceCGT', 'priceMin']);
         removeReference(dbUA4, ['priceCGT', 'priceMin', 'priceOriginalOutsource']);
