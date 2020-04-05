@@ -121,6 +121,10 @@ export default async function ({ locale, system, thread }) {
 
     };
 
+    view.navigate = () => {
+        scrollListener && scrollListener();
+    };
+
     const shouldLoadContent = () => {
         const { height } = window.getComputedStyle(document.body);
         const windowHeight = Number(height.replace('px', ''));

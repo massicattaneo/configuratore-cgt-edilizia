@@ -25,6 +25,9 @@ export default async function ({ system, gos }) {
         let querySelector = document.querySelector('.mdl-layout__obfuscator');
         if (querySelector)
             querySelector.removeStyle('is-visible');
+        if (gos[goName].navigate) {
+            gos[goName].navigate();
+        }
         componentHandler.upgradeDom();
     }
 
@@ -50,7 +53,10 @@ export default async function ({ system, gos }) {
                     const goName = Object.keys(urls).find(key => urls[key].href === url);
                     const tableName = event.split('/').splice(3, 1).join('').split('?')[0];
                     const search = event.split('/').splice(3, 1).join('').split('?')[1] ?
-                        event.split('/').splice(3, 1).join('').split('?')[1].split('&').reduce((acc, i) => {acc[i.split('=')[0]] = i.split('=')[1]; return acc; }, {})
+                        event.split('/').splice(3, 1).join('').split('?')[1].split('&').reduce((acc, i) => {
+                            acc[i.split('=')[0]] = i.split('=')[1];
+                            return acc;
+                        }, {})
                         : {};
                     if (gos[goName] && gos[goName].navigate && tableName) {
                         gos[goName].navigate(tableName, context.locale.get('tables')[tableName], { search });
