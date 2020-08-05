@@ -35,7 +35,7 @@
         "express": "^4.16.2",
         "express-brute": "^1.0.1",
         "express-brute-mongo": "^1.0.0",
-        "express-fileupload": "^0.4.0",
+        "express-fileupload": "^1.1.9",
         "express-session": "^1.15.6",
         "handlebars": "^4.0.10",
         "handlebars-loader": "^1.5.0",
