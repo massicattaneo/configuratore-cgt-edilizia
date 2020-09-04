@@ -43,7 +43,7 @@
         "hummus": "^1.0.87",
         "image-size": "^0.6.3",
         "isomorphic-fetch": "^2.2.1",
-        "mongodb": "^2.2.33",
+        "mongodb": "^3.1.13",
         "mongodb-backup": "^1.6.9",
         "mongodb-restore": "^1.6.2",
         "node-fetch": "^1.7.1",
