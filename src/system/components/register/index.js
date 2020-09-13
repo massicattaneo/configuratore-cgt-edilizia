@@ -5,7 +5,7 @@ import registerDone from './register-done.html';
 import { isOutsource, isWorkshop } from '../../../../web-app-deploy/shared';
 
 const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const telRegEx = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+// const telRegEx = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
 
 export default async function ({ locale, system, thread }) {
     const view = HtmlView(template, style, Object.assign(locale.get(), { organizations: system.db.retailers }));
@@ -24,7 +24,7 @@ export default async function ({ locale, system, thread }) {
         if (this.email.value === '') error({ text: 'missingEmail', focus: 'email' });
         if (!emailRegEx.test(this.email.value)) error({ text: 'malformedEmail', focus: 'email' });
         if (this.tel.value === '') error({ text: 'missingTel', focus: 'tel' });
-        if (!telRegEx.test(this.tel.value)) error({ text: 'malformedTel', focus: 'tel' });
+        // if (!telRegEx.test(this.tel.value)) error({ text: 'malformedTel', focus: 'tel' });
         if (this.password.value === '') error({ text: 'missingPassword', focus: 'password' });
         await register();
     };

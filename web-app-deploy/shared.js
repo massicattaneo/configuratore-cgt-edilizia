@@ -22,7 +22,7 @@ function getPriceType(userAuth) {
     if (ua === 4) return 'priceOutsource';
 }
 
-function calculateChargesPriceMin(salecharges, priceReal, priceMin, exchange) {
+function calculateChargesPriceMin(salecharges, priceReal, offeredPrice, exchange) {
     const mapping = {
         transport: 'Trasporto',
         leasingCharge: 'Onere finanziamento leasing',
@@ -45,7 +45,7 @@ function calculateChargesPriceMin(salecharges, priceReal, priceMin, exchange) {
                 return {
                     description: mapping[key],
                     priceReal: Number(salecharges[key].replace(',', '.')) * priceReal / 100,
-                    priceMin: Number(salecharges[key].replace(',', '.')) * priceMin / 100
+                    priceMin: Number(salecharges[key].replace(',', '.')) * offeredPrice / 100
                 };
             } else if (key === 'promotionalCampaign') {
                 return {
@@ -169,7 +169,7 @@ module.exports = {
         const eq = store.equipment.map(id => db.equipements.find(e => e.id === id) || {});
         const priceReal = calculateTotal(store, db, 'priceReal');
         const priceMin = calculateTotal(store, db, getPriceType(userAuth));
-        const { charges, totalChargesReal, totalChargesMin } = calculateChargesPriceMin(salecharges, priceReal, priceMin, exchange);
+        const { charges, totalChargesReal, totalChargesMin } = calculateChargesPriceMin(salecharges, priceReal, offeredPrice, exchange);
         return {
             vehicle: {
                 priceReal: version.priceReal,

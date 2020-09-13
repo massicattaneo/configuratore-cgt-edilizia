@@ -238,8 +238,10 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
             }
             await (new Promise(r => setTimeout(r, 1000)));
             attachments.push(...(await dropbox.getAttachments(table, budget)));
-            mailer.send(createTemplate('budget', { table, budget, user, email, attachments, dbx: db1 }));
-            res.send('ok');
+            mailer
+                .send(createTemplate('budget', { table, budget, user, email, attachments, dbx: db1 }))
+                .then(() => res.send('ok'))
+                .catch(error => res.status(500).send('error'));
         });
 
     app.post('/api/mail/:type', function (req, res) {

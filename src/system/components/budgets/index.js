@@ -109,6 +109,7 @@ export default async function ({ system, gos, locale }) {
         const budget = system.store[table].find(i => i._id === id);
         if (budget.client.email === '') system.throw('missingBudgetClientEmail');
         if (confirm(`INVIARE UNA COPIA DELL'OFFERTA A TE ED ALL'EMAIL DEL CLIENTE "${budget.client.email}" ?`)) {
+            // TODO manage error
             await RetryRequest(`/api/email/${table}/${id}`, {}).get();
             system.throw('custom', { message: 'EMAIL INVIATA!' });
         }

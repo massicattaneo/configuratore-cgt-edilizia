@@ -29,7 +29,10 @@ module.exports = function () {
             }
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
-                    return reject(new Error('mail-error'));
+                    console.warn('ERROR SENDING EMAIL');
+                    console.warn(mailOptions);
+                    console.warn(error);
+                    return reject(new Error(error));
                 }
                 res(info);
             });

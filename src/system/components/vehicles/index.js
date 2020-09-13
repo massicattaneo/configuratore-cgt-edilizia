@@ -80,7 +80,7 @@ export default async function ({ locale, system, thread, gos }) {
         if (el && system.store.userAuth <= 1) {
             const priceReal = calculateTotal(store, system.db, 'priceReal');
             const priceMin = calculateTotal(store, system.db, 'priceMin');
-            const { totalChargesMin } = calculateChargesPriceMin(salecharges, priceReal, priceMin, exchange);
+            const { totalChargesMin } = calculateChargesPriceMin(salecharges, priceReal, summary.price, exchange);
 
             el.style.backgroundColor = 'rgba(0,255,0,0.2)';
             if ((priceMin + totalChargesMin) > Number(summary.price)) {
