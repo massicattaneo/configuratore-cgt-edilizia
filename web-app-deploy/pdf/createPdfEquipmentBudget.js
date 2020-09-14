@@ -6,14 +6,14 @@ const { addHeader, getLongDate, toCurrency, getClientAddress } = require('./addH
 const sizeOf = require('image-size');
 
 
-module.exports = function createPdfOrder(res, budget, dbx, user) {
+module.exports = function createPdfOrder(res, budget, dbx, user, dropbox) {
     const doc = new PdfDoc({
         info: {
             Title: `OFFERTA NUOVA ATTREZZATURA - ${budget.client.name || ''}`,
             Author: 'CGT EDILIZIA'
         }
     });
-    const db = isBudgetOutdated('equipmentbudgets', budget, dbx) ? dbx.getVersion(budget.created) : dbx;
+    const db = isBudgetOutdated('equipmentbudgets', budget, dbx) ? dropbox.getDbVersion(dbx, budget.created) : dbx;
     const retailer = db.retailers.find(r => r.id === user.organization) || {};
 
     doc.pipe(res);

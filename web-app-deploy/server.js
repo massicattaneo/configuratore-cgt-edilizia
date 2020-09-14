@@ -170,9 +170,9 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
             const budget = (await mongo.rest.get(table, `_id=${id}`, req.session))[0];
             const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
             if (table === 'vehiclebudgets') {
-                createPdfVehicleBudget(res, budget, await dropbox.getDb(req.session.userAuth, user), user);
+                createPdfVehicleBudget(res, budget, await dropbox.getDb(req.session.userAuth, user), user, dropbox);
             } else if (table === 'equipmentbudgets') {
-                createPdfEquipmentBudget(res, budget, await dropbox.getDb(req.session.userAuth, user), user);
+                createPdfEquipmentBudget(res, budget, await dropbox.getDb(req.session.userAuth, user), user, dropbox);
             }
         });
 
@@ -220,9 +220,9 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
             const file = fs.createWriteStream(pdfBudget);
             const db1 = await dropbox.getDb(req.session.userAuth, user);
             if (table === 'vehiclebudgets') {
-                createPdfVehicleBudget(file, budget, db1, user);
+                createPdfVehicleBudget(file, budget, db1, user, dropbox);
             } else {
-                createPdfEquipmentBudget(file, budget, db1, user);
+                createPdfEquipmentBudget(file, budget, db1, user, dropbox);
             }
             const attachments = [{ filename: 'Offerta.pdf', path: pdfBudget }];
             await (new Promise(r => setTimeout(r, 1000)));
@@ -256,6 +256,16 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
         }
         res.send('ok');
     });
+
+    app.get('/api/db/version',
+        requiresLogin,
+        async function (req, res) {
+            const timestamp = req.query.timestamp;
+            const user = (await mongo.rest.get('users', `_id=${req.session.userId}`, { userAuth: 0 }))[0];
+            const retValue = await dropbox.getDb(req.session.userAuth, user);
+            const db = dropbox.getDbVersion(retValue, Number(timestamp), req.session.userAuth);
+            res.json(db);
+        });
 
     app.get('/api/db/all',
         noCache,

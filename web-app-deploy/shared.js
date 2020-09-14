@@ -212,7 +212,7 @@ module.exports = {
 
     },
     getEmptyDb: function () {
-        const emptyDb = {
+        return {
             codes: [],
             familys: [],
             models: [],
@@ -231,6 +231,5 @@ module.exports = {
             shopItems: [],
             shoporders: []
         };
-        return Object.assign({ getVersion: () => emptyDb }, emptyDb);
     }
 };

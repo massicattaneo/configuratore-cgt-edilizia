@@ -6,6 +6,7 @@ const XLSX = require('xlsx');
 const fs = require('fs');
 const { getEmptyDb } = require('./shared');
 const originalDb = {};
+const oldersDb = [];
 const db = getEmptyDb();
 const dbUA1 = {};
 const dbUA2 = {};
@@ -243,7 +244,6 @@ async function appendEquipments(db, mongo, userFamily) {
                 })
         )
     });
-    dbRet.getVersion = getDbVersion(dbRet);
     return dbRet;
 }
 
@@ -252,7 +252,6 @@ async function appendShopOrders(db, mongo, user) {
     const dbRet = Object.assign({}, db, {
         shoporders: await mongo.rest.get('shoporders', Number(user.userAuth) ? `userId=${user._id}` : '', { userAuth })
     });
-    dbRet.getVersion = getDbVersion(dbRet);
     return dbRet;
 }
 
@@ -285,16 +284,36 @@ async function appendBudgetsOrders(db, mongo, user) {
                 user: users.find(u => u._id.toString() === item.userId.toString())
             }))
     });
-    dbRet.getVersion = getDbVersion(dbRet);
     return dbRet;
 }
 
-function getDbVersion(db) {
-    return function (date) {
-        const timestamp = new Date(date).getTime();
-        if (timestamp > db.timestamp) return db;
-        return Object.assign({}, db.olds.find(d => timestamp > d.timestamp), { retailers: db.retailers });
-    };
+function getDbVersion(db, date, userAuth = 0) {
+    if (!date) return db;
+    const timestamp = new Date(date).getTime();
+    if (timestamp > db.timestamp) return db;
+    const assign = Object.assign({}, oldersDb.find(d => timestamp > d.timestamp), { retailers: db.retailers });
+    const ua = Number(userAuth);
+    switch (ua) {
+    case 1:
+        removeReference(assign, ['priceOutsource', 'priceCGT', 'priceOriginalOutsource']);
+        break;
+    case 2:
+        removeReference(assign, ['priceCGT', 'priceOutsource', 'priceOriginalOutsource']);
+        break;
+    case 3:
+        removeReference(dbUA3, ['priceCGT', 'priceMin']);
+        break;
+    case 4:
+        removeReference(dbUA4, ['priceCGT', 'priceMin', 'priceOriginalOutsource']);
+        break;
+    case 5:
+        return { retailers: db.retailers }
+        break;
+    case 6:
+        removeReference(dbUA6, ['priceReal', 'priceOutsource', 'priceCGT', 'priceMin', 'priceOriginalOutsource']);
+        break;
+    }
+    return assign;
 }
 
 function removeShopItemsByProduct(db, products) {
@@ -324,7 +343,20 @@ module.exports = function (mongo) {
         console.log('/****** downloading CGT EDILIZIA DROPBOX DATABASE');
         start = Date.now();
         console.log(`/****** finished downloading CGT EDILIZIA DROPBOX DATABASE in ${(Date.now() - start) / 1000}s`);
-        Object.assign(originalDb, await getDbFromDropBox(dbx));
+        const { actual, olders } = await getDbFromDropBox(dbx);
+        Object.assign(originalDb, actual);
+        oldersDb.push(...olders.map(function ({ db: thisDb, timestamp }) {
+            const ret = {};
+            ret.familys = parse('Famiglia Macchine', familyDataStructure, thisDb).filter(({ id }) => id.indexOf('-') === -1);
+            ret.models = parse('Modelli', modeldataStructure, thisDb);
+            ret.versions = parse('Listino macchine', versionDataStructure, thisDb);
+            ret.equipements = parse('Listino attrezz. SSL-CTL-CWL', equipementDataStructure, thisDb);
+            ret.equipements.push(...parse('Listino attrezzature MHE', equipementDataStructure, thisDb));
+            ret.equipements.push(...parse('Listino attrezzature BHL', equipementDataStructure, thisDb));
+            ret.equipements = ret.equipements.filter(i => i.code !== 'T').filter(i => i.code !== 'F');
+            ret.timestamp = timestamp;
+            return ret;
+        }));
         Object.assign(originalDb, await getRetailersListFromDropBox(dbx));
         Object.assign(originalDb, await getNavisionDatabaseFromDropBox(dbx));
         start = Date.now();
@@ -349,19 +381,6 @@ module.exports = function (mongo) {
         db.equipements = db.equipements.filter(i => i.code !== 'T').filter(i => i.code !== 'F');
         db.codes = codes;
         db.timestamp = originalDb.timestamp;
-        db.olds = originalDb.olds.map(function ({ db: thisDb, timestamp }) {
-            const ret = {};
-            ret.familys = parse('Famiglia Macchine', familyDataStructure, thisDb).filter(({ id }) => id.indexOf('-') === -1);
-            ret.models = parse('Modelli', modeldataStructure, thisDb);
-            ret.versions = parse('Listino macchine', versionDataStructure, thisDb);
-            ret.equipements = parse('Listino attrezz. SSL-CTL-CWL', equipementDataStructure, thisDb);
-            ret.equipements.push(...parse('Listino attrezzature MHE', equipementDataStructure, thisDb));
-            ret.equipements.push(...parse('Listino attrezzature BHL', equipementDataStructure, thisDb));
-            ret.equipements = ret.equipements.filter(i => i.code !== 'T').filter(i => i.code !== 'F');
-            ret.timestamp = timestamp;
-            return ret;
-        });
-        db.getVersion = getDbVersion(db);
         db.retailers = parse('Concessionari', retailersDataStructure);
         console.log(`/****** finished parsing CGT EDILIZIA DROPBOX DATABASE in ${(Date.now() - start) / 1000}s`);
         start = Date.now();
@@ -371,16 +390,11 @@ module.exports = function (mongo) {
         db.specialOffers = await getDropboxSpecialOffers(dbx);
         console.log(`/****** finished parsing DOWNLOADING IMAGES FROM DROPBOX in ${(Date.now() - start) / 1000}s`);
         Object.assign(dbUA1, JSON.parse(JSON.stringify(db)));
-        dbUA1.getVersion = getDbVersion(dbUA1);
         Object.assign(dbUA2, JSON.parse(JSON.stringify(db)));
-        dbUA2.getVersion = getDbVersion(dbUA2);
         Object.assign(dbUA3, JSON.parse(JSON.stringify(db)));
-        dbUA3.getVersion = getDbVersion(dbUA3);
         Object.assign(dbUA4, JSON.parse(JSON.stringify(db)));
-        dbUA4.getVersion = getDbVersion(dbUA4);
         Object.assign(dbUA5, { shopSizes, shopItems });
         Object.assign(dbUA6, JSON.parse(JSON.stringify(db)));
-        dbUA6.getVersion = getDbVersion(dbUA6);
         removeReference(dbUA1, ['priceOutsource', 'priceCGT', 'priceOriginalOutsource']);
         removeShopItemsByProduct(dbUA1, ['Bandiere']);
         removeReference(dbUA2, ['priceCGT', 'priceOutsource', 'priceOriginalOutsource']);
@@ -407,23 +421,23 @@ module.exports = function (mongo) {
         const ua = Number(userAuth);
         switch (ua) {
         case 0:
-            const useDb = timestamp ? db.getVersion(timestamp) : db;
+            const useDb = getDbVersion(db, timestamp);
             const ret0 = await appendBudgetsOrders(await appendEquipments(useDb, mongo, 'CGTE'), mongo, user);
             return await appendShopOrders(ret0, mongo, user);
         case 1:
-            const useDb1 = timestamp ? dbUA1.getVersion(timestamp) : dbUA1;
+            const useDb1 = getDbVersion(dbUA1, timestamp);
             const ret1 = await appendBudgetsOrders(await appendEquipments(useDb1, mongo, 'CGTE'), mongo, user);
             return await appendShopOrders(ret1, mongo, user);
         case 2:
-            const useDb2 = timestamp ? dbUA2.getVersion(timestamp) : dbUA3;
+            const useDb2 = getDbVersion(dbUA2, timestamp);
             const ret2 = await appendBudgetsOrders(await appendEquipments(useDb2, mongo, 'CGT'), mongo, user);
             return await appendShopOrders(ret2, mongo, user);
         case 3:
-            const useDb3 = timestamp ? dbUA3.getVersion(timestamp) : dbUA3;
+            const useDb3 = getDbVersion(dbUA3, timestamp);
             const ret3 = await appendBudgetsOrders(changeDiscounts(await appendEquipments(useDb3, mongo, user.organization), user), mongo, user);
             return await appendShopOrders(ret3, mongo, user);
         case 4:
-            const useDb4 = timestamp ? dbUA4.getVersion(timestamp) : dbUA4;
+            const useDb4 = getDbVersion(dbUA4, timestamp);
             const ret4 = await appendBudgetsOrders(changeDiscounts(await appendEquipments(useDb4, mongo, user.organization), user), mongo, user);
             return await appendShopOrders(ret4, mongo, user);
         case 5:
@@ -549,6 +563,8 @@ module.exports = function (mongo) {
     };
 
     obj.uniqueTempFile = uniqueTempFile;
+
+    obj.getDbVersion = getDbVersion;
 
     return obj;
 };
@@ -728,7 +744,7 @@ async function getShopDatabase(dbx) {
 
             const images = await Promise.all(allImages
                 .map(function ({ imagePath }) {
-                    if (fs.existsSync(`${__dirname}/dpx-photos/shop_images${imagePath}`)) return '';
+                    if (fs.existsSync(`${__dirname}/dpx-photos${imagePath}`)) return '';
                     const url = `/APPS/configuratore-cgt-edilizia/merchandising${imagePath}`;
                     return dbx.filesDownload({ path: url })
                         .catch(function (e) {
@@ -751,33 +767,38 @@ async function getShopDatabase(dbx) {
 
 async function getDbFromDropBox(dbx) {
     const dbs = await dbx.filesListFolder({ path: `/APPS/configuratore-cgt-edilizia/Listini` })
-        .then(function (array) {
-            return Promise.all(array.entries.map(function (item) {
-                const ds = item.name.match(/db_([^.]*)\.xlsx/)[1];
-                const timestamp = new Date(`20${ds[0]}${ds[1]}-${ds[2]}${ds[3]}-${ds[4]}${ds[5]}`).getTime();
-                return dbx
-                    .filesDownload({ path: `/APPS/configuratore-cgt-edilizia/Listini/${item.name}` })
-                    .then((fileData) => {
-                        const db = {};
-                        const read_opts = {
-                            type: '', //base64, binary, string, buffer, array, file
-                            raw: false, //If true, plain text parsing will not parse values **
-                            sheetRows: 0 //If >0, read the first sheetRows rows **
-                        };
-                        const workbook = XLSX.read(fileData.fileBinary, read_opts);
-                        workbook.SheetNames.forEach(function (name) {
-                            const workSheet = workbook.Sheets[name];
-                            db[name] = XLSX.utils.sheet_to_json(workSheet);
+        .then(async function (array) {
+            const ret = [];
+            await array.entries
+                .reduce(async function (promise, item, index) {
+                    await promise;
+                    const ds = item.name.match(/db_([^.]*)\.xlsx/)[1];
+                    const timestamp = new Date(`20${ds[0]}${ds[1]}-${ds[2]}${ds[3]}-${ds[4]}${ds[5]}`).getTime();
+                    return dbx
+                        .filesDownload({ path: `/APPS/configuratore-cgt-edilizia/Listini/${item.name}` })
+                        .then((fileData) => {
+                            const db = {};
+                            const read_opts = {
+                                type: '', //base64, binary, string, buffer, array, file
+                                raw: false, //If true, plain text parsing will not parse values **
+                                sheetRows: 0 //If >0, read the first sheetRows rows **
+                            };
+                            console.warn('PARSING', item.name, timestamp, new Date(timestamp));
+                            const workbook = XLSX.read(fileData.fileBinary, read_opts);
+                            workbook.SheetNames.forEach(function (name) {
+                                const workSheet = workbook.Sheets[name];
+                                db[name] = XLSX.utils.sheet_to_json(workSheet);
+                            });
+                            ret.push({ db, timestamp });
+                            return Promise.resolve();
                         });
-                        return { db, timestamp };
-                    });
-            }));
+                }, Promise.resolve());
+            return ret;
         });
     dbs.sort((a, b) => b.timestamp - a.timestamp);
     const resolved = dbs[0].db;
     resolved.timestamp = dbs[0].timestamp;
-    resolved.olds = dbs.slice(1);
-    return resolved;
+    return { actual: resolved, olders: dbs.slice(1) };
 }
 
 async function getRetailersListFromDropBox(dbx) {

@@ -13,23 +13,25 @@ export default async function ({ system, gos, locale }) {
     rx.connect({
         vehiclebudgets: () => system.store.vehiclebudgets,
         equipmentbudgets: () => system.store.equipmentbudgets
-    }, function ({ vehiclebudgets, equipmentbudgets }) {
+    }, async function ({ vehiclebudgets, equipmentbudgets }) {
         if (system.store.logged) {
-            const vb = vehiclebudgets
+            const vbPromises = vehiclebudgets
                 .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
                 .filter(i => !i.ordered)
-                .map(b => {
+                .map(async b => {
                     const photoItem = (system.db.models.find(m => m.id === b.model) || { src: '/assets/images/no-image.jpg' });
+                    const versionName = (system.db.versions.find(v => v.id === b.version)
+                        || (await system.getDbVersion(b.created)).versions.find(v => v.id === b.version)
+                        || { name: '*********' }).name;
                     return Object.assign({
                         validity: b.summary.validity,
                         photo: `${photoItem.src}?v=${system.info().version}`,
                         clientName: b.client.name ? `CLIENTE: ${b.client.name}` : 'NESSUN CLIENTE INSERITO',
                         disabled: b.client.name ? '' : 'disabled="disabled"',
-                        versionName: (system.db.versions.find(v => v.id === b.version)
-                            || system.db.getVersion(b.created).versions.find(v => v.id === b.version)
-                            || { name: '*********' }).name
+                        versionName: versionName
                     }, b);
                 });
+            const vb = await Promise.all(vbPromises);
             const eb = equipmentbudgets
                 .sort((b, a) => new Date(a.created).getTime() - new Date(b.created).getTime())
                 .filter(i => !i.ordered)

@@ -125,7 +125,8 @@ export default async function ({ locale, system, thread }) {
 
     };
 
-    view.navigate = async function (title, tableName, { search }) {
+    view.navigate = async function (title, tableName, { search } = {}) {
+        if(!title) return;
         await createWindow(title.replace('-', ' '), tableName, search);
     };
 

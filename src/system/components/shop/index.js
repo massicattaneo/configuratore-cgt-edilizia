@@ -110,11 +110,10 @@ export default async function ({ locale, system, thread }) {
                     addItemToShop(item, locale, view, system);
                     item = shopItems.shift();
                 }
+                componentHandler.upgradeDom();
             };
             mainEl.addEventListener('scroll', scrollListener);
-            scrollListener();
-            componentHandler.upgradeDom();
-
+            // scrollListener();
         });
 
     view.destroy = function () {
