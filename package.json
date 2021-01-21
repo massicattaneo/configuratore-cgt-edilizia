@@ -58,7 +58,7 @@
         "raw-loader": "^0.5.1",
         "rimraf": "^2.6.2",
         "sharp": "^0.18.4",
-        "socket.io": "^2.0.4",
+        "socket.io": "^2.4.0",
         "webpack": "^3.5.5",
         "webpack-auto-inject-version": "^1.1.0",
         "webpack-dev-middleware": "^2.0.1",
