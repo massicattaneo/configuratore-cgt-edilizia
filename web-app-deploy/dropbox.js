@@ -22,6 +22,7 @@ const prodUri = `mongodb://${access.config.mongo.user}:${encodeURIComponent(acce
 const nodeJsZip = require('nodeJs-zip');
 const rimraf = require('rimraf');
 const mailer = require('./mailer/mailer')();
+const { getFromLineaVerde, LINEA_VERDE_TABLES } = require('./linea-verde-adapter');
 
 function uniqueTempFile(ext = 'pdf') {
     let fileName;
@@ -366,19 +367,17 @@ module.exports = function (mongo) {
         // fs.writeFileSync('./db.json', JSON.stringify(originalDb));
         console.log('/****** parsing CGT EDILIZIA DROPBOX DATABASE');
         Object.assign(db, { shopSizes, shopItems, shopProducts });
-        db.familys = parse('Famiglia Macchine', familyDataStructure).filter(({ id }) => id.indexOf('-') === -1);
-        db.models = parse('Modelli', modeldataStructure);
+        db.familys = await getFromLineaVerde(LINEA_VERDE_TABLES.FAMILIES)
+        db.models = await getFromLineaVerde(LINEA_VERDE_TABLES.MODELS)
         db.vehicleAvailability = parse('vehicleAvailability', stockMachinesDataStructure)
             .filter(item => item.serialNumber)
             .filter(item => item.description.indexOf('--------') === -1)
             .filter(i => i.state.toUpperCase() !== 'IMPEGNATA PER VENDITA'
                 || i.state.toUpperCase() !== 'OPZIONATA PER NOLEGGIO'
                 || i.state.toUpperCase() !== 'OPZIONATA PER VENDITA');
-        db.versions = parse('Listino macchine', versionDataStructure);
-        db.equipements = parse('Listino attrezz. SSL-CTL-CWL', equipementDataStructure);
-        db.equipements.push(...parse('Listino attrezzature MHE', equipementDataStructure));
-        db.equipements.push(...parse('Listino attrezzature BHL', equipementDataStructure));
-        db.equipements = db.equipements.filter(i => i.code !== 'T').filter(i => i.code !== 'F');
+        db.versions = await getFromLineaVerde(LINEA_VERDE_TABLES.VERSIONS)
+        db.equipements = await getFromLineaVerde(LINEA_VERDE_TABLES.EQUIPMENTS)
+        // db.equipements = db.equipements.filter(i => i.code !== 'T').filter(i => i.code !== 'F');
         db.codes = codes;
         db.timestamp = originalDb.timestamp;
         db.retailers = parse('Concessionari', retailersDataStructure);
