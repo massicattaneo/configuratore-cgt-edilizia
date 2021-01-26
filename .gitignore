@@ -10,6 +10,7 @@ web-app-deploy/*.xlsx
 web-app-deploy/dpx-photos/
 web-app-deploy/temp
 web-app-deploy/backup-db
+web-app-deploy/linea-verde
 web-app-deploy/backup-db-zip
 !web-app-deploy/.gitignore
 backup/
