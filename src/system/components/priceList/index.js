@@ -44,7 +44,9 @@ export default async function ({ locale, system, thread }) {
         .subscribe(function (logged) {
             view.appendTo('', '<div>CARICANDO LISTINO ...</div>', []);
             system
-                .addFileManifest(system.db.models.map(function (m) {
+                .addFileManifest(system.db.models
+                    .filter(m => m.src)
+                    .map(function (m) {
                     return { size: 400000, type: 'image', url: m.src, stage: 'priceList' };
                 }))
                 .loadStageFiles(['priceList'])
