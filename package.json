@@ -64,7 +64,7 @@
         "webpack-dev-middleware": "^2.0.1",
         "webpack-dev-server": "^3.1.11",
         "webpack-hot-middleware": "^2.21.0",
-        "xlsx": "^0.12.8",
+        "xlsx": "^0.17.0",
         "xml2json": "^0.11.0"
     },
     "dependencies": {}
