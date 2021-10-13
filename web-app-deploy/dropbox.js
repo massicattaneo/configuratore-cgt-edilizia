@@ -586,55 +586,55 @@ async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
         .map(v => v.image)
         .filter((img, i, a) => a.indexOf(img) === i);
 
-    const images = await Promise.all(filter
-        .map(function (image) {
+    await filter
+        .reduce(async function (previous, image, index) {
+            await previous;
             const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
             return dbx.filesDownload({ path: url })
+                .then(image => {
+                    if (image && image.fileBinary) {
+                        const fileName = `/dpx-photos/image_${index}.${imageHash}.jpg`;
+                        fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
+                    }
+                })
+                .catch(function (e) {
+                    console.log(e, url);
+                });
+        }, Promise.resolve());
+
+    await filter
+        .reduce(async function (previous, image, index) {
+            await previous;
+            const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
+            return dbx.filesDownload({ path: url })
+                .then(image => {
+                    if (image && image.fileBinary) {
+                        const idx = index + 'eq';
+                        const fileName = `/dpx-photos/image_${idx}.${imageHash}.jpg`;
+                        fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
+                    }
+                })
                 .catch(function (e) {
                     console.log(url);
                 });
-        }));
+        }, Promise.resolve());
 
-    const images2 = await Promise.all(filter2
-        .map(function (image) {
+    await filter
+        .reduce(async function (previous, image, index) {
+            await previous;
             const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
             return dbx.filesDownload({ path: url })
+                .then(image => {
+                    if (image && image.fileBinary) {
+                        const idx = index + 'ret';
+                        const fileName = `/dpx-photos/image_${idx}.${imageHash}.jpg`;
+                        fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
+                    }
+                })
                 .catch(function (e) {
                     console.log(url);
                 });
-        }));
-
-    const images3 = await Promise.all(filter3
-        .map(function (image) {
-            const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
-            return dbx.filesDownload({ path: url })
-                .catch(function (e) {
-                    console.log(url);
-                });
-        }));
-
-    images.forEach(function (image, index) {
-        if (image && image.fileBinary) {
-            const fileName = `/dpx-photos/image_${index}.${imageHash}.jpg`;
-            fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
-        }
-    });
-
-    images2.forEach(function (image, index) {
-        if (image && image.fileBinary) {
-            const idx = index + images.length;
-            const fileName = `/dpx-photos/image_${idx}.${imageHash}.jpg`;
-            fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
-        }
-    });
-
-    images3.forEach(function (image, index) {
-        if (image && image.fileBinary) {
-            const idx = index + images2.length + images.length;
-            const fileName = `/dpx-photos/image_${idx}.${imageHash}.jpg`;
-            fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
-        }
-    });
+        }, Promise.resolve());
 
     versions.forEach(function (version) {
         version.src = `/dpx-photos/image_${filter.indexOf(version.image)}.${imageHash}.jpg`;
@@ -643,13 +643,13 @@ async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
     equipments
         .filter(i => i.image)
         .forEach(function (eq) {
-            eq.src = `/dpx-photos/image_${filter2.indexOf(eq.image) + filter.length}.${imageHash}.jpg`;
+            eq.src = `/dpx-photos/image_${filter2.indexOf(eq.image) + 'eq'}.${imageHash}.jpg`;
         });
 
     retailers
         .filter(i => i.image)
         .forEach(function (eq) {
-            eq.src = `/dpx-photos/image_${filter3.indexOf(eq.image) + filter2.length + filter.length}.${imageHash}.jpg`;
+            eq.src = `/dpx-photos/image_${filter3.indexOf(eq.image) + 'ret'}.${imageHash}.jpg`;
         });
 
     models.forEach(function (model) {
@@ -742,24 +742,27 @@ async function getShopDatabase(dbx) {
                 return acc.concat(item.images.map(imagePath => ({ imagePath })));
             }, []);
 
-            const images = await Promise.all(allImages
-                .map(function ({ imagePath }) {
-                    if (fs.existsSync(`${__dirname}/dpx-photos${imagePath}`)) return '';
+            const images = await allImages
+                .reduce(async function (previous, { imagePath }) {
+                    await previous;
+                    if (fs.existsSync(`${__dirname}/dpx-photos${imagePath}`)) return Promise.resolve();
                     const url = `/APPS/configuratore-cgt-edilizia/merchandising${imagePath}`;
-                    return dbx.filesDownload({ path: url })
+                    console.warn(imagePath);
+                    return new Promise(resolve => {
+                        dbx.filesDownload({ path: url })
+                        .then(image => {
+                            if (image && image.fileBinary) {
+                                const filePath = `/dpx-photos${imagePath}`;
+                                fs.writeFileSync(`${__dirname}${filePath}`, image.fileBinary, { encoding: 'binary' });
+                            }
+                            resolve(image);
+                        })
                         .catch(function (e) {
                             console.log('NOT FOUND', url);
+                            resolve()
                         });
-                }));
-
-            images.forEach(function (image, index) {
-                if (image && image.fileBinary) {
-                    const { imagePath } = allImages[index];
-                    const filePath = `/dpx-photos${imagePath}`;
-                    console.warn(filePath);
-                    fs.writeFileSync(`${__dirname}${filePath}`, image.fileBinary, { encoding: 'binary' });
-                }
-            });
+                    })
+                }, Promise.resolve());
 
             return { shopSizes, shopItems, shopProducts };
         });

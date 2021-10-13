@@ -113,7 +113,7 @@ export default async function ({ locale, system, thread }) {
                 componentHandler.upgradeDom();
             };
             mainEl.addEventListener('scroll', scrollListener);
-            // scrollListener();
+            scrollListener();
         });
 
     view.destroy = function () {

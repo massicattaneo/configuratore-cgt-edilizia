@@ -1,6 +1,6 @@
 {
-  "documentTitle": "CONFIGURATORE CGT EDILIZIA",
-  "documentWindowTitle": "{0} - CGT EDILIZIA",
+  "documentTitle": "CONFIGURATORE CGT",
+  "documentWindowTitle": "{0} - CGT",
   "errors": {
     "wrongEmail": "L'indirizzo email non corrisponde a nessuna utenza.",
     "generic": "C'e' stato un error imprevisto. Riprova fra qualche secondo.",
@@ -168,11 +168,26 @@
   "register": {
     "typeTitle": "NOME ORGANIZZAZIONE:",
     "types": [
-      { "label": "CGT EDILIZIA", "value": 1 },
-      { "label": "CGT", "value": 2 },
-      { "label": "CONCESSIONARIO - DIREZIONE", "value": 3 },
-      { "label": "CONCESSIONARIO - COMMERCIALE", "value": 4 },
-      { "label": "OFFICINA", "value": 5 }
+      {
+        "label": "CGT",
+        "value": 1
+      },
+      {
+        "label": "CGT",
+        "value": 2
+      },
+      {
+        "label": "CONCESSIONARIO - DIREZIONE",
+        "value": 3
+      },
+      {
+        "label": "CONCESSIONARIO - COMMERCIALE",
+        "value": 4
+      },
+      {
+        "label": "OFFICINA",
+        "value": 5
+      }
     ],
     "organization": "NOME CONCESSIONARIO",
     "workshop": "NOME OFFICINA",
@@ -188,7 +203,7 @@
     "active": "<h4>L'UTENZA É ADESSO ATTIVA.</h4><p>UNA EMAIL DI CONFERMA É STATA INVIATA AL RICHIDENTE.</p>"
   },
   "login": {
-    "title": "ENTRA NEL CONFIGURATORE CGT EDILIZIA",
+    "title": "ENTRA NEL CONFIGURATORE CGT",
     "email": "EMAIL",
     "password": "PASSWORD",
     "recover": "Ho dimenticato la mia password ...",
@@ -274,21 +289,21 @@
   },
   "about": {
     "titleLicence": "LICENZA",
-    "textLicence": "<ul><li>Questo software e' di proprieta' della CGT EDILIZIA.</li></ul>",
+    "textLicence": "<ul><li>Questo software e' di proprieta' della CGT.</li></ul>",
     "titleInfo": "SOFTWARE:",
     "listInfo": "<ul><li>Nome: {{system.name}}</li><li>Descrizione: {{system.description}}</li><li>Versione: {{system.version}}</li><li>Sviluppatore: {{system.author}}</li></ul>",
     "titleThanks": "RISORSE:",
     "listThanks": "<ul><li>MATERIAL DESIGN LITE</li><li>WEBPACK - BABEL</li><li>MONGODB</li><li>NODEJS EXPRESS</li><li>EVENNODE</li></ul>"
   },
   "company": {
-    "name": "CGT Edilizia S.p.A.",
-    "address": "20814 VAREDO (MB) - Via Montello, 13",
-    "tel": "0362.589901",
-    "fax": "0362.589961",
-    "pIVA": "09217770156",
-    "capSoc": "€ 3.044.400 int. Versato",
+    "name": "CGT S.p.A.",
+    "address": "Strada Statale Padana Superiore, 19 - Milano - 20090 Vimodrone",
+    "tel": "+39 02 27427.1",
+    "fax": "+39 02 27427.554",
+    "pIVA": "",
+    "capSoc": "",
     "info": "Società soggetta a direzione e coordinamento dell’unico socio TESA S.p.A.",
-    "reg": "Registro Imprese di Milano 09217770156 - R.E.A.  MI/1275677."
+    "reg": ""
   },
   "dbx": {
     "families": {

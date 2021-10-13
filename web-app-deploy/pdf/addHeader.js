@@ -18,7 +18,7 @@ module.exports = {
             pos = 60;
             return pos;
         }
-        if (user.type == 2) {
+        // if (user.type == 2) {
             pos = 40;
             doc
                 .image(path.resolve(__dirname, '../static/assets/images/logo-cgt.png'), marginLeft, 20, { width: 150 });
@@ -40,29 +40,29 @@ module.exports = {
 
             pos = 60;
             return pos;
-        }
+        // }
 
-        pos = 40;
-        doc
-            .image(path.resolve(__dirname, '../static/assets/images/cgt.png'), marginLeft, 20, { width: 150 });
+        // pos = 40;
+        // doc
+        //     .image(path.resolve(__dirname, '../static/assets/images/cgt.png'), marginLeft, 20, { width: 150 });
 
-        doc
-            .image(path.resolve(__dirname, '../static/assets/images/qualityCertification.png'), 500, 20, { width: 80 });
-        doc
-            .font('Helvetica-Bold')
-            .fontSize(headerFontSize)
-            .text(loc.company.name, headerMarginLeft, 22);
-        doc
-            .font('Helvetica')
-            .fillColor('grey')
-            .fontSize(headerFontSize)
-            .text(loc.company.address, headerMarginLeft, pos)
-            .text(`Tel. ${loc.company.tel} - Fax. ${loc.company.fax}`, headerMarginLeft, (pos += headerLineHeight))
-            .text(`C.F. e P. Iva ${loc.company.pIVA} – Cap. Soc. ${loc.company.capSoc}`, headerMarginLeft, (pos += headerLineHeight))
-            .text(loc.company.info, headerMarginLeft, (pos += headerLineHeight))
-            .text(loc.company.reg, headerMarginLeft, (pos += headerLineHeight));
+        // doc
+        //     .image(path.resolve(__dirname, '../static/assets/images/qualityCertification.png'), 500, 20, { width: 80 });
+        // doc
+        //     .font('Helvetica-Bold')
+        //     .fontSize(headerFontSize)
+        //     .text(loc.company.name, headerMarginLeft, 22);
+        // doc
+        //     .font('Helvetica')
+        //     .fillColor('grey')
+        //     .fontSize(headerFontSize)
+        //     .text(loc.company.address, headerMarginLeft, pos)
+        //     .text(`Tel. ${loc.company.tel} - Fax. ${loc.company.fax}`, headerMarginLeft, (pos += headerLineHeight))
+        //     .text(`C.F. e P. Iva ${loc.company.pIVA} – Cap. Soc. ${loc.company.capSoc}`, headerMarginLeft, (pos += headerLineHeight))
+        //     .text(loc.company.info, headerMarginLeft, (pos += headerLineHeight))
+        //     .text(loc.company.reg, headerMarginLeft, (pos += headerLineHeight));
 
-        return pos;
+        // return pos;
     },
     getLongDate: function getLongDate(date) {
         return `${globalize[`day_${date.getDay()}`]}, ${date.getDate()} ${globalize[`month_${date.getMonth()}`]} ${date.getFullYear()}`;

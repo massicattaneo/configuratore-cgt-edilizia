@@ -1,7 +1,7 @@
 {
   "name": "cgt-edilizia",
   "version": "1.0.0",
-  "description": "Cgt Edilizia",
+  "description": "Cgt",
   "main": "./server.js",
   "scripts": {
     "start": "node server.js"
@@ -9,7 +9,7 @@
   "author": "massicattaneo",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^5.0.1",
     "compression": "^1.7.1",
     "express": "^4.16.2",
     "express-brute": "^1.0.1",
@@ -28,7 +28,7 @@
     "pdfkit": "^0.8.3",
     "qrcode": "^1.2.0",
     "socket.io": "^2.0.4",
-    "sharp": "^0.18.4",
+    "sharp": "^0.28.3",
     "hummus": "^1.0.87",
     "rimraf": "^2.6.2",
     "stripe": "^5.4.0",

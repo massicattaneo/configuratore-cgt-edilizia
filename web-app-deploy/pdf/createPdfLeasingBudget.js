@@ -114,7 +114,7 @@ module.exports = function createPdfOrder(res, budget, dbx, user) {
 
     doc.text(`${user.name} ${user.surname || ''}`, 200, (pos += 30), { align: 'center' });
     doc.text(`${user.email} - ${user.tel}`, 200, (pos += 13), { align: 'center' });
-    if (user.type == 1) doc.font('Helvetica-Bold').text('CGT Edilizia Spa', 200, (pos += 13), { align: 'center' });
+    if (user.type == 1) doc.font('Helvetica-Bold').text('CGT Spa', 200, (pos += 13), { align: 'center' });
     if (user.type == 2) doc.font('Helvetica-Bold').text('Compagnia Generale Trattori S.p.A.', 200, (pos += 13), { align: 'center' });
     if (isOutsource(user.type)) doc.font('Helvetica-Bold').text(retailer.name || '', 200, (pos += 13), { align: 'center' });
 

@@ -14,3 +14,4 @@ web-app-deploy/backup-db-zip
 !web-app-deploy/.gitignore
 backup/
 !backup/backup
+*/.DS_Store
