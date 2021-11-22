@@ -22,6 +22,7 @@ const prodUri = `mongodb://${access.config.mongo.user}:${encodeURIComponent(acce
 const nodeJsZip = require('nodeJs-zip');
 const rimraf = require('rimraf');
 const mailer = require('./mailer/mailer')();
+const isDeveloping = process.env.NODE_ENV === 'development';
 
 function uniqueTempFile(ext = 'pdf') {
     let fileName;
@@ -586,56 +587,6 @@ async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
         .map(v => v.image)
         .filter((img, i, a) => a.indexOf(img) === i);
 
-    await filter
-        .reduce(async function (previous, image, index) {
-            await previous;
-            const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
-            return dbx.filesDownload({ path: url })
-                .then(image => {
-                    if (image && image.fileBinary) {
-                        const fileName = `/dpx-photos/image_${index}.${imageHash}.jpg`;
-                        fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
-                    }
-                })
-                .catch(function (e) {
-                    console.log(e, url);
-                });
-        }, Promise.resolve());
-
-    await filter
-        .reduce(async function (previous, image, index) {
-            await previous;
-            const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
-            return dbx.filesDownload({ path: url })
-                .then(image => {
-                    if (image && image.fileBinary) {
-                        const idx = index + 'eq';
-                        const fileName = `/dpx-photos/image_${idx}.${imageHash}.jpg`;
-                        fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
-                    }
-                })
-                .catch(function (e) {
-                    console.log(url);
-                });
-        }, Promise.resolve());
-
-    await filter
-        .reduce(async function (previous, image, index) {
-            await previous;
-            const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
-            return dbx.filesDownload({ path: url })
-                .then(image => {
-                    if (image && image.fileBinary) {
-                        const idx = index + 'ret';
-                        const fileName = `/dpx-photos/image_${idx}.${imageHash}.jpg`;
-                        fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
-                    }
-                })
-                .catch(function (e) {
-                    console.log(url);
-                });
-        }, Promise.resolve());
-
     versions.forEach(function (version) {
         version.src = `/dpx-photos/image_${filter.indexOf(version.image)}.${imageHash}.jpg`;
     });
@@ -657,6 +608,68 @@ async function copyDropboxImages(dbx, models, versions, equipments, retailers) {
         if (!version) console.log('NO VERSION FOUND FOR MODEL', model);
         model.src = version ? version.src : '';
     });
+
+    const blankImage = fs.readFileSync(`${__dirname}/static/assets/images/blank-image.jpg`)
+
+    const promise1 = filter
+        .reduce(async function (previous, image, index) {
+            await previous;
+            const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
+            return dbx.filesDownload({ path: url })
+                .then(image => {
+                    if (image && image.fileBinary) {
+                        const fileName = `/dpx-photos/image_${index}.${imageHash}.jpg`;
+                        fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
+                    }
+                })
+                .catch(function (e) {
+                    const fileName = `/dpx-photos/image_${index}.${imageHash}.jpg`;
+                    fs.writeFileSync(`${__dirname}${fileName}`, blankImage, { encoding: 'binary' });
+                    console.log('MISSING', 'versions', url);
+                });
+        }, Promise.resolve());
+
+    const promise2 = filter2
+        .reduce(async function (previous, image, index) {
+            await previous;
+            const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
+            return dbx.filesDownload({ path: url })
+                .then(image => {
+                    if (image && image.fileBinary) {
+                        const idx = index + 'eq';
+                        const fileName = `/dpx-photos/image_${idx}.${imageHash}.jpg`;
+                        fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
+                    }
+                })
+                .catch(function (e) {
+                    const fileName = `/dpx-photos/image_${index}.${imageHash}.jpg`;
+                    fs.writeFileSync(`${__dirname}${fileName}`, blankImage, { encoding: 'binary' });
+                    console.log('MISSING', 'equipments', url);
+                });
+        }, Promise.resolve());
+
+    const promise3 = filter3
+        .reduce(async function (previous, image, index) {
+            await previous;
+            const url = `/APPS/configuratore-cgt-edilizia/${(image || '').replace(/\\/g, '/')}.jpg`;
+            return dbx.filesDownload({ path: url })
+                .then(image => {
+                    if (image && image.fileBinary) {
+                        const idx = index + 'ret';
+                        const fileName = `/dpx-photos/image_${idx}.${imageHash}.jpg`;
+                        fs.writeFileSync(`${__dirname}${fileName}`, image.fileBinary, { encoding: 'binary' });
+                    }
+                })
+                .catch(function (e) {
+                    const fileName = `/dpx-photos/image_${index}.${imageHash}.jpg`;
+                    fs.writeFileSync(`${__dirname}${fileName}`, blankImage, { encoding: 'binary' });
+                    console.log('MISSING', 'retailers', url);
+                });
+        }, Promise.resolve());
+
+        if(!isDeveloping) {
+            await Promise.all([promise1, promise2, promise3])
+        }
 }
 
 function downloadFile(dbx, path) {

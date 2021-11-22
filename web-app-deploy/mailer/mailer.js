@@ -9,7 +9,7 @@ module.exports = function () {
     const transporter = nodemailer.createTransport({
         host: webmail.smtpHost,
         port: webmail.smtpPort,
-        secure: false, // true for 465, false for other ports
+        secure: webmail.smtpPort === 465,
         auth: {
             user: webmail.user,
             pass: webmail.password

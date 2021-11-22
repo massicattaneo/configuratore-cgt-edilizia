@@ -148,8 +148,9 @@ function getOrderExcel(table, user, budget, dbx, order, xlsxPath) {
                 res.set('Content-Type', 'image/jpg');
                 s.pipe(res);
             } else {
-                res.status(404);
-                res.send('');
+                const blankImage = fs.createReadStream(`${__dirname}/static/assets/images/blank-image.jpg`)
+                res.set('Content-Type', 'image/jpg');
+                blankImage.pipe(res);
             }
         });
 
