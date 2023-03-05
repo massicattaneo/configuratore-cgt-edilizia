@@ -2,14 +2,25 @@ const ObjectId = require('mongodb').ObjectID;
 const shared = require("../web-app-deploy/shared")
 const mongo = require('../web-app-deploy/mongo')(false);
 const dropbox = require('../web-app-deploy/dropbox')(mongo);
+const fs = require('fs');
 const isOutsource = (value = "") => value.toString() === '3' || value.toString() === '4';
+const { toPercentage } = require('../web-app-deploy/pdf/addHeader');
 
-function getOrderExcel(user, budget, order, dbx) {
-    const retailer = dbx.retailers.find(r => r.id === user.organization) || {};
+function sum(tot, num) {
+    return tot + num
+}
+
+async function getOrderExcel(user, budget, order) {
+    if (isOutsource(user.userAuth)) return undefined
+    const dbx = await dropbox.getDb(user.userAuth, user, new Date(budget.created).getTime());
+    const retailer = dbx.retailers?.find(r => r.id === user.organization) || {};
     const orderNumber = shared.formatOrderNumber(order);
-    const version = dbx.versions.find(v => v.id === budget.version) || {};
+    const version = dbx.versions?.find(v => v.id === budget.version) || {};
+    const outsource = order.outsource || {};
     if (isOutsource(user.userAuth)) {
         return [
+            { CAMPO: 'Data Ordine', VALORE: `${new Date(order.created).getFullYear()}-${(new Date(order.created).getMonth() + 1).toString().padStart(2, "0")}-${(new Date(order.created).getDate()).toString().padStart(2, "0")}` },
+            { CAMPO: 'Data Preventivo', VALORE: `${new Date(budget.created).getFullYear()}-${(new Date(budget.created).getMonth() + 1).toString().padStart(2, "0")}-${(new Date(budget.created).getDate()).toString().padStart(2, "0")}` },
             { CAMPO: 'Numero ordine', VALORE: orderNumber },
             { CAMPO: 'Cliente', VALORE: budget.client ? budget.client.name : "" },
             { CAMPO: 'Modello macchina', VALORE: version.name },
@@ -28,7 +39,11 @@ function getOrderExcel(user, budget, order, dbx) {
             { CAMPO: 'Note', VALORE: order.notes }
         ]
     } else {
+        const priceSummaryList = shared.createPriceSummaryList(dbx, user.userAuth, budget, budget.summary.price);
+        
         return [
+            { CAMPO: 'Data Ordine', VALORE: `${new Date(order.created).getFullYear()}-${(new Date(order.created).getMonth() + 1).toString().padStart(2, "0")}-${(new Date(order.created).getDate()).toString().padStart(2, "0")}` },
+            { CAMPO: 'Data Preventivo', VALORE: `${new Date(budget.created).getFullYear()}-${(new Date(budget.created).getMonth() + 1).toString().padStart(2, "0")}-${(new Date(budget.created).getDate()).toString().padStart(2, "0")}` },
             { CAMPO: 'Numero ordine', VALORE: orderNumber },
             { CAMPO: 'Cliente', VALORE: budget.client ? budget.client.name : "" },
             { CAMPO: 'Modello macchina', VALORE: version.name },
@@ -54,7 +69,11 @@ function getOrderExcel(user, budget, order, dbx) {
                 CAMPO: 'Prezzo minimo vendita (TOTALE)',
                 VALORE: shared.calculateTotal(budget, dbx, shared.getPriceType(user.userAuth))
             },
-            
+            { CAMPO: "Totale Oneri Listino", VALORE: Number(priceSummaryList.totalCharges.totalChargesReal).toFixed(2) },
+            { CAMPO: "Totale Oneri Minimo", VALORE: Number(priceSummaryList.totalCharges.totalChargesMin).toFixed(2) },
+            { CAMPO: "VN%", VALORE: priceSummaryList.showVN === 'none' ? "" : toPercentage(priceSummaryList.vn) },
+            { CAMPO: "Totale Listino", VALORE: priceSummaryList.total.priceReal },
+            { CAMPO: "Totale Minimo", VALORE: priceSummaryList.total.priceMin },
             { CAMPO: 'Note', VALORE: order.notes }
         ]
     }
@@ -62,19 +81,28 @@ function getOrderExcel(user, budget, order, dbx) {
 }
 
 (async function () {
-    const { store, db } = await mongo.connect();
-    const dbx = await dropbox.getDb();
-
-    const promises = []
-    const orders = await (await db.collection('vehicleorders').find()).toArray()
+    const { db } = await mongo.connect();
+    const orders = (await (await db.collection('vehicleorders').find()).toArray()).reverse()
+    await dropbox.init()
+    console.log("START")
+    const pepe = []
+    await orders.reduce(async (prev, order) => {
+        await prev
+        const budget = (await (await db.collection("vehiclebudgets").find({ _id: ObjectId(order.budgetId) })).toArray())[0]
+        const user = (await (await db.collection("users").find({ _id: ObjectId(order.userId) })).toArray())[0]
+        return getOrderExcel(user, budget, order).then(done => {
+            console.log(done)
+            pepe.push(done)
+        })
+    })
     
-    const pepe = await Promise.all(orders.map(async order => {
-        const budget = await db.collection("vehiclebudgets").find({ _id: ObjectId(order.budgetId) })
-        const user = await db.collection("users").find({_id: ObjectId(order.userId) })
-        return getOrderExcel(user, budget, order, dbx)
-    }))
-
-    console.log(pepe[0])
+    const filtered = pepe.filter(item => item)
+    const data = []
+    data.push(filtered[0].map(item => item.CAMPO).join(','))
+    data.push(...filtered.map(array => array.map(item => (item.VALORE ?? "").toString().replace(/,/g, " ").replace(/\n/g, " ")).join(',')))
+    
+    fs.writeFileSync('./estrazione1.csv', data.join('\n'), 'utf-8')
+    console.log("finish")
     // (await db.collection('vehicleorders').find()).forEach(async order => {
     //     const budget = db.collection("vehiclebudgets").find({ _id: ObjectId(order.budgetId) })
     //     const user = db.collection("users").find({_id: ObjectId(order.userId) })

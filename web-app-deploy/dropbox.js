@@ -237,7 +237,7 @@ function removeReference(obj, array) {
 
 async function appendEquipments(db, mongo, userFamily) {
     const dbRet = Object.assign({}, db, {
-        equipements: db.equipements.concat(
+        equipements: db.equipements?.concat(
             (await mongo.rest.get('equipments', `userFamily=${userFamily}`, { userAuth: 0 }))
                 .filter(item => !item.isDeleted)
                 .map(item => {
@@ -405,16 +405,16 @@ module.exports = function (mongo) {
     };
 
     function changeDiscounts(o, user) {
-        o.versions = o.versions.map(function (i) {
+        o.versions = o.versions?.map(function (i) {
             return Object.assign({}, i, {
                 priceOutsource: Number(((i.priceOutsource / 100) * (100 + user.discount)).toFixed(2))
             });
-        });
-        o.equipements = o.equipements.map(function (i) {
+        }) || [];
+        o.equipements = o.equipements?.map(function (i) {
             return Object.assign({}, i, {
                 priceOutsource: Number(((i.priceOutsource / 100) * (100 + user.discount)).toFixed(2))
             });
-        });
+        }) || [];
         return o;
     }
 
